@@ -30,6 +30,7 @@ export const AdminEvents = () => {
   const [checkinCodeInput, setCheckinCodeInput] = useState('');
   const [checkinResult, setCheckinResult] = useState(null);
   const [checkingIn, setCheckingIn] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form State (Đồng bộ chuẩn xác theo modal Image 2)
   const [formData, setFormData] = useState({
@@ -821,43 +822,79 @@ export const AdminEvents = () => {
                     <label style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '6px',
                       padding: '8px 14px',
                       borderRadius: '8px',
                       border: '1px solid #CBD5E1',
-                      backgroundColor: '#F8FAFC',
+                      backgroundColor: uploadingImage ? '#E2E8F0' : '#F8FAFC',
                       fontSize: '12px',
                       fontWeight: '600',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
+                      cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                      color: uploadingImage ? '#64748B' : '#334155'
                     }}>
-                      <i className="ti ti-upload"></i> Tải ảnh
+                      <i className={`ti ${uploadingImage ? 'ti-loader animate-spin' : 'ti-upload'}`}></i>
+                      {uploadingImage ? 'Đang tải...' : 'Tải ảnh'}
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={uploadingImage}
                         style={{ display: 'none' }}
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const fData = new FormData();
-                          fData.append('image', file);
-                          try {
-                            const res = await fetch('/api/upload', {
-                              method: 'POST',
-                              headers: getAuthHeaders(),
-                              body: fData
-                            });
-                            const json = await res.json();
-                            if (json.success && json.url) {
-                              setFormData(prev => ({ ...prev, image_url: json.url }));
-                            }
-                          } catch (err) {
-                            alert('Lỗi tải ảnh: ' + err.message);
+                          if (file.size > 25 * 1024 * 1024) {
+                            alert('Dung lượng tệp vượt quá 25MB. Vui lòng chọn tệp nhỏ hơn.');
+                            return;
                           }
+                          setUploadingImage(true);
+                          const reader = new FileReader();
+                          reader.onloadend = async () => {
+                            try {
+                              const base64Data = reader.result.split(',')[1];
+                              const res = await fetch('/api/upload', {
+                                method: 'POST',
+                                headers: getAuthHeaders(),
+                                body: JSON.stringify({
+                                  fileName: file.name,
+                                  fileType: file.type,
+                                  base64Data
+                                })
+                              });
+                              const text = await res.text();
+                              let json;
+                              try {
+                                json = JSON.parse(text);
+                              } catch {
+                                throw new Error('Máy chủ phản hồi không đúng định dạng JSON.');
+                              }
+                              if (res.ok && json.success && json.url) {
+                                setFormData(prev => ({ ...prev, image_url: json.url }));
+                              } else {
+                                alert(json.error || 'Lỗi tải ảnh lên.');
+                              }
+                            } catch (err) {
+                              alert('Lỗi tải ảnh: ' + err.message);
+                            } finally {
+                              setUploadingImage(false);
+                            }
+                          };
+                          reader.readAsDataURL(file);
                         }}
                       />
                     </label>
                   </div>
+                  {formData.image_url && (
+                    <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <img 
+                        src={formData.image_url} 
+                        alt="Ảnh đại diện sự kiện" 
+                        style={{ width: '80px', height: '48px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #CBD5E1' }} 
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                      <span style={{ fontSize: '11.5px', color: '#16A34A', fontWeight: '600' }}>✓ Đã tải ảnh lên thành công</span>
+                    </div>
+                  )}
                 </div>
 
                 <div>

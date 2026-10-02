@@ -167,6 +167,14 @@ app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
+// Bắt lỗi dữ liệu JSON không hợp lệ để tránh phản hồi HTML
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ success: false, error: 'Dữ liệu gửi lên không đúng định dạng JSON.' });
+  }
+  next(err);
+});
+
 // Helper sinh tệp sitemap.xml và robots.txt thực tế vào thư mục public/
 async function generateSitemapFiles() {
   try {
@@ -2922,12 +2930,12 @@ app.delete('/api/posts/:id', memberAuthMiddleware, async (req, res) => {
   }
 });
 
-// Upload tệp tin ảnh dạng Base64 (Hỗ trợ Member, Admin, Creator)
+// Upload tệp tin ảnh dạng Base64 (Hỗ trợ Member, Admin, Creator, Organizer)
 app.post('/api/upload', anyAuthMiddleware, async (req, res) => {
   try {
-    const { fileName, fileType, base64Data } = req.body;
+    const { fileName, fileType, base64Data } = req.body || {};
     if (!base64Data) {
-      return res.status(400).json({ success: false, error: 'Thiếu dữ liệu tệp tin.' });
+      return res.status(400).json({ success: false, error: 'Thiếu dữ liệu tệp tin ảnh (base64).' });
     }
 
     const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -2936,7 +2944,11 @@ app.post('/api/upload', anyAuthMiddleware, async (req, res) => {
     }
 
     const buffer = Buffer.from(base64Data, 'base64');
-    const ext = path.extname(fileName) || '.jpg';
+    let ext = (path.extname(fileName || '') || '.jpg').toLowerCase();
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'];
+    if (!allowedExts.includes(ext)) {
+      ext = '.jpg';
+    }
     const uniqueName = crypto.randomBytes(16).toString('hex') + ext;
     const filePath = path.join(uploadDir, uniqueName);
 
@@ -2947,6 +2959,7 @@ app.post('/api/upload', anyAuthMiddleware, async (req, res) => {
       url: `/uploads/${uniqueName}`
     });
   } catch (err) {
+    console.error('Lỗi API /api/upload:', err);
     res.status(500).json({ success: false, error: 'Lỗi tải tệp: ' + err.message });
   }
 });
