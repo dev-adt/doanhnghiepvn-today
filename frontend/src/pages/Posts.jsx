@@ -5,7 +5,7 @@ import { useTranslation } from '../contexts/LanguageContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
-import { CATEGORIES_DATA, ALL_CATEGORIES, getSubcategoriesByCategory, getCategoryLabel } from '../constants/categories';
+import { CATEGORIES_DATA, ALL_CATEGORIES, getSubcategoriesByCategory, getCategoryLabel, getSubCategoryLabel } from '../constants/categories';
 
 export const Posts = () => {
   const { role, token } = useAuth();
@@ -288,9 +288,14 @@ export const Posts = () => {
               style={{ padding: '7px 10px', width: '100%', borderRadius: '8px', border: '1px solid var(--border-strong)', fontSize: '12.5px', outline: 'none', backgroundColor: 'var(--surface-2)', color: 'var(--text-primary)', cursor: 'pointer', boxSizing: 'border-box' }}
             >
               <option value="">📁 {currentLang === 'en' ? 'All categories' : 'Tất cả chuyên mục'}</option>
-              {categoriesList.map(cat => (
-                <option key={cat.id || cat.name} value={cat.name}>{getCategoryLabel(cat, currentLang)}</option>
-              ))}
+              {categoriesList.map(cat => {
+                const catVal = typeof cat === 'object' ? cat.name : cat;
+                return (
+                  <option key={cat.id || catVal} value={catVal}>
+                    {getCategoryLabel(cat, currentLang)}
+                  </option>
+                );
+              })}
             </select>
 
             {/* Filter by SubCategory (Lĩnh vực) */}
@@ -301,11 +306,16 @@ export const Posts = () => {
             >
               <option value="">🏷️ {currentLang === 'en' ? 'All sectors' : 'Tất cả lĩnh vực'}</option>
               {(selectedCategory 
-                ? ((categoriesList.find(c => c.name === selectedCategory)?.subcategories || []).map(s => typeof s === 'string' ? s : s.name))
-                : categoriesList.flatMap(c => (c.subcategories || []).map(s => typeof s === 'string' ? s : s.name))
-              ).map(subName => (
-                <option key={subName} value={subName}>{getCategoryLabel(subName, currentLang)}</option>
-              ))}
+                ? ((categoriesList.find(c => (typeof c === 'object' ? c.name : c) === selectedCategory)?.subcategories || []).map(s => typeof s === 'string' ? s : (s?.name || '')))
+                : categoriesList.flatMap(c => (c.subcategories || []).map(s => typeof s === 'string' ? s : (s?.name || '')))
+              ).filter(Boolean).map(subName => {
+                const sVal = typeof subName === 'object' ? (subName.name || '') : subName;
+                return (
+                  <option key={sVal} value={sVal}>
+                    {getSubCategoryLabel(subName, currentLang) || sVal}
+                  </option>
+                );
+              })}
             </select>
 
           </div>

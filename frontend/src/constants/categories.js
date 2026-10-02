@@ -108,17 +108,35 @@ export const CATEGORY_LABELS = {
   'Hiệp hội & Giao thương': { vi: 'Hiệp hội & Đối tác', en: 'Associations' }
 };
 
-export const getCategoryLabel = (catName, lang = 'vi') => {
-  if (!catName) return '';
-  if (lang === 'en' && CATEGORY_LABELS[catName]) {
-    return CATEGORY_LABELS[catName].en;
+export const getCategoryLabel = (cat, lang = 'vi') => {
+  if (!cat) return '';
+  if (typeof cat === 'object') {
+    if (lang === 'en' && cat.name_en) return String(cat.name_en);
+    if (cat.name) {
+      if (lang === 'en' && CATEGORY_LABELS[cat.name]?.en) {
+        return CATEGORY_LABELS[cat.name].en;
+      }
+      return String(cat.name);
+    }
+    return '';
   }
-  return catName;
+  if (typeof cat === 'string') {
+    if (lang === 'en' && CATEGORY_LABELS[cat]?.en) {
+      return CATEGORY_LABELS[cat].en;
+    }
+    return cat;
+  }
+  return String(cat);
 };
 
-export const getSubCategoryLabel = (subName, lang = 'vi') => {
-  if (!subName) return '';
-  return subName;
+export const getSubCategoryLabel = (sub, lang = 'vi') => {
+  if (!sub) return '';
+  if (typeof sub === 'object') {
+    if (lang === 'en' && sub.name_en) return String(sub.name_en);
+    if (sub.name) return String(sub.name);
+    return '';
+  }
+  return String(sub);
 };
 
 export default CATEGORIES_DATA;
