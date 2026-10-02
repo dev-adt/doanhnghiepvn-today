@@ -598,6 +598,23 @@ db.query(`
         await db.query("ALTER TABLE event_registrations ADD COLUMN member_id INT DEFAULT NULL AFTER event_id, ADD INDEX idx_reg_member (member_id)");
       }
 
+      // Tự động liên kết các vé đã đăng ký chưa có member_id với tài khoản thành viên phù hợp
+      try {
+        await db.query(`
+          UPDATE event_registrations r
+          JOIN members m ON (
+            (r.phone IS NOT NULL AND r.phone != '' AND (r.phone = m.phone OR r.phone = m.username))
+            OR (r.email IS NOT NULL AND r.email != '' AND (r.email = m.email OR r.email = m.username))
+            OR (r.full_name IS NOT NULL AND r.full_name != '' AND (r.full_name = m.name OR r.full_name = m.contact_name))
+            OR (r.company IS NOT NULL AND r.company != '' AND r.company = m.name)
+          )
+          SET r.member_id = m.id
+          WHERE r.member_id IS NULL
+        `);
+      } catch (e) {
+        console.warn('Lỗi auto-link vé cũ:', e.message);
+      }
+
       // Khởi tạo sự kiện mẫu chuẩn theo mockup giao diện DoanhNghiepVN.today
       const [existingEvents] = await db.query("SELECT id FROM events WHERE slug = 'su-kien-demo' OR title LIKE '%Sự kiện demo%' LIMIT 1");
       if (!existingEvents.length) {
@@ -3914,11 +3931,18 @@ app.post('/api/events/:id/register', async (req, res) => {
       }
     }
 
-    // 3. Nếu chưa xác định, thử tìm theo phone hoặc email đã đăng ký thành viên
-    if (!createdMemberId && (cleanEmail || cleanPhone)) {
+    // 3. Nếu chưa xác định, thử tìm theo phone, email, tên hội viên hoặc tên doanh nghiệp đã đăng ký
+    if (!createdMemberId) {
+      const candidateName = full_name.trim();
+      const candidateComp = company ? company.trim() : candidateName;
       const [matchedMems] = await db.query(
-        'SELECT id FROM members WHERE (phone IS NOT NULL AND phone != "" AND phone = ?) OR (email IS NOT NULL AND email != "" AND email = ?)',
-        [cleanPhone, cleanEmail]
+        `SELECT id FROM members 
+         WHERE (phone IS NOT NULL AND phone != "" AND phone = ?) 
+            OR (email IS NOT NULL AND email != "" AND email = ?)
+            OR (name IS NOT NULL AND name != "" AND (name = ? OR name = ?))
+            OR (contact_name IS NOT NULL AND contact_name != "" AND contact_name = ?)
+         LIMIT 1`,
+        [cleanPhone, cleanEmail || '', candidateName, candidateComp, candidateName]
       );
       if (matchedMems.length > 0) {
         createdMemberId = matchedMems[0].id;
@@ -4072,19 +4096,49 @@ app.post('/api/events/:id/register', async (req, res) => {
 app.get('/api/member/events', memberAuthMiddleware, async (req, res) => {
   try {
     const memberId = req.member.id;
-    const [mRows] = await db.query('SELECT id, email, phone, username FROM members WHERE id = ?', [memberId]);
+    const [mRows] = await db.query('SELECT id, name, email, phone, username, contact_name FROM members WHERE id = ?', [memberId]);
     const mem = mRows[0] || req.member;
+
+    // Tự động liên kết các vé trước đây chưa có member_id nhưng khớp email, phone, tên hoặc doanh nghiệp
+    try {
+      await db.query(
+        `UPDATE event_registrations 
+         SET member_id = ? 
+         WHERE member_id IS NULL AND (
+           (email IS NOT NULL AND email != '' AND (email = ? OR email = ?))
+           OR (phone IS NOT NULL AND phone != '' AND (phone = ? OR phone = ?))
+           OR (full_name IS NOT NULL AND full_name != '' AND (full_name = ? OR full_name = ?))
+           OR (company IS NOT NULL AND company != '' AND (company = ? OR company = ?))
+         )`,
+        [
+          memberId,
+          mem.email || '', mem.username || '',
+          mem.phone || '', mem.username || '',
+          mem.name || '', mem.contact_name || '',
+          mem.name || '', mem.contact_name || ''
+        ]
+      );
+    } catch (e) {
+      console.warn('Auto-link ticket to member error:', e.message);
+    }
 
     const [rows] = await db.query(
       `SELECT r.*, e.title as event_title, e.start_time, e.end_time, e.event_date, e.end_date, e.location, e.address as event_address, e.image_url, e.slug as event_slug, e.is_paid, e.price
        FROM event_registrations r
        JOIN events e ON r.event_id = e.id
        WHERE (r.member_id = ? 
-              OR (r.email IS NOT NULL AND r.email != '' AND r.email = ?) 
-              OR (r.phone IS NOT NULL AND r.phone != '' AND r.phone = ?)
-              OR (r.phone IS NOT NULL AND r.phone != '' AND r.phone = ?))
+              OR (r.email IS NOT NULL AND r.email != '' AND (r.email = ? OR r.email = ?)) 
+              OR (r.phone IS NOT NULL AND r.phone != '' AND (r.phone = ? OR r.phone = ?))
+              OR (r.full_name IS NOT NULL AND r.full_name != '' AND (r.full_name = ? OR r.full_name = ?))
+              OR (r.company IS NOT NULL AND r.company != '' AND (r.company = ? OR r.company = ?)))
        ORDER BY r.created_at DESC`,
-      [memberId, mem.email || '', mem.phone || '', mem.username || '']
+      [
+        memberId, 
+        mem.email || '', mem.username || '',
+        mem.phone || '', mem.username || '',
+        mem.name || '', mem.contact_name || '',
+        mem.name || '', mem.contact_name || ''
+      ]
     );
 
     const formatted = rows.map(item => {

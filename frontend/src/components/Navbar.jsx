@@ -136,7 +136,9 @@ export const Navbar = () => {
           border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
           width: 100% !important;
-          overflow: visible !important; /* CRITICAL: Must be visible so dropdown floats outside */
+          max-width: 100vw !important;
+          overflow-x: clip !important;
+          box-sizing: border-box !important;
         }
 
         .dnvn-navbar-container {
@@ -150,7 +152,7 @@ export const Navbar = () => {
           justify-content: flex-start !important;
           position: relative !important;
           box-sizing: border-box !important;
-          overflow: visible !important; /* CRITICAL: Must be visible so dropdown floats outside */
+          overflow: visible !important;
         }
 
         /* Center Nav: Always visible, never clips dropdown menus */
@@ -174,16 +176,127 @@ export const Navbar = () => {
         }
 
         @media (max-width: 1024px) {
+          .dnvn-navbar-container {
+            justify-content: space-between !important;
+            padding: 0 12px !important;
+            min-height: 60px !important;
+          }
           .dnvn-nav-center {
             display: none !important;
           }
           .dnvn-mobile-toggle {
             display: flex !important;
           }
+          .dnvn-nav-right {
+            margin-left: auto !important;
+            gap: 6px !important;
+          }
         }
 
         @media (min-width: 1025px) {
           .dnvn-mobile-toggle {
+            display: none !important;
+          }
+        }
+
+        /* Brand logo container & text scaling */
+        .dnvn-brand-link {
+          display: flex !important;
+          align-items: center !important;
+          gap: 10px !important;
+          text-decoration: none !important;
+          flex: 0 1 auto !important;
+          min-width: 0 !important;
+          margin-right: 6px !important;
+        }
+
+        .dnvn-brand-icon {
+          width: 38px !important;
+          height: 38px !important;
+          border-radius: 10px !important;
+          background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%) !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          color: #ffffff !important;
+          font-weight: 900 !important;
+          font-size: 14px !important;
+          letter-spacing: 0.5px !important;
+          box-shadow: 0 2px 10px rgba(13, 148, 136, 0.4) !important;
+          border: 1.5px solid rgba(255,255,255,0.2) !important;
+          flex-shrink: 0 !important;
+        }
+
+        .dnvn-brand-text-box {
+          display: flex !important;
+          flex-direction: column !important;
+          min-width: 0 !important;
+          justify-content: center !important;
+        }
+
+        .dnvn-brand-title {
+          font-size: 18px !important;
+          font-weight: 800 !important;
+          color: #ffffff !important;
+          letter-spacing: -0.3px !important;
+          line-height: 1.15 !important;
+          word-break: break-word !important;
+        }
+
+        .dnvn-brand-subtitle {
+          font-size: 8px !important;
+          letter-spacing: 0.6px !important;
+          color: #2DD4BF !important;
+          font-weight: 700 !important;
+          text-transform: uppercase !important;
+          margin-top: 2px !important;
+          word-break: break-word !important;
+          line-height: 1.2 !important;
+        }
+
+        /* Mobile specific fluid text scaling and wrapping */
+        @media (max-width: 768px) {
+          .dnvn-brand-link {
+            gap: 8px !important;
+            max-width: calc(100% - 90px) !important;
+          }
+          .dnvn-brand-icon {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 12px !important;
+            border-radius: 8px !important;
+          }
+          .dnvn-brand-title {
+            font-size: clamp(12.5px, 3.8vw, 16px) !important;
+            line-height: 1.2 !important;
+            white-space: normal !important;
+          }
+          .dnvn-brand-subtitle {
+            font-size: clamp(6.5px, 1.8vw, 7.5px) !important;
+            letter-spacing: 0.3px !important;
+            white-space: normal !important;
+          }
+          .dnvn-btn-join-desktop {
+            display: none !important;
+          }
+          .dnvn-lang-switcher button {
+            padding: 2px 6px !important;
+            font-size: 10px !important;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .dnvn-brand-link {
+            max-width: calc(100% - 80px) !important;
+          }
+          .dnvn-brand-title {
+            font-size: 13px !important;
+          }
+          .dnvn-brand-subtitle {
+            font-size: 6.5px !important;
+            letter-spacing: 0.2px !important;
+          }
+          .dnvn-lang-switcher {
             display: none !important;
           }
         }
@@ -237,7 +350,6 @@ export const Navbar = () => {
           text-align: center !important;
         }
 
-        /* Subcategory Dropdown Panel: Floats directly below header with high z-index and bridge */
         .dnvn-dropdown-panel {
           position: absolute !important;
           top: calc(100% + 4px) !important;
@@ -303,60 +415,24 @@ export const Navbar = () => {
           {/* 1. BRAND LOGO */}
           <Link 
             to="/" 
+            className="dnvn-brand-link"
             onClick={(e) => {
               if (location.pathname === '/') {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '10px', 
-              textDecoration: 'none', 
-              flexShrink: 0,
-              marginRight: '6px'
-            }}
             title={brandConfig.brandName}
           >
-            <div style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #0D9488 0%, #0F766E 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontWeight: '900',
-              fontSize: '14px',
-              letterSpacing: '0.5px',
-              boxShadow: '0 2px 10px rgba(13, 148, 136, 0.4)',
-              border: '1.5px solid rgba(255,255,255,0.2)'
-            }}>
+            <div className="dnvn-brand-icon">
               DN
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-                <span style={{
-                  fontSize: '18px',
-                  fontWeight: '800',
-                  color: '#ffffff',
-                  letterSpacing: '-0.3px',
-                  lineHeight: 1.1
-                }}>
-                  {brandConfig.brandShortName || 'DoanhNghiepVN'}
-                  <span style={{ color: '#2DD4BF' }}>.today</span>
-                </span>
-              </div>
-              <span style={{
-                fontSize: '8px',
-                letterSpacing: '0.6px',
-                color: '#2DD4BF',
-                fontWeight: '700',
-                textTransform: 'uppercase',
-                marginTop: '1px'
-              }}>
+            <div className="dnvn-brand-text-box">
+              <span className="dnvn-brand-title">
+                {brandConfig.brandShortName || 'DoanhNghiepVN'}
+                <span style={{ color: '#2DD4BF' }}>.today</span>
+              </span>
+              <span className="dnvn-brand-subtitle">
                 TẠP CHÍ DOANH NGHIỆP VIỆT NAM
               </span>
             </div>
@@ -492,7 +568,7 @@ export const Navbar = () => {
           {/* 3. RIGHT ACTIONS: LUÔN NẰM SÁT MÉP PHẢI (MARGIN-LEFT AUTO), KHÔNG BAO GIỜ BỊ KHUẤT */}
           <div className="dnvn-nav-right">
             {/* Chuyển đổi ngôn ngữ */}
-            <div style={{
+            <div className="dnvn-lang-switcher" style={{
               display: 'flex',
               alignItems: 'center',
               backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -533,38 +609,41 @@ export const Navbar = () => {
               </button>
             </div>
 
-            {/* Nút Đăng ký trải nghiệm / Gia nhập Hội */}
-            <Link
-              to="/register"
-              style={{
-                backgroundColor: '#0D9488',
-                backgroundImage: 'linear-gradient(135deg, #0D9488 0%, #0F766E 100%)',
-                color: '#ffffff',
-                fontSize: '12px',
-                fontWeight: '700',
-                padding: '7px 14px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                boxShadow: '0 2px 8px rgba(13, 148, 136, 0.4)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.18s ease',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.6)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'none';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(13, 148, 136, 0.4)';
-              }}
-            >
-              <i className="ti ti-user-plus" style={{ fontSize: '13px' }}></i>
-              <span>{currentLang === 'en' ? 'Join' : 'Gia nhập Hội'}</span>
-            </Link>
+            {/* Nút Đăng ký trải nghiệm / Gia nhập Hội (Chỉ hiện khi chưa đăng nhập và trên desktop) */}
+            {role === 'guest' && (
+              <Link
+                to="/register"
+                className="dnvn-btn-join-desktop"
+                style={{
+                  backgroundColor: '#0D9488',
+                  backgroundImage: 'linear-gradient(135deg, #0D9488 0%, #0F766E 100%)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  padding: '7px 14px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 8px rgba(13, 148, 136, 0.4)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.18s ease',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(13, 148, 136, 0.4)';
+                }}
+              >
+                <i className="ti ti-user-plus" style={{ fontSize: '13px' }}></i>
+                <span>{currentLang === 'en' ? 'Join' : 'Gia nhập Hội'}</span>
+              </Link>
+            )}
 
             {/* Trạng thái Người dùng / Đăng nhập */}
             {role === 'guest' ? (
@@ -589,7 +668,7 @@ export const Navbar = () => {
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                 <Link
-                  to={role === 'admin' ? "/admin-dashboard" : role === 'creator' ? "/creator-dashboard" : "/member-dashboard"}
+                  to={role === 'admin' ? "/admin-dashboard" : role === 'creator' ? "/creator-dashboard" : role === 'organizer' ? "/organizer-dashboard" : "/member-dashboard"}
                   style={{
                     width: '32px',
                     height: '32px',
@@ -658,6 +737,49 @@ export const Navbar = () => {
             maxHeight: '80vh',
             overflowY: 'auto'
           }}>
+            {/* Chuyển ngôn ngữ & Trạng thái trong Drawer */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: '12px', color: '#94A3B8' }}>Ngôn ngữ / Language:</div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                borderRadius: '14px',
+                padding: '2px',
+                border: '1px solid rgba(255, 255, 255, 0.15)'
+              }}>
+                <button
+                  onClick={() => changeLang('vi')}
+                  style={{
+                    background: currentLang === 'vi' ? '#0D9488' : 'transparent',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '3px 10px',
+                    fontSize: '11px',
+                    fontWeight: currentLang === 'vi' ? '700' : '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  VI
+                </button>
+                <button
+                  onClick={() => changeLang('en')}
+                  style={{
+                    background: currentLang === 'en' ? '#0D9488' : 'transparent',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '3px 10px',
+                    fontSize: '11px',
+                    fontWeight: currentLang === 'en' ? '700' : '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  EN
+                </button>
+              </div>
+            </div>
             {/* Nút Trợ lý AI trên Mobile */}
             <Link
               to="/ai-chat"

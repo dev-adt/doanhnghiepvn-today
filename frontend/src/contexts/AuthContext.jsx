@@ -265,11 +265,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const getAuthHeaders = () => {
-    return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    if (token) return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    const memberToken = localStorage.getItem('doson_member_token');
+    if (memberToken) return { 'Authorization': 'Bearer ' + memberToken, 'Content-Type': 'application/json' };
+    return { 'Content-Type': 'application/json' };
   };
 
+  const isLoggedIn = !!user && role !== 'guest';
+
   return (
-    <AuthContext.Provider value={{ role, user, token, loading, login, loginCreator, logout, setGuestMode, getAuthHeaders }}>
+    <AuthContext.Provider value={{ role, user, token, isLoggedIn, loading, login, loginCreator, logout, setGuestMode, getAuthHeaders }}>
       {children}
     </AuthContext.Provider>
   );

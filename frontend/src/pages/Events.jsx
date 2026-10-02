@@ -10,7 +10,14 @@ export const Events = () => {
   const { id: routeParamId } = useParams();
   const navigate = useNavigate();
   const { user, token, role } = useAuth();
-  const isLoggedIn = Boolean(user && role !== 'guest');
+  let storedMemberUser = null;
+  try {
+    const raw = localStorage.getItem('doson_member_user');
+    if (raw) storedMemberUser = JSON.parse(raw);
+  } catch (e) {}
+  const memberToken = localStorage.getItem('doson_member_token') || (role === 'member' ? token : null);
+  const effectiveUser = (role === 'member' ? user : null) || storedMemberUser || user;
+  const isActuallyLoggedIn = Boolean(effectiveUser && (role === 'member' || !!memberToken || (user && role !== 'guest')));
 
   // Danh sách sự kiện (khi ở trang tổng quan)
   const [eventsList, setEventsList] = useState([]);
@@ -124,17 +131,17 @@ export const Events = () => {
 
   // Tự động điền thông tin khi người dùng đã đăng nhập
   useEffect(() => {
-    if (isLoggedIn && user) {
+    if (isActuallyLoggedIn && effectiveUser) {
       setRegForm(prev => ({
         ...prev,
-        fullName: prev.fullName || user.name || '',
-        phone: prev.phone || user.phone || '',
-        email: prev.email || user.email || '',
-        company: prev.company || user.company || '',
+        fullName: prev.fullName || effectiveUser.contact_name || effectiveUser.name || '',
+        phone: prev.phone || effectiveUser.phone || '',
+        email: prev.email || effectiveUser.email || '',
+        company: prev.company || effectiveUser.name || '',
         createAccount: false
       }));
     }
-  }, [isLoggedIn, user]);
+  }, [isActuallyLoggedIn, effectiveUser]);
 
   // Xử lý gửi đăng ký vé
   const handleRegisterSubmit = async (e) => {
@@ -146,7 +153,7 @@ export const Events = () => {
       return;
     }
 
-    if (!isLoggedIn && regForm.createAccount) {
+    if (!isActuallyLoggedIn && regForm.createAccount) {
       const login = regForm.accountLogin.trim() || regForm.phone.trim() || regForm.email.trim();
       if (!login) {
         alert('Vui lòng nhập Tài khoản (Email hoặc Số điện thoại) để tạo tài khoản theo dõi vé.');
@@ -169,7 +176,8 @@ export const Events = () => {
     setSubmittingReg(true);
     try {
       const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = 'Bearer ' + token;
+      const authToken = memberToken || token;
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
 
       const res = await fetch(`/api/events/${currentEvent.id}/register`, {
         method: 'POST',
@@ -180,8 +188,8 @@ export const Events = () => {
           email: regForm.email.trim() || null,
           company: regForm.company.trim() || null,
           quantity: parseInt(regForm.quantity, 10) || 1,
-          member_id: user?.id || null,
-          create_account: isLoggedIn ? false : regForm.createAccount,
+          member_id: effectiveUser?.id || user?.id || null,
+          create_account: isActuallyLoggedIn ? false : regForm.createAccount,
           account_login: regForm.accountLogin.trim() || regForm.phone.trim() || regForm.email.trim(),
           account_password: regForm.accountPassword,
           account_confirm_password: regForm.accountConfirmPassword
@@ -612,7 +620,7 @@ export const Events = () => {
                     </div>
 
                     {/* Checkbox tạo tài khoản HOẶC Thông báo đã đăng nhập */}
-                    {isLoggedIn ? (
+                    {isActuallyLoggedIn ? (
                       <div style={{
                         padding: '10px 14px',
                         backgroundColor: '#F0FDF4',
@@ -637,7 +645,7 @@ export const Events = () => {
                           <i className="ti ti-user-check" style={{ fontSize: '16px' }}></i>
                         </div>
                         <div style={{ fontSize: '12px', color: '#166534', lineHeight: 1.4 }}>
-                          Tài khoản: <strong>{user?.name || user?.username || user?.email}</strong>
+                          Tài khoản: <strong>{effectiveUser?.name || effectiveUser?.username || effectiveUser?.email}</strong>
                           <div style={{ fontSize: '11px', color: '#15803D' }}>Vé đăng ký sẽ tự động gán vào tài khoản này để theo dõi.</div>
                         </div>
                       </div>
