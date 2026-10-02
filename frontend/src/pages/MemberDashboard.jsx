@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import RichTextEditor from '../components/RichTextEditor';
 import { useTranslation } from '../contexts/LanguageContext';
 import { CATEGORIES_DATA, ALL_CATEGORIES, getSubcategoriesByCategory, getCategoryLabel } from '../constants/categories';
+import { formatVNDateTime } from '../utils/dateUtils';
 
 export const MemberDashboard = () => {
   const { user, token, getAuthHeaders, logout } = useAuth();
@@ -1222,6 +1223,14 @@ export const MemberDashboard = () => {
                   <strong>Trạng thái thanh toán:</strong>{' '}
                   <span style={{ fontWeight: '700', color: selectedTicket.payment_status === 'paid' ? '#059669' : selectedTicket.payment_status === 'pending' ? '#D97706' : '#2563EB' }}>
                     {selectedTicket.payment_status === 'paid' ? 'Đã thanh toán' : selectedTicket.payment_status === 'pending' ? 'Chờ thanh toán chuyển khoản' : 'Miễn phí'}
+                  </span>
+                </div>
+                <div>
+                  <strong>Trạng thái check-in:</strong>{' '}
+                  <span style={{ fontWeight: '700', color: selectedTicket.checkin_status === 'checked_in' ? '#059669' : '#64748B' }}>
+                    {selectedTicket.checkin_status === 'checked_in'
+                      ? `✓ Đã Check-in (${selectedTicket.checkin_time ? formatVNDateTime(selectedTicket.checkin_time) : 'đã ghi nhận'})`
+                      : 'Chưa check-in'}
                   </span>
                 </div>
               </div>

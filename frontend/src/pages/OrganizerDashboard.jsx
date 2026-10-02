@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import brandConfig from '../brand.config';
+import { formatVNTime } from '../utils/dateUtils';
 
 export const OrganizerDashboard = () => {
   const { user, logout, getAuthHeaders } = useAuth();
@@ -210,7 +211,7 @@ export const OrganizerDashboard = () => {
       const data = await res.json();
       if (res.ok && data.success) {
         alert(data.message);
-        setRegistrationsList(prev => prev.map(r => r.ticket_code === ticketCode ? { ...r, checkin_status: 'checked_in', checkin_time: new Date().toISOString() } : r));
+        setRegistrationsList(prev => prev.map(r => r.ticket_code === ticketCode ? { ...r, checkin_status: 'checked_in', checkin_time: data.registration?.checkin_time || new Date().toISOString() } : r));
         loadEvents();
       } else {
         alert(data.error || 'Check-in không thành công.');
@@ -880,7 +881,7 @@ export const OrganizerDashboard = () => {
                           <td style={{ padding: '10px' }}>
                             {r.checkin_status === 'checked_in' ? (
                               <span style={{ color: '#16A34A', fontWeight: '700', fontSize: '11.5px' }}>
-                                ✓ Đã vào ({new Date(r.checkin_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })})
+                                ✓ Đã vào ({r.checkin_time ? formatVNTime(r.checkin_time) : ''})
                               </span>
                             ) : (
                               <button

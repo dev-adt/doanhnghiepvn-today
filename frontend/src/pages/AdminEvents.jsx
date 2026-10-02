@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AdminLayout from '../components/AdminLayout';
 import RichTextEditor from '../components/RichTextEditor';
+import { formatVNTime } from '../utils/dateUtils';
 
 export const AdminEvents = () => {
   const { getAuthHeaders } = useAuth();
@@ -253,7 +254,7 @@ export const AdminEvents = () => {
         });
         if (!data.already_checked_in) {
           // Cập nhật danh sách nếu đang mở modal đăng ký
-          setRegistrationsList(prev => prev.map(r => r.ticket_code === code ? { ...r, checkin_status: 'checked_in', checkin_time: new Date().toISOString() } : r));
+          setRegistrationsList(prev => prev.map(r => r.ticket_code === code ? { ...r, checkin_status: 'checked_in', checkin_time: data.registration?.checkin_time || new Date().toISOString() } : r));
           loadEvents();
         }
       } else {
@@ -1336,7 +1337,7 @@ export const AdminEvents = () => {
                         <td style={{ padding: '10px' }}>
                           {r.checkin_status === 'checked_in' ? (
                             <span style={{ color: '#16A34A', fontWeight: '700' }}>
-                              <i className="ti ti-check"></i> Đã vào ({new Date(r.checkin_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })})
+                              <i className="ti ti-check"></i> Đã vào ({r.checkin_time ? formatVNTime(r.checkin_time) : ''})
                             </span>
                           ) : (
                             <button

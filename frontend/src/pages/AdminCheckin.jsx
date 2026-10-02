@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Html5Qrcode } from 'html5-qrcode';
+import { formatVNDateTime, formatVNTime } from '../utils/dateUtils';
 
 export const AdminCheckin = () => {
   const { role, getAuthHeaders } = useAuth();
@@ -76,7 +77,7 @@ export const AdminCheckin = () => {
   };
 
   // Xử lý gửi Check-in
-  const executeCheckin = async (codeToUse, regId = null) => {
+  const executeCheckin = async (codeToUse, regId = null, force = false) => {
     const code = extractCode(codeToUse || ticketInput);
     if (!code && !regId) {
       alert('Vui lòng nhập mã vé cần check-in.');
@@ -92,7 +93,8 @@ export const AdminCheckin = () => {
         headers: getAuthHeaders(),
         body: JSON.stringify({
           ticket_code: code || undefined,
-          registration_id: regId || undefined
+          registration_id: regId || undefined,
+          force_recheckin: force
         })
       });
 
@@ -118,7 +120,11 @@ export const AdminCheckin = () => {
         if (searchResults && searchResults.length > 0) {
           setSearchResults(prev => prev.map(item => {
             if ((code && item.ticket_code === code) || (regId && item.id === regId)) {
-              return { ...item, checkin_status: 'checked_in', checkin_time: new Date().toISOString() };
+              return { 
+                ...item, 
+                checkin_status: 'checked_in', 
+                checkin_time: data.registration?.checkin_time || item.checkin_time || new Date().toISOString() 
+              };
             }
             return item;
           }));
@@ -454,7 +460,32 @@ export const AdminCheckin = () => {
                   {checkinResult.reg.company && <div><strong>Đơn vị:</strong> {checkinResult.reg.company}</div>}
                   {checkinResult.reg.checkin_time && (
                     <div style={{ gridColumn: 'span 2' }}>
-                      <strong>Thời gian check-in:</strong> {new Date(checkinResult.reg.checkin_time).toLocaleString('vi-VN')}
+                      <strong>Thời gian check-in:</strong> {formatVNDateTime(checkinResult.reg.checkin_time)}
+                    </div>
+                  )}
+
+                  {checkinResult.type === 'warning' && (
+                    <div style={{ gridColumn: 'span 2', marginTop: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => executeCheckin(checkinResult.reg.ticket_code, checkinResult.reg.id, true)}
+                        disabled={checkingIn}
+                        style={{
+                          padding: '6px 14px',
+                          backgroundColor: '#D97706',
+                          color: '#FFFFFF',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          cursor: checkingIn ? 'wait' : 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <i className="ti ti-refresh"></i> Cập nhật lại thời gian check-in sang giờ hiện tại
+                      </button>
                     </div>
                   )}
                 </div>
@@ -593,7 +624,7 @@ export const AdminCheckin = () => {
                               fontWeight: '700'
                             }}>
                               <i className="ti ti-check"></i>
-                              Đã check-in ({guest.checkin_time ? new Date(guest.checkin_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''})
+                              Đã check-in ({guest.checkin_time ? formatVNTime(guest.checkin_time) : ''})
                             </span>
                           ) : (
                             <button

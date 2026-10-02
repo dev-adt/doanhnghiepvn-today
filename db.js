@@ -3,6 +3,7 @@
  * File: db.js
  */
 
+process.env.TZ = 'Asia/Ho_Chi_Minh';
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
@@ -17,10 +18,13 @@ const pool = mysql.createPool({
   timezone          : '+07:00',
 });
 
-// Test kết nối khi khởi động
+// Test kết nối khi khởi động và thiết lập múi giờ phiên làm việc
 pool.getConnection()
-  .then(conn => {
+  .then(async conn => {
     console.log('✅ MySQL kết nối thành công — database:', process.env.DB_NAME || 'bizhub');
+    try {
+      await conn.query("SET time_zone = '+07:00'");
+    } catch (_) {}
     conn.release();
   })
   .catch(err => {

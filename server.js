@@ -3,6 +3,7 @@
  * Node.js + Express + MySQL2
  */
 
+process.env.TZ = 'Asia/Ho_Chi_Minh';
 require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
@@ -14,6 +15,27 @@ const crypto  = require('crypto');
 const db      = require('./db');
 const nodemailer = require('nodemailer');
 const brandConfig = require('./config/brand.config');
+
+// Helper lấy thời gian hiện tại chuẩn giờ Việt Nam (UTC+7) định dạng SQL YYYY-MM-DD HH:mm:ss
+const getVietnamNowString = () => {
+  return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).replace('T', ' ');
+};
+
+// Helper format thời gian hiển thị theo giờ Việt Nam
+const formatVietnamDateTime = (d) => {
+  if (!d) return '';
+  try {
+    let str = String(d).trim();
+    if (d instanceof Date) return d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/.test(str)) {
+      str = str.replace(' ', 'T') + '+07:00';
+    }
+    return new Date(str).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+  } catch (e) {
+    return String(d);
+  }
+};
+
 
 // Cấu hình SMTP gửi Mail
 let transporter = null;
@@ -4234,7 +4256,7 @@ app.patch('/api/admin/events/registrations/:regId/payment', eventManagerAuthMidd
 // Admin & Ban tổ chức: Điểm danh / Check-in vé sự kiện bằng mã QR, camera hoặc mã vé (Chuẩn Ảnh 3)
 app.post('/api/admin/events/checkin', eventManagerAuthMiddleware, async (req, res) => {
   try {
-    const { ticket_code, registration_id, event_id } = req.body;
+    const { ticket_code, registration_id, event_id, force_recheckin } = req.body;
     if (!ticket_code && !registration_id) {
       return res.status(400).json({ success: false, error: 'Thiếu mã vé hoặc ID lượt đăng ký cần check-in.' });
     }
@@ -4261,18 +4283,23 @@ app.post('/api/admin/events/checkin', eventManagerAuthMiddleware, async (req, re
 
     const reg = rows[0];
 
-    if (reg.checkin_status === 'checked_in') {
+    if (reg.checkin_status === 'checked_in' && !force_recheckin) {
+      const timeStr = formatVietnamDateTime(reg.checkin_time);
       return res.json({
         success: true,
         already_checked_in: true,
-        message: `Vé này ĐÃ CHECK-IN lúc ${new Date(reg.checkin_time).toLocaleString('vi-VN')}!`,
+        message: `Vé này ĐÃ CHECK-IN lúc ${timeStr}!`,
         registration: reg
       });
     }
 
+    // Luôn ghi nhận thời gian chính xác theo giờ Việt Nam (UTC+7, Asia/Ho_Chi_Minh)
+    // Tránh bị lệch giờ bởi múi giờ hệ thống của máy chủ VPS (thường là UTC hoặc UTC+2)
+    const vnNow = getVietnamNowString();
+
     await db.query(
-      "UPDATE event_registrations SET checkin_status = 'checked_in', checkin_time = NOW() WHERE id = ?",
-      [reg.id]
+      "UPDATE event_registrations SET checkin_status = 'checked_in', checkin_time = ? WHERE id = ?",
+      [vnNow, reg.id]
     );
 
     const [updatedRows] = await db.query(
@@ -4283,7 +4310,9 @@ app.post('/api/admin/events/checkin', eventManagerAuthMiddleware, async (req, re
     res.json({
       success: true,
       already_checked_in: false,
-      message: '✅ Check-in thành công cho khách tham dự!',
+      message: force_recheckin
+        ? `✅ Đã cập nhật lại giờ check-in thành công: ${formatVietnamDateTime(vnNow)}`
+        : '✅ Check-in thành công cho khách tham dự!',
       registration: updatedRows[0]
     });
   } catch (err) {
