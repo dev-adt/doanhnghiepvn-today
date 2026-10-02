@@ -1061,8 +1061,7 @@ body.public-body {
   padding: 0 1.5rem;
   animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-nav {
+.legacy-nav {
   position: sticky;
   top: 0;
   z-index: 100;
