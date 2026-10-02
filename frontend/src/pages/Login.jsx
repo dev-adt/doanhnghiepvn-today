@@ -56,6 +56,8 @@ export const Login = () => {
       // Đăng nhập thành công -> Điều hướng tương ứng với vai trò
       if (data.role === 'admin') {
         navigate('/admin-dashboard');
+      } else if (data.role === 'organizer') {
+        navigate('/organizer-dashboard');
       } else if (data.role === 'creator') {
         navigate('/creator-dashboard');
       } else {

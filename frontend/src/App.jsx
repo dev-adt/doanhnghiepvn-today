@@ -25,7 +25,10 @@ import AdminConfig from './pages/AdminConfig';
 import AdminEvents from './pages/AdminEvents';
 import AdminCategories from './pages/AdminCategories';
 import AdminCreators from './pages/AdminCreators';
+import AdminOrganizers from './pages/AdminOrganizers';
 import AdminLeads from './pages/AdminLeads';
+import AdminCheckin from './pages/AdminCheckin';
+import OrganizerDashboard from './pages/OrganizerDashboard';
 
 // Tự động cuộn lên đầu trang khi chuyển tuyến đường và đồng bộ title
 function ScrollToTop() {
@@ -83,6 +86,42 @@ function App() {
               } 
             />
 
+            {/* Tuyến đường bảo vệ dành cho Ban tổ chức Sự kiện */}
+            <Route 
+              path="/organizer-dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={['organizer']}>
+                  <OrganizerDashboard />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Tuyến đường Check-in Sự kiện bằng camera QR & mã vé */}
+            <Route 
+              path="/admin/checkin" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminCheckin />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin-checkin" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminCheckin />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/organizer/checkin" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminCheckin />
+                </ProtectedRoute>
+              } 
+            />
+
             {/* Tuyến đường bảo vệ dành cho Admin */}
             <Route 
               path="/admin-dashboard" 
@@ -129,6 +168,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminCreators />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin-organizers" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminOrganizers />
                 </ProtectedRoute>
               } 
             />

@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       const adminToken = localStorage.getItem('doson_admin_token');
       const adminUserStr = localStorage.getItem('doson_admin_user');
+      const organizerToken = localStorage.getItem('doson_organizer_token');
+      const organizerUserStr = localStorage.getItem('doson_organizer_user');
       const memberToken = localStorage.getItem('doson_member_token');
       const memberUserStr = localStorage.getItem('doson_member_user');
 
@@ -39,6 +41,28 @@ export const AuthProvider = ({ children }) => {
         }
         localStorage.removeItem('doson_admin_token');
         localStorage.removeItem('doson_admin_user');
+      }
+
+      if (organizerToken && organizerUserStr) {
+        try {
+          const res = await fetch('/api/organizer/profile', {
+            headers: { 'Authorization': 'Bearer ' + organizerToken }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success) {
+              setRole('organizer');
+              setUser(data.organizer);
+              setToken(organizerToken);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Organizer session verification failed", e);
+        }
+        localStorage.removeItem('doson_organizer_token');
+        localStorage.removeItem('doson_organizer_user');
       }
 
       if (creatorToken && creatorUserStr) {
@@ -115,6 +139,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('doson_creator_user', JSON.stringify(data.creator));
     localStorage.removeItem('doson_admin_token');
     localStorage.removeItem('doson_admin_user');
+    localStorage.removeItem('doson_organizer_token');
+    localStorage.removeItem('doson_organizer_user');
     localStorage.removeItem('doson_member_token');
     localStorage.removeItem('doson_member_user');
 
@@ -137,19 +163,34 @@ export const AuthProvider = ({ children }) => {
     setRole(data.role);
 
     if (data.role === 'admin') {
-      setUser(data.admin);
+      setUser(data.admin || data.user);
       localStorage.setItem('doson_admin_token', data.token);
-      localStorage.setItem('doson_admin_user', JSON.stringify(data.admin));
+      localStorage.setItem('doson_admin_user', JSON.stringify(data.admin || data.user));
+      localStorage.removeItem('doson_organizer_token');
+      localStorage.removeItem('doson_organizer_user');
       localStorage.removeItem('doson_member_token');
       localStorage.removeItem('doson_member_user');
       localStorage.removeItem('doson_creator_token');
       localStorage.removeItem('doson_creator_user');
+    } else if (data.role === 'organizer') {
+      const orgObj = data.organizer || data.user;
+      setUser(orgObj);
+      localStorage.setItem('doson_organizer_token', data.token);
+      localStorage.setItem('doson_organizer_user', JSON.stringify(orgObj));
+      localStorage.removeItem('doson_admin_token');
+      localStorage.removeItem('doson_admin_user');
+      localStorage.removeItem('doson_creator_token');
+      localStorage.removeItem('doson_creator_user');
+      localStorage.removeItem('doson_member_token');
+      localStorage.removeItem('doson_member_user');
     } else if (data.role === 'member') {
       setUser(data.user);
       localStorage.setItem('doson_member_token', data.token);
       localStorage.setItem('doson_member_user', JSON.stringify(data.user));
       localStorage.removeItem('doson_admin_token');
       localStorage.removeItem('doson_admin_user');
+      localStorage.removeItem('doson_organizer_token');
+      localStorage.removeItem('doson_organizer_user');
       localStorage.removeItem('doson_creator_token');
       localStorage.removeItem('doson_creator_user');
     } else if (data.role === 'creator') {
@@ -159,6 +200,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('doson_creator_user', JSON.stringify(creatorObj));
       localStorage.removeItem('doson_admin_token');
       localStorage.removeItem('doson_admin_user');
+      localStorage.removeItem('doson_organizer_token');
+      localStorage.removeItem('doson_organizer_user');
       localStorage.removeItem('doson_member_token');
       localStorage.removeItem('doson_member_user');
     }
@@ -170,6 +213,11 @@ export const AuthProvider = ({ children }) => {
     try {
       if (role === 'admin' && token) {
         await fetch('/api/admin/logout', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+      } else if (role === 'organizer' && token) {
+        await fetch('/api/organizer/logout', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -190,6 +238,8 @@ export const AuthProvider = ({ children }) => {
 
     localStorage.removeItem('doson_admin_token');
     localStorage.removeItem('doson_admin_user');
+    localStorage.removeItem('doson_organizer_token');
+    localStorage.removeItem('doson_organizer_user');
     localStorage.removeItem('doson_member_token');
     localStorage.removeItem('doson_member_user');
     localStorage.removeItem('doson_creator_token');
@@ -203,6 +253,8 @@ export const AuthProvider = ({ children }) => {
   const setGuestMode = () => {
     localStorage.removeItem('doson_admin_token');
     localStorage.removeItem('doson_admin_user');
+    localStorage.removeItem('doson_organizer_token');
+    localStorage.removeItem('doson_organizer_user');
     localStorage.removeItem('doson_member_token');
     localStorage.removeItem('doson_member_user');
     localStorage.removeItem('doson_creator_token');

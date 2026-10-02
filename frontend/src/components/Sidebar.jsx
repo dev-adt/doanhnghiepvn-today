@@ -182,6 +182,14 @@ export const Sidebar = () => {
       >
         <i className="ti ti-user-check"></i> Biên tập viên
       </NavLink>
+
+      <NavLink 
+        to="/admin-organizers" 
+        className={({ isActive }) => `sb-item ${isActive ? 'active' : ''}`}
+        style={{ textDecoration: 'none' }}
+      >
+        <i className="ti ti-id-badge-2"></i> Ban tổ chức
+      </NavLink>
       
       <NavLink 
         to="/admin-config" 

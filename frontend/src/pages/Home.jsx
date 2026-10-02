@@ -90,26 +90,74 @@ export const Home = () => {
     return () => { isMounted = false; };
   }, []);
 
-  // Countdown timer calculation for the top upcoming event
-  const topEvent = eventsList.length > 0 ? eventsList[0] : null;
+  // Safe Date parsing helper for all browsers and MySQL datetime format
+  const parseEventDate = (dStr) => {
+    if (!dStr) return null;
+    if (dStr instanceof Date) return isNaN(dStr.getTime()) ? null : dStr;
+    let s = String(dStr).trim();
+    if (s.includes(' ') && !s.includes('T')) {
+      s = s.replace(' ', 'T');
+    }
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  };
 
+  const formatEventDateTime = (dStr) => {
+    const d = parseEventDate(dStr);
+    if (!d) return 'Đang cập nhật';
+    const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())} ${dayNames[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  };
+
+  // Select top featured event: prioritize upcoming future event, or fallback to first event
+  const nowMs = Date.now();
+  const topUpcoming = eventsList.find(e => {
+    const d = parseEventDate(e.event_date || e.start_time || e.date);
+    return d && d.getTime() > nowMs;
+  });
+  const topEvent = topUpcoming || (eventsList.length > 0 ? eventsList[0] : null);
+  const otherEvents = topEvent ? eventsList.filter(e => e.id !== topEvent.id).slice(0, 3) : eventsList.slice(0, 3);
+
+  // Live countdown timer calculation for the top upcoming event
   useEffect(() => {
-    if (!topEvent || !topEvent.date) return;
+    if (!topEvent) return;
+    const rawDate = topEvent.event_date || topEvent.start_time || topEvent.date;
+    const targetDate = parseEventDate(rawDate);
+    if (!targetDate) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true, label: 'Đang cập nhật' });
+      return;
+    }
 
     const calculateTime = () => {
-      const targetDate = new Date(topEvent.date).getTime();
-      const now = new Date().getTime();
-      const diff = targetDate - now;
+      const now = Date.now();
+      const diff = targetDate.getTime() - now;
 
       if (diff > 0) {
         setTimeLeft({
           days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((diff / 1000 / 60) % 60),
-          seconds: Math.floor((diff / 1000) % 60)
+          hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((diff % (1000 * 60)) / 1000),
+          isPassed: false,
+          label: 'Sự kiện bắt đầu sau'
         });
       } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        const endDate = parseEventDate(topEvent.end_date);
+        if (endDate && endDate.getTime() > now) {
+          const endDiff = endDate.getTime() - now;
+          setTimeLeft({
+            days: Math.floor(endDiff / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((endDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes: Math.floor((endDiff % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((endDiff % (1000 * 60)) / 1000),
+            isPassed: false,
+            isOngoing: true,
+            label: 'Đang diễn ra • Kết thúc sau'
+          });
+        } else {
+          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true, label: 'Sự kiện đã diễn ra' });
+        }
       }
     };
 
@@ -586,216 +634,263 @@ export const Home = () => {
               {/* Highlight Top Upcoming Event Card */}
               {topEvent && (
                 <div style={{
-                  gridColumn: 'span 2',
+                  gridColumn: '1 / -1',
                   backgroundColor: '#0F172A',
                   color: '#FFFFFF',
-                  borderRadius: '20px',
+                  borderRadius: '24px',
                   overflow: 'hidden',
-                  border: '2px solid rgba(13, 148, 136, 0.4)',
-                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid #1E293B',
+                  boxShadow: '0 20px 30px -10px rgba(0, 0, 0, 0.25)',
                   display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  position: 'relative'
+                  flexDirection: 'row',
+                  flexWrap: 'wrap'
                 }}>
+                  {/* Left Side: Information & Live Countdown Timer */}
                   <div style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: '16px',
-                    backgroundColor: '#0D9488',
-                    color: '#FFFFFF',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    padding: '4px 12px',
-                    borderRadius: '9999px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.15)'
-                  }}>
-                    Sự kiện nổi bật
-                  </div>
-
-                  <div style={{ padding: '2.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                      <span style={{
-                        backgroundColor: topEvent.is_paid ? 'rgba(239, 68, 68, 0.2)' : 'rgba(13, 148, 136, 0.2)',
-                        color: topEvent.is_paid ? '#FCA5A5' : '#2DD4BF',
-                        border: `1px solid ${topEvent.is_paid ? 'rgba(239, 68, 68, 0.4)' : 'rgba(13, 148, 136, 0.4)'}`,
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        padding: '4px 10px',
-                        borderRadius: '6px'
-                      }}>
-                        {topEvent.is_paid ? `Có phí • ${Number(topEvent.price || 0).toLocaleString('vi-VN')} đ/vé` : 'Miễn phí'}
-                      </span>
-                      <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
-                        <i className="fa-regular fa-clock" style={{ marginRight: '6px' }} />
-                        {topEvent.date ? new Date(topEvent.date).toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Đang cập nhật'}
-                      </span>
-                    </div>
-
-                    <h3 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.3, marginBottom: '1rem' }}>
-                      {topEvent.title}
-                    </h3>
-
-                    <p style={{ color: '#CBD5E1', fontSize: '1rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
-                      {topEvent.short_desc || topEvent.description || 'Tham gia để nhận nhiều giá trị thực tiễn và kết nối mạng lưới doanh nghiệp.'}
-                    </p>
-
-                    {/* Countdown Boxes */}
-                    <div style={{ marginBottom: '1.75rem' }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#2DD4BF', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>
-                        <i className="fa-solid fa-hourglass-half" style={{ marginRight: '6px' }} />
-                        Sự kiện bắt đầu sau
-                      </div>
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        {[
-                          { val: timeLeft.days, label: 'NGÀY' },
-                          { val: timeLeft.hours, label: 'GIỜ' },
-                          { val: timeLeft.minutes, label: 'PHÚT' },
-                          { val: timeLeft.seconds, label: 'GIÂY' }
-                        ].map((t, idx) => (
-                          <div key={idx} style={{
-                            backgroundColor: '#1E293B',
-                            border: '1px solid #334155',
-                            borderRadius: '10px',
-                            minWidth: '60px',
-                            padding: '8px 10px',
-                            textAlign: 'center'
-                          }}>
-                            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1 }}>
-                              {String(t.val).padStart(2, '0')}
-                            </div>
-                            <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: '4px', fontWeight: 600 }}>
-                              {t.label}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Bottom: Venue, Ticket count & Action Button */}
-                  <div style={{
-                    padding: '1.25rem 2.5rem',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    borderTop: '1px solid rgba(51, 65, 85, 0.6)',
+                    flex: '1 1 450px',
+                    padding: '2.5rem',
                     display: 'flex',
-                    flexWrap: 'wrap',
+                    flexDirection: 'column',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '1rem'
+                    minWidth: '320px',
+                    boxSizing: 'border-box'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#CBD5E1', fontSize: '0.9rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <i className="fa-solid fa-location-dot" style={{ color: '#2DD4BF' }} />
-                        <span>{topEvent.location || 'Trực tuyến / Văn phòng Hội'}</span>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                        <span style={{
+                          backgroundColor: '#0D9488',
+                          color: '#FFFFFF',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          padding: '4px 12px',
+                          borderRadius: '9999px',
+                          letterSpacing: '0.04em'
+                        }}>
+                          Sự kiện nổi bật
+                        </span>
+                        <span style={{
+                          backgroundColor: topEvent.is_paid ? 'rgba(239, 68, 68, 0.2)' : 'rgba(13, 148, 136, 0.2)',
+                          color: topEvent.is_paid ? '#FCA5A5' : '#2DD4BF',
+                          border: `1px solid ${topEvent.is_paid ? 'rgba(239, 68, 68, 0.4)' : 'rgba(13, 148, 136, 0.4)'}`,
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: '6px'
+                        }}>
+                          {topEvent.is_paid ? `Có phí • ${Number(topEvent.price || 0).toLocaleString('vi-VN')} đ/vé` : 'Miễn phí'}
+                        </span>
+                        <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
+                          <i className="fa-regular fa-clock" style={{ marginRight: '6px', color: '#2DD4BF' }} />
+                          {formatEventDateTime(topEvent.event_date || topEvent.start_time || topEvent.date)}
+                        </span>
                       </div>
-                      {topEvent.capacity && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FCD34D' }}>
-                          <i className="fa-solid fa-ticket" />
-                          <span>Còn {topEvent.remaining_tickets ?? (topEvent.capacity - (topEvent.registered_count || 0))} / {topEvent.capacity} vé</span>
+
+                      <h3 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.3, marginBottom: '0.85rem' }}>
+                        {topEvent.title}
+                      </h3>
+
+                      <p style={{ color: '#CBD5E1', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+                        {topEvent.short_desc || topEvent.description || 'Tham gia để nhận nhiều giá trị thực tiễn và kết nối mạng lưới doanh nghiệp.'}
+                      </p>
+
+                      {/* Live Realtime Countdown Boxes */}
+                      <div style={{ marginBottom: '1.75rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2DD4BF', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <i className="fa-solid fa-hourglass-half" />
+                          <span>{timeLeft.label || 'Sự kiện bắt đầu sau'}</span>
                         </div>
-                      )}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          {[
+                            { val: timeLeft.days, label: 'NGÀY' },
+                            { val: timeLeft.hours, label: 'GIỜ' },
+                            { val: timeLeft.minutes, label: 'PHÚT' },
+                            { val: timeLeft.seconds, label: 'GIÂY' }
+                          ].map((t, idx) => (
+                            <div key={idx} style={{
+                              backgroundColor: '#1E293B',
+                              border: '1px solid #334155',
+                              borderRadius: '10px',
+                              minWidth: '65px',
+                              padding: '10px 12px',
+                              textAlign: 'center'
+                            }}>
+                              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1, fontFamily: 'monospace' }}>
+                                {String(t.val || 0).padStart(2, '0')}
+                              </div>
+                              <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: '4px', fontWeight: 600 }}>
+                                {t.label}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
-                    <Link
-                      to={`/su-kien/${topEvent.slug || topEvent.id}`}
+                    {/* Bottom: Venue, Ticket count & Action Button */}
+                    <div style={{
+                      paddingTop: '1.5rem',
+                      borderTop: '1px solid rgba(51, 65, 85, 0.6)',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '1rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#CBD5E1', fontSize: '0.9rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <i className="fa-solid fa-location-dot" style={{ color: '#2DD4BF' }} />
+                          <span>{topEvent.location || 'Trực tuyến / Văn phòng Hội'}</span>
+                        </div>
+                        {topEvent.capacity > 0 && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FCD34D' }}>
+                            <i className="fa-solid fa-ticket" />
+                            <span>Còn {topEvent.remaining_tickets ?? (topEvent.capacity - (topEvent.registered_count || 0))} / {topEvent.capacity} vé</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <Link
+                        to={`/su-kien/${topEvent.slug || topEvent.id}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          backgroundColor: '#0D9488',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                          padding: '11px 24px',
+                          borderRadius: '10px',
+                          textDecoration: 'none',
+                          boxShadow: '0 4px 14px rgba(13, 148, 136, 0.45)',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0F766E'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9488'}
+                      >
+                        <span>Xem chi tiết & Đăng ký</span>
+                        <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.8rem' }} />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Right Side: Crisp, High-Def Event Cover Image */}
+                  <div style={{
+                    flex: '1 1 360px',
+                    minHeight: '340px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    backgroundColor: '#1E293B'
+                  }}>
+                    <img
+                      src={topEvent.image_url || topEvent.banner_url || topEvent.image || 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80'}
+                      alt={topEvent.title}
                       style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: '#0D9488',
-                        color: '#FFFFFF',
-                        fontWeight: 700,
-                        padding: '10px 22px',
-                        borderRadius: '10px',
-                        textDecoration: 'none',
-                        boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)',
-                        transition: 'background-color 0.2s'
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0F766E'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9488'}
-                    >
-                      <span>Xem chi tiết & Đăng ký</span>
-                      <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.8rem' }} />
-                    </Link>
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80';
+                      }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to right, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0) 25%)',
+                      pointerEvents: 'none'
+                    }} />
                   </div>
                 </div>
               )}
 
               {/* Other upcoming events */}
-              {eventsList.slice(1, 4).map((evt) => (
-                <div key={evt.id} style={{
-                  backgroundColor: '#FFFFFF',
-                  borderRadius: '16px',
-                  border: '1px solid #E2E8F0',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-                  transition: 'transform 0.2s, box-shadow 0.2s'
-                }}>
-                  <div style={{ height: '180px', position: 'relative', backgroundColor: '#F1F5F9' }}>
-                    <img
-                      src={evt.image || 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=600'}
-                      alt={evt.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                    <span style={{
-                      position: 'absolute',
-                      top: '12px',
-                      left: '12px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
-                      backdropFilter: 'blur(4px)',
-                      color: evt.is_paid ? '#B91C1C' : '#0F766E',
-                      fontWeight: 700,
-                      fontSize: '0.75rem',
-                      padding: '4px 10px',
-                      borderRadius: '6px'
-                    }}>
-                      {evt.is_paid ? `${Number(evt.price || 0).toLocaleString('vi-VN')} đ` : 'Miễn phí'}
-                    </span>
-                  </div>
+              {otherEvents.map((evt, idx) => {
+                const fallbackImages = [
+                  'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=700',
+                  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=700',
+                  'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=700'
+                ];
+                const fallbackImg = fallbackImages[idx % fallbackImages.length];
 
-                  <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between' }}>
-                    <div>
-                      <p style={{ color: '#0D9488', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
-                        <i className="fa-regular fa-calendar" style={{ marginRight: '6px' }} />
-                        {evt.date ? new Date(evt.date).toLocaleDateString('vi-VN') : 'Đang cập nhật'}
-                      </p>
-                      <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0F172A', marginBottom: '8px', lineHeight: 1.4 }}>
-                        {evt.title}
-                      </h4>
-                      <p style={{ color: '#64748B', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem' }}>
-                        {evt.short_desc || evt.description || 'Hội thảo chuyên môn chia sẻ kinh nghiệm và giải pháp doanh nghiệp.'}
-                      </p>
-                    </div>
-
-                    <div style={{ paddingTop: '1rem', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
-                        <i className="fa-solid fa-location-dot" style={{ marginRight: '4px', color: '#0D9488' }} />
-                        {evt.location || 'Văn phòng Hội'}
-                      </span>
-                      <Link
-                        to={`/su-kien/${evt.slug || evt.id}`}
-                        style={{
-                          fontSize: '0.85rem',
-                          fontWeight: 700,
-                          color: '#0D9488',
-                          textDecoration: 'none',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px'
+                return (
+                  <div key={evt.id} style={{
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '16px',
+                    border: '1px solid #E2E8F0',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}>
+                    <div style={{ height: '190px', position: 'relative', backgroundColor: '#F1F5F9', overflow: 'hidden' }}>
+                      <img
+                        src={evt.image_url || evt.banner_url || evt.image || fallbackImg}
+                        alt={evt.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.currentTarget.src = fallbackImg;
                         }}
-                      >
-                        <span>Chi tiết</span>
-                        <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.7rem' }} />
-                      </Link>
+                      />
+                      <span style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '12px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(4px)',
+                        color: evt.is_paid ? '#B91C1C' : '#0F766E',
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)'
+                      }}>
+                        {evt.is_paid ? `${Number(evt.price || 0).toLocaleString('vi-VN')} đ` : 'Miễn phí'}
+                      </span>
+                    </div>
+
+                    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between' }}>
+                      <div>
+                        <p style={{ color: '#0D9488', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
+                          <i className="fa-regular fa-calendar" style={{ marginRight: '6px' }} />
+                          {formatEventDateTime(evt.event_date || evt.start_time || evt.date)}
+                        </p>
+                        <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0F172A', marginBottom: '8px', lineHeight: 1.4 }}>
+                          {evt.title}
+                        </h4>
+                        <p style={{ color: '#64748B', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem' }}>
+                          {evt.short_desc || evt.description || 'Hội thảo chuyên môn chia sẻ kinh nghiệm và giải pháp doanh nghiệp.'}
+                        </p>
+                      </div>
+
+                      <div style={{ paddingTop: '1rem', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                          <i className="fa-solid fa-location-dot" style={{ marginRight: '4px', color: '#0D9488' }} />
+                          {evt.location || 'Văn phòng Hội'}
+                        </span>
+                        <Link
+                          to={`/su-kien/${evt.slug || evt.id}`}
+                          style={{
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            color: '#0D9488',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <span>Chi tiết</span>
+                          <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.7rem' }} />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
             </div>
           )}

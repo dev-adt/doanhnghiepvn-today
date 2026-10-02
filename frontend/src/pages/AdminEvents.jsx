@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AdminLayout from '../components/AdminLayout';
 import RichTextEditor from '../components/RichTextEditor';
 
 export const AdminEvents = () => {
   const { getAuthHeaders } = useAuth();
+  const navigate = useNavigate();
   
   // Danh sách sự kiện & bộ lọc
   const [events, setEvents] = useState([]);
@@ -347,7 +349,7 @@ export const AdminEvents = () => {
           {/* 2 NÚT THAO TÁC GÓC PHẢI NHƯ ẢNH 2: [# Check-in] và [+ Tạo sự kiện] */}
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button
-              onClick={() => { setCheckinResult(null); setCheckinModalOpen(true); }}
+              onClick={() => navigate('/admin/checkin')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
