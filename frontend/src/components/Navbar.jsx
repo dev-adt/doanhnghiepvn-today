@@ -65,13 +65,12 @@ export const Navbar = () => {
     }, 180);
   };
 
-  // Toggle Dropdown cho Touchscreen
+  // Toggle Dropdown cho Touchscreen & Keyboard
   const handleToggleDropdown = (catId, e) => {
     e.stopPropagation();
     setActiveDropdownId(prev => (prev === catId ? null : catId));
   };
 
-  // Keyboard navigation (Enter / Space / Escape)
   const handleKeyDown = (catId, e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -124,17 +123,10 @@ export const Navbar = () => {
     return [];
   };
 
-  // Tối ưu số lượng hiển thị trên menu chính để không bao giờ bị tràn/khuất:
-  // Nếu có nhiều hơn 5 danh mục, 5 danh mục đầu tiên hiển thị trực tiếp,
-  // các danh mục còn lại sẽ được gom gọn vào dropdown "Thêm ▾" rất tiện lợi và chuyên nghiệp.
-  const MAX_PRIMARY_CATS = 5;
-  const primaryCategories = categoriesList.slice(0, MAX_PRIMARY_CATS);
-  const extraCategories = categoriesList.slice(MAX_PRIMARY_CATS);
-
   return (
     <>
       <style>{`
-        /* Reset and enforce immunity from any external or global nav styles */
+        /* Reset and enforce immunity from any external styles */
         .dnvn-navbar-header {
           position: sticky !important;
           top: 0 !important;
@@ -147,16 +139,19 @@ export const Navbar = () => {
         }
 
         .dnvn-navbar-container {
-          max-width: 1440px !important;
+          width: 100% !important;
+          max-width: 1600px !important;
           margin: 0 auto !important;
-          padding: 0 1.25rem !important;
-          height: 66px !important;
+          padding: 0 1rem !important;
+          min-height: 70px !important;
           display: flex !important;
           align-items: center !important;
-          justify-content: space-between !important;
-          gap: 0.75rem !important;
+          justify-content: flex-start !important;
+          position: relative !important;
+          box-sizing: border-box !important;
         }
 
+        /* Center Nav: Never overlaps, left-aligned with margin-right, flex-scaling */
         .dnvn-nav-center {
           position: static !important;
           background: transparent !important;
@@ -166,16 +161,21 @@ export const Navbar = () => {
           box-shadow: none !important;
           height: auto !important;
           padding: 0 !important;
-          width: auto !important;
+          margin: 0 12px !important;
           display: flex !important;
           align-items: center !important;
-          justify-content: center !important;
-          gap: 2px !important;
+          justify-content: flex-start !important;
+          gap: 6px !important;
           flex: 1 1 auto !important;
           min-width: 0 !important;
+          overflow-x: auto !important;
+          scrollbar-width: none !important;
+        }
+        .dnvn-nav-center::-webkit-scrollbar {
+          display: none !important;
         }
 
-        @media (max-width: 1120px) {
+        @media (max-width: 1024px) {
           .dnvn-nav-center {
             display: none !important;
           }
@@ -184,44 +184,62 @@ export const Navbar = () => {
           }
         }
 
-        @media (min-width: 1121px) {
+        @media (min-width: 1025px) {
           .dnvn-mobile-toggle {
             display: none !important;
           }
         }
 
+        /* 2-line flexible item: user explicitly requested text can wrap onto 2 lines to never overlap */
         .dnvn-nav-item-btn {
           color: #E2E8F0 !important;
-          font-size: 13px !important;
+          font-size: 12px !important;
+          line-height: 1.22 !important;
           font-weight: 600 !important;
-          padding: 6px 10px !important;
+          padding: 6px 8px !important;
           border-radius: 8px !important;
           display: inline-flex !important;
           align-items: center !important;
-          gap: 4px !important;
+          justify-content: center !important;
+          gap: 3px !important;
           text-decoration: none !important;
-          white-space: nowrap !important;
+          text-align: center !important;
+          max-width: 130px !important;
+          white-space: normal !important;
+          word-break: break-word !important;
           transition: all 0.18s ease !important;
+          flex-shrink: 0 !important;
+          min-height: 40px !important;
         }
 
         .dnvn-nav-item-btn:hover {
           color: #2DD4BF !important;
-          background-color: rgba(255, 255, 255, 0.07) !important;
+          background-color: rgba(255, 255, 255, 0.08) !important;
         }
 
         .dnvn-nav-item-btn.active {
           color: #2DD4BF !important;
-          background-color: rgba(13, 148, 136, 0.18) !important;
+          background-color: rgba(13, 148, 136, 0.22) !important;
+          border-bottom: 2px solid #2DD4BF !important;
+        }
+
+        .dnvn-nav-text {
+          display: -webkit-box !important;
+          -webkit-line-clamp: 2 !important;
+          -webkit-box-orient: vertical !important;
+          overflow: hidden !important;
+          text-align: center !important;
         }
 
         .dnvn-dropdown-panel {
           position: absolute !important;
-          top: calc(100% + 6px) !important;
-          left: 0 !important;
-          min-width: 240px !important;
+          top: calc(100% + 4px) !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          min-width: 250px !important;
           background-color: #0D1B2A !important;
           background-image: linear-gradient(180deg, #0F2033 0%, #0A1420 100%) !important;
-          border: 1px solid rgba(45, 212, 191, 0.28) !important;
+          border: 1px solid rgba(45, 212, 191, 0.3) !important;
           border-radius: 10px !important;
           padding: 6px 0 !important;
           box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8) !important;
@@ -236,12 +254,22 @@ export const Navbar = () => {
           font-weight: 500 !important;
           text-decoration: none !important;
           transition: all 0.15s ease !important;
+          text-align: left !important;
         }
 
         .dnvn-dropdown-item:hover {
           background-color: rgba(13, 148, 136, 0.25) !important;
           color: #2DD4BF !important;
           padding-left: 20px !important;
+        }
+
+        /* Right side action container: pinned to the far right with margin-left auto */
+        .dnvn-nav-right {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          margin-left: auto !important;
+          flex-shrink: 0 !important;
         }
       `}</style>
 
@@ -262,7 +290,8 @@ export const Navbar = () => {
               alignItems: 'center', 
               gap: '10px', 
               textDecoration: 'none', 
-              flexShrink: 0 
+              flexShrink: 0,
+              marginRight: '8px'
             }}
             title={brandConfig.brandName}
           >
@@ -286,7 +315,7 @@ export const Navbar = () => {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
                 <span style={{
-                  fontSize: '19px',
+                  fontSize: '18px',
                   fontWeight: '800',
                   color: '#ffffff',
                   letterSpacing: '-0.3px',
@@ -315,8 +344,8 @@ export const Navbar = () => {
             className="dnvn-nav-center" 
             aria-label="Menu chính"
           >
-            {/* 5 Danh mục chính đầu tiên */}
-            {primaryCategories.map((cat) => {
+            {/* Hiển thị tất cả danh mục động với định dạng 2 dòng co giãn thông minh */}
+            {categoriesList.map((cat) => {
               const subs = getSubList(cat);
               const hasSubs = subs.length > 0;
               const isOpen = activeDropdownId === (cat.id || cat.name);
@@ -335,7 +364,7 @@ export const Navbar = () => {
                       to={`/posts?category=${encodeURIComponent(cat.name)}`}
                       className={`dnvn-nav-item-btn ${isCatActive ? 'active' : ''}`}
                     >
-                      <span>{catDisplayName}</span>
+                      <span className="dnvn-nav-text">{catDisplayName}</span>
                       {hasSubs && (
                         <i 
                           className="ti ti-chevron-down" 
@@ -343,7 +372,8 @@ export const Navbar = () => {
                             fontSize: '10px',
                             color: isOpen ? '#2DD4BF' : '#94A3B8',
                             transform: isOpen ? 'rotate(180deg)' : 'none',
-                            transition: 'transform 0.18s ease'
+                            transition: 'transform 0.18s ease',
+                            flexShrink: 0
                           }} 
                         />
                       )}
@@ -396,63 +426,7 @@ export const Navbar = () => {
               );
             })}
 
-            {/* Menu Dropdown "Thêm ▾" cho các danh mục còn lại nếu Admin tạo nhiều hơn 5 mục */}
-            {extraCategories.length > 0 && (
-              <div
-                style={{ position: 'relative', flexShrink: 0 }}
-                onMouseEnter={() => handleMouseEnter('extra_categories')}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  className={`dnvn-nav-item-btn ${activeDropdownId === 'extra_categories' ? 'active' : ''}`}
-                  onClick={(e) => handleToggleDropdown('extra_categories', e)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  <span>Chuyên mục khác</span>
-                  <i 
-                    className="ti ti-chevron-down" 
-                    style={{
-                      fontSize: '10px',
-                      color: activeDropdownId === 'extra_categories' ? '#2DD4BF' : '#94A3B8',
-                      transform: activeDropdownId === 'extra_categories' ? 'rotate(180deg)' : 'none',
-                      transition: 'transform 0.18s ease'
-                    }} 
-                  />
-                </button>
-
-                {activeDropdownId === 'extra_categories' && (
-                  <div role="menu" className="dnvn-dropdown-panel" style={{ minWidth: '260px' }}>
-                    {extraCategories.map((cat) => {
-                      const catDisplayName = getCategoryName(cat);
-                      return (
-                        <Link
-                          key={cat.id || cat.name}
-                          to={`/posts?category=${encodeURIComponent(cat.name)}`}
-                          onClick={() => setActiveDropdownId(null)}
-                          className="dnvn-dropdown-item"
-                          style={{ fontWeight: '600' }}
-                        >
-                          <i className="ti ti-folder" style={{ marginRight: '6px', color: '#2DD4BF' }} />
-                          {catDisplayName}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Mục Sự kiện trọng tâm (nếu chưa có trong top categories) */}
-            <Link
-              to="/su-kien"
-              className={`dnvn-nav-item-btn ${location.pathname.startsWith('/su-kien') ? 'active' : ''}`}
-            >
-              <i className="ti ti-calendar-event" style={{ color: '#F59E0B' }}></i>
-              <span>Sự kiện</span>
-            </Link>
-
-            {/* Nút Hỏi AI Bot */}
+            {/* Nút Hỏi AI Bot (gọn gàng, bắt mắt) */}
             <Link
               to="/ai-chat"
               className="dnvn-nav-item-btn"
@@ -460,22 +434,18 @@ export const Navbar = () => {
                 color: '#2DD4BF',
                 backgroundColor: 'rgba(13, 148, 136, 0.16)',
                 border: '1px solid rgba(45, 212, 191, 0.3)',
-                padding: '4px 10px',
-                borderRadius: '12px'
+                padding: '6px 10px',
+                borderRadius: '10px',
+                maxWidth: '90px'
               }}
             >
-              <i className="ti ti-sparkles" style={{ color: '#F59E0B' }}></i>
-              <span>AI Bot</span>
+              <i className="ti ti-sparkles" style={{ color: '#F59E0B', fontSize: '13px' }}></i>
+              <span style={{ fontWeight: '700' }}>AI Bot</span>
             </Link>
           </nav>
 
-          {/* 3. RIGHT ACTIONS: LANGUAGE SWITCHER + REGISTER + LOGIN/PROFILE (ALWAYS VISIBLE & COMPACT) */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            flexShrink: 0
-          }}>
+          {/* 3. RIGHT ACTIONS: LUÔN NẰM SÁT MÉP PHẢI (MARGIN-LEFT AUTO), KHÔNG BAO GIỜ BỊ ĐÈ */}
+          <div className="dnvn-nav-right">
             {/* Chuyển đổi ngôn ngữ */}
             <div style={{
               display: 'flex',
@@ -607,7 +577,7 @@ export const Navbar = () => {
               </div>
             )}
 
-            {/* Nút Toggle Mobile Drawer (chỉ hiện trên màn hình < 1120px) */}
+            {/* Nút Toggle Mobile Drawer (chỉ hiện trên màn hình < 1024px) */}
             <button
               className="dnvn-mobile-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
