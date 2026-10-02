@@ -449,20 +449,17 @@ export const Navbar = () => {
                 </div>
               );
             })}
-          </nav>
 
-          {/* 3. RIGHT ACTIONS: LUÔN NẰM SÁT MÉP PHẢI (MARGIN-LEFT AUTO), KHÔNG BAO GIỜ BỊ KHUẤT */}
-          <div className="dnvn-nav-right">
-            
-            {/* Nút Trợ lý AI (Nằm độc lập trên thanh công cụ bên phải, tên chuẩn "Trợ lý AI", không bao giờ bị khuất) */}
+            {/* Nút Trợ lý AI: Đặt sát ngay sau danh mục cuối cùng theo yêu cầu của user */}
             <Link
               to="/ai-chat"
+              className="dnvn-nav-item-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                backgroundColor: 'rgba(13, 148, 136, 0.2)',
-                border: '1px solid rgba(45, 212, 191, 0.45)',
+                backgroundColor: 'rgba(13, 148, 136, 0.22)',
+                border: '1px solid rgba(45, 212, 191, 0.5)',
                 color: '#2DD4BF',
                 padding: '6px 12px',
                 borderRadius: '8px',
@@ -471,16 +468,18 @@ export const Navbar = () => {
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.18s ease',
-                flexShrink: 0
+                flexShrink: 0,
+                minHeight: '38px',
+                marginLeft: '4px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.35)';
+                e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.38)';
                 e.currentTarget.style.borderColor = '#2DD4BF';
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.2)';
-                e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.45)';
+                e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.22)';
+                e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.5)';
                 e.currentTarget.style.transform = 'none';
               }}
               title="Trợ lý AI Doanh Nghiệp Việt Nam"
@@ -488,7 +487,10 @@ export const Navbar = () => {
               <i className="ti ti-sparkles" style={{ color: '#F59E0B', fontSize: '13px' }} />
               <span>Trợ lý AI</span>
             </Link>
+          </nav>
 
+          {/* 3. RIGHT ACTIONS: LUÔN NẰM SÁT MÉP PHẢI (MARGIN-LEFT AUTO), KHÔNG BAO GIỜ BỊ KHUẤT */}
+          <div className="dnvn-nav-right">
             {/* Chuyển đổi ngôn ngữ */}
             <div style={{
               display: 'flex',
