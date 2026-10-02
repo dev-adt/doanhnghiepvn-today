@@ -163,14 +163,14 @@ export const Navbar = () => {
           box-shadow: none !important;
           height: auto !important;
           padding: 0 !important;
-          margin: 0 8px 0 12px !important;
+          margin: 0 4px !important;
           display: flex !important;
           align-items: center !important;
           justify-content: flex-start !important;
           gap: 4px !important;
-          flex: 1 1 auto !important;
+          flex: 0 0 auto !important;
           min-width: 0 !important;
-          overflow: visible !important; /* CRITICAL: Never use overflow-x: auto so dropdown is NEVER cut off! */
+          overflow: visible !important;
         }
 
         @media (max-width: 1024px) {
@@ -286,12 +286,12 @@ export const Navbar = () => {
           padding-left: 20px !important;
         }
 
-        /* Right side action container: pinned to the far right with margin-left auto */
+        /* Right side action container: sits seamlessly next to Trợ lý AI with no artificial gap */
         .dnvn-nav-right {
           display: flex !important;
           align-items: center !important;
           gap: 8px !important;
-          margin-left: auto !important;
+          margin-left: 8px !important;
           flex-shrink: 0 !important;
           overflow: visible !important;
         }
