@@ -18,6 +18,7 @@ export const Events = () => {
   const memberToken = localStorage.getItem('doson_member_token') || (role === 'member' ? token : null);
   const effectiveUser = (role === 'member' ? user : null) || storedMemberUser || user;
   const isActuallyLoggedIn = Boolean(effectiveUser && (role === 'member' || !!memberToken || (user && role !== 'guest')));
+  const isLoggedIn = isActuallyLoggedIn;
 
   // Danh sách sự kiện (khi ở trang tổng quan)
   const [eventsList, setEventsList] = useState([]);
@@ -218,15 +219,23 @@ export const Events = () => {
     }
   };
 
-  // Format ngày tiếng Việt giống Image 1: "15:24 Thứ Sáu, 30/10/2026 - 16:10 Thứ Sáu, 30/10/2026"
+  // Format ngày tiếng Việt giống Image 1: "15:24 Thứ Sáu, 30/10/2026 — 16:10 Thứ Sáu, 30/10/2026"
   const formatDateTimeRange = (startDateStr, endDateStr) => {
     if (!startDateStr) return '';
     const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
     const pad = (n) => String(n).padStart(2, '0');
 
     const formatSingle = (dStr) => {
-      const d = new Date(dStr);
-      return `${pad(d.getHours())}:${pad(d.getMinutes())} ${dayNames[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      try {
+        if (!dStr) return '';
+        const cleanStr = String(dStr).trim().replace(' ', 'T');
+        const d = new Date(cleanStr);
+        if (isNaN(d.getTime())) return String(dStr);
+        const dayName = dayNames[d.getDay()] || '';
+        return `${pad(d.getHours())}:${pad(d.getMinutes())} ${dayName}${dayName ? ', ' : ''}${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      } catch (e) {
+        return String(dStr);
+      }
     };
 
     const s = formatSingle(startDateStr);

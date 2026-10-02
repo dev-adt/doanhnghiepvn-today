@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import brandConfig from '../brand.config';
+import RichTextEditor from '../components/RichTextEditor';
 import { formatVNTime } from '../utils/dateUtils';
 
 export const OrganizerDashboard = () => {
@@ -628,161 +629,407 @@ export const OrganizerDashboard = () => {
 
       </main>
 
-      {/* MODAL THÊM / SỬA SỰ KIỆN */}
+      {/* ========================================================================= */}
+      {/* MODAL TẠO MỚI / CHỈNH SỬA SỰ KIỆN (CHUẨN 100% ĐỒNG BỘ VỚI ADMIN)           */}
+      {/* ========================================================================= */}
       {modalOpen && (
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
-          backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(15, 23, 42, 0.7)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 100,
           padding: '1.5rem'
         }}>
           <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
             width: '100%',
-            maxWidth: '680px',
-            maxHeight: '90vh',
+            maxWidth: '860px',
+            maxHeight: '92vh',
+            overflowY: 'auto',
+            backgroundColor: '#ffffff',
+            borderRadius: '14px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             display: 'flex',
-            flexDirection: 'column',
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'
+            flexDirection: 'column'
           }}>
-            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '800', margin: 0, color: '#0F172A' }}>
-                {editingEventId ? 'Chỉnh sửa sự kiện' : 'Thêm sự kiện mới'}
-              </h3>
-              <button onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '18px', color: '#64748B', cursor: 'pointer' }}>
-                ✕
+            {/* Modal Header */}
+            <div style={{
+              padding: '1.25rem 1.75rem',
+              borderBottom: '1px solid #E2E8F0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: 0 }}>
+                {editingEventId ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện mới'}
+              </h2>
+              <button
+                onClick={() => setModalOpen(false)}
+                style={{ background: 'none', border: 'none', fontSize: '20px', color: '#64748B', cursor: 'pointer' }}
+              >
+                <i className="ti ti-x"></i>
               </button>
             </div>
 
-            <form onSubmit={handleSubmitEvent} style={{ padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+            {/* Modal Body Form */}
+            <form onSubmit={handleSubmitEvent} style={{ padding: '1.5rem 1.75rem', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              
+              {/* Tiêu đề * */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Tiêu đề sự kiện *</label>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                  Tiêu đề <span style={{ color: '#EF4444' }}>*</span>
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="Nhập tên sự kiện..."
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '13.5px',
+                    outline: 'none'
+                  }}
                 />
               </div>
 
+              {/* Mô tả ngắn */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Mô tả ngắn</label>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                  Mô tả ngắn
+                </label>
                 <input
                   type="text"
                   placeholder="Tóm tắt ngắn gọn sự kiện..."
                   value={formData.short_desc}
                   onChange={(e) => setFormData(prev => ({ ...prev, short_desc: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '13px',
+                    outline: 'none'
+                  }}
                 />
               </div>
 
+              {/* Nội dung chi tiết (RichTextEditor) */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>URL Ảnh bìa sự kiện</label>
-                <input
-                  type="text"
-                  placeholder="https://..."
-                  value={formData.image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
-                />
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                  Nội dung chi tiết
+                </label>
+                <div style={{ border: '1px solid #CBD5E1', borderRadius: '8px', overflow: 'hidden' }}>
+                  <RichTextEditor
+                    value={formData.content}
+                    onChange={(val) => setFormData(prev => ({ ...prev, content: val }))}
+                    placeholder="Bấm vào đây và gõ nội dung sự kiện. Chèn ảnh - hoàn hảo cả khi bạn copy từ word và các trang nguồn."
+                  />
+                </div>
               </div>
 
+              {/* Ảnh đại diện & Địa điểm */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Thời gian bắt đầu *</label>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                    Ảnh đại diện <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 'normal' }}>(Hiển thị khi chia sẻ Zalo, Facebook)</span>
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="https://... hoặc tải ảnh"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '12.5px',
+                        outline: 'none'
+                      }}
+                    />
+                    <label style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      backgroundColor: '#F8FAFC',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      <i className="ti ti-upload"></i> Tải ảnh
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const fData = new FormData();
+                          fData.append('image', file);
+                          try {
+                            const res = await fetch('/api/upload', {
+                              method: 'POST',
+                              headers: getAuthHeaders(),
+                              body: fData
+                            });
+                            const json = await res.json();
+                            if (json.success && json.url) {
+                              setFormData(prev => ({ ...prev, image_url: json.url }));
+                            }
+                          } catch (err) {
+                            alert('Lỗi tải ảnh: ' + err.message);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                    Địa điểm
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ví dụ: 36 Hùng vương hoặc Khách sạn Daewoo..."
+                    value={formData.location}
+                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      fontSize: '12.5px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Bắt đầu * & Kết thúc */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                    Bắt đầu <span style={{ color: '#EF4444' }}>*</span>
+                  </label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.event_date}
                     onChange={(e) => setFormData(prev => ({ ...prev, event_date: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      fontSize: '12.5px',
+                      outline: 'none'
+                    }}
                   />
                 </div>
+
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Thời gian kết thúc</label>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                    Kết thúc
+                  </label>
                   <input
                     type="datetime-local"
                     value={formData.end_date}
                     onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      fontSize: '12.5px',
+                      outline: 'none'
+                    }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Địa điểm tổ chức</label>
-                  <input
-                    type="text"
-                    placeholder="VD: Trực tuyến / Trung tâm Hội nghị..."
-                    value={formData.location}
-                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Sức chứa (vé tối đa)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="0 = Không giới hạn"
-                    value={formData.capacity}
-                    onChange={(e) => setFormData(prev => ({ ...prev, capacity: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', fontWeight: '700', cursor: 'pointer', marginTop: '6px' }}>
+              {/* Có thu phí Toggle & Mức phí (đ/vé) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <label style={{
+                    position: 'relative',
+                    display: 'inline-block',
+                    width: '42px',
+                    height: '24px',
+                    cursor: 'pointer'
+                  }}>
                     <input
                       type="checkbox"
                       checked={formData.is_paid}
                       onChange={(e) => setFormData(prev => ({ ...prev, is_paid: e.target.checked }))}
+                      style={{ opacity: 0, width: 0, height: 0 }}
                     />
-                    Sự kiện có thu phí vé
+                    <span style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundColor: formData.is_paid ? '#0D9488' : '#CBD5E1',
+                      borderRadius: '24px',
+                      transition: '0.2s'
+                    }}>
+                      <span style={{
+                        position: 'absolute',
+                        height: '18px',
+                        width: '18px',
+                        left: formData.is_paid ? '20px' : '3px',
+                        bottom: '3px',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '50%',
+                        transition: '0.2s'
+                      }}></span>
+                    </span>
                   </label>
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>
+                    Có thu phí
+                  </span>
                 </div>
+
                 {formData.is_paid && (
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Giá vé (VNĐ)</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '4px' }}>
+                      Mức phí (đ/vé)
+                    </label>
                     <input
                       type="number"
                       min="0"
                       step="1000"
+                      placeholder="0"
                       value={formData.price}
                       onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
+                      style={{
+                        width: '100%',
+                        padding: '7px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '13px',
+                        outline: 'none'
+                      }}
                     />
                   </div>
                 )}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
+              {/* Giới hạn số lượng vé */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: '700', color: '#334155', marginBottom: '6px' }}>
+                  Giới hạn số lượng vé <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 'normal' }}>(0 = không giới hạn)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.capacity}
+                  onChange={(e) => setFormData(prev => ({ ...prev, capacity: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '13px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              {/* Công khai lên website Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '4px' }}>
+                <label style={{
+                  position: 'relative',
+                  display: 'inline-block',
+                  width: '42px',
+                  height: '24px',
+                  cursor: 'pointer'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.is_published}
+                    onChange={(e) => setFormData(prev => ({ ...prev, is_published: e.target.checked }))}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
+                  <span style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: formData.is_published ? '#0D9488' : '#CBD5E1',
+                    borderRadius: '24px',
+                    transition: '0.2s'
+                  }}>
+                    <span style={{
+                      position: 'absolute',
+                      height: '18px',
+                      width: '18px',
+                      left: formData.is_published ? '20px' : '3px',
+                      bottom: '3px',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '50%',
+                      transition: '0.2s'
+                    }}></span>
+                  </span>
+                </label>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>
+                  Công khai lên website
+                </span>
+              </div>
+
+              {/* Nút hành động Hủy / Lưu (Chuẩn góc phải như admin) */}
+              <div style={{
+                marginTop: '1.25rem',
+                paddingTop: '1.25rem',
+                borderTop: '1px solid #E2E8F0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px'
+              }}>
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #CBD5E1', background: 'none', cursor: 'pointer', fontSize: '13px' }}
+                  style={{
+                    padding: '8px 20px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    backgroundColor: '#ffffff',
+                    color: '#64748B',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
                 >
                   Hủy
                 </button>
+
                 <button
                   type="submit"
                   disabled={submitting}
-                  style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', backgroundColor: '#0D9488', color: '#fff', fontWeight: '700', cursor: 'pointer', fontSize: '13px' }}
+                  style={{
+                    padding: '8px 24px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: '#0D9488',
+                    color: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: submitting ? 'wait' : 'pointer',
+                    boxShadow: '0 2px 8px rgba(13, 148, 136, 0.4)'
+                  }}
                 >
                   {submitting ? 'Đang lưu...' : 'Lưu sự kiện'}
                 </button>
               </div>
+
             </form>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import brandConfig from './brand.config';
 
 // Pages
@@ -46,11 +47,12 @@ function ScrollToTop() {
 
 function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Router>
-          <ScrollToTop />
-          <Routes>
+    <ErrorBoundary>
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
+            <ScrollToTop />
+            <Routes>
             {/* Tuyến đường công khai */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -199,6 +201,7 @@ function App() {
         </Router>
       </AuthProvider>
     </LanguageProvider>
+  </ErrorBoundary>
   );
 }
 
