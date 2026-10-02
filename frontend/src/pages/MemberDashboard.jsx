@@ -125,7 +125,10 @@ export const MemberDashboard = () => {
     try {
       setLoadingEvents(true);
       const memberToken = localStorage.getItem('doson_member_token') || token;
-      const headers = { 'Content-Type': 'application/json' };
+      const headers = {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      };
       if (memberToken) headers['Authorization'] = 'Bearer ' + memberToken;
 
       const res = await fetch('/api/member/events', { headers });

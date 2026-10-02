@@ -4121,45 +4121,69 @@ app.get('/api/member/events', memberAuthMiddleware, async (req, res) => {
     const [mRows] = await db.query('SELECT id, name, email, phone, username, contact_name FROM members WHERE id = ?', [memberId]);
     const mem = mRows[0] || req.member;
 
-    // Tự động liên kết các vé trước đây chưa có member_id nhưng khớp email, phone, tên hoặc doanh nghiệp
+    const memEmail = (mem.email || '').trim().toLowerCase();
+    const rawPhone = (mem.phone || '').trim().replace(/\D/g, '');
+    const memPhone9 = rawPhone.length >= 9 ? rawPhone.slice(-9) : rawPhone;
+    const memName = (mem.name || '').trim().toLowerCase();
+    const memContact = (mem.contact_name || '').trim().toLowerCase();
+    const memUser = (mem.username || '').trim().toLowerCase();
+
+    // 1. Tự động liên kết các vé trước đây chưa có member_id nhưng khớp SĐT, email, tên hoặc công ty
     try {
-      await db.query(
-        `UPDATE event_registrations 
-         SET member_id = ? 
-         WHERE member_id IS NULL AND (
-           (email IS NOT NULL AND email != '' AND (email = ? OR email = ?))
-           OR (phone IS NOT NULL AND phone != '' AND (phone = ? OR phone = ?))
-           OR (full_name IS NOT NULL AND full_name != '' AND (full_name = ? OR full_name = ?))
-           OR (company IS NOT NULL AND company != '' AND (company = ? OR company = ?))
-         )`,
-        [
-          memberId,
-          mem.email || '', mem.username || '',
-          mem.phone || '', mem.username || '',
-          mem.name || '', mem.contact_name || '',
-          mem.name || '', mem.contact_name || ''
-        ]
-      );
+      if (memPhone9 || memEmail || memName) {
+        await db.query(
+          `UPDATE event_registrations 
+           SET member_id = ? 
+           WHERE member_id IS NULL AND (
+             (? != '' AND LOWER(TRIM(email)) = ?)
+             OR (? != '' AND (LOWER(TRIM(email)) = ? OR LOWER(TRIM(email)) = ?))
+             OR (? != '' AND RIGHT(REPLACE(REPLACE(phone, ' ', ''), '-', ''), 9) = ?)
+             OR (? != '' AND (LOWER(TRIM(full_name)) = ? OR LOWER(TRIM(full_name)) = ?))
+             OR (? != '' AND (LOWER(TRIM(company)) = ? OR LOWER(TRIM(company)) = ?))
+           )`,
+          [
+            memberId,
+            memEmail, memEmail,
+            memUser, memUser, `${memUser}@doanhnghiepvn.today`,
+            memPhone9, memPhone9,
+            memContact || memName, memContact || memName, memName,
+            memName, memName, memContact
+          ]
+        );
+      }
     } catch (e) {
       console.warn('Auto-link ticket to member error:', e.message);
     }
 
+    // 2. Lấy danh sách vé đã đăng ký của hội viên (sử dụng đúng các cột có trong bảng events)
     const [rows] = await db.query(
-      `SELECT r.*, e.title as event_title, e.start_time, e.end_time, e.event_date, e.end_date, e.location, e.address as event_address, e.image_url, e.slug as event_slug, e.is_paid, e.price
+      `SELECT r.*, 
+              e.title as event_title, 
+              e.event_date, 
+              e.end_date, 
+              e.location, 
+              e.image_url, 
+              e.slug as event_slug, 
+              e.is_paid, 
+              e.price
        FROM event_registrations r
        JOIN events e ON r.event_id = e.id
-       WHERE (r.member_id = ? 
-              OR (r.email IS NOT NULL AND r.email != '' AND (r.email = ? OR r.email = ?)) 
-              OR (r.phone IS NOT NULL AND r.phone != '' AND (r.phone = ? OR r.phone = ?))
-              OR (r.full_name IS NOT NULL AND r.full_name != '' AND (r.full_name = ? OR r.full_name = ?))
-              OR (r.company IS NOT NULL AND r.company != '' AND (r.company = ? OR r.company = ?)))
+       WHERE (
+         r.member_id = ? 
+         OR (? != '' AND LOWER(TRIM(r.email)) = ?)
+         OR (? != '' AND (LOWER(TRIM(r.email)) = ? OR LOWER(TRIM(r.email)) = ?))
+         OR (? != '' AND RIGHT(REPLACE(REPLACE(r.phone, ' ', ''), '-', ''), 9) = ?)
+         OR (? != '' AND (LOWER(TRIM(r.full_name)) = ? OR LOWER(TRIM(r.full_name)) = ?))
+         OR (? != '' AND (LOWER(TRIM(r.company)) = ? OR LOWER(TRIM(r.company)) = ?))
+       )
        ORDER BY r.created_at DESC`,
       [
-        memberId, 
-        mem.email || '', mem.username || '',
-        mem.phone || '', mem.username || '',
-        mem.name || '', mem.contact_name || '',
-        mem.name || '', mem.contact_name || ''
+        memberId,
+        memEmail, memEmail,
+        memUser, memUser, `${memUser}@doanhnghiepvn.today`,
+        memPhone9, memPhone9,
+        memContact || memName, memContact || memName, memName,
+        memName, memName, memContact
       ]
     );
 
