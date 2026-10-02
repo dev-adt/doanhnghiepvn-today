@@ -28,7 +28,7 @@ export const Footer = () => {
           <div>
             <Link to="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '1rem' }}>
               <img 
-                src={brandConfig.logo.primary || "/vtv8_logo.png"} 
+                src={brandConfig.logo.primary || "/logo_doanhnghiepvn.png"} 
                 alt={brandConfig.logo.alt || `${brandConfig.brandName} Logo`} 
                 onError={(e) => {
                   e.target.style.display = 'none';

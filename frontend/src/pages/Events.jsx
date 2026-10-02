@@ -29,8 +29,13 @@ export const Events = () => {
     email: '',
     company: '',
     quantity: 1,
-    createAccount: false
+    createAccount: false,
+    accountLogin: '',
+    accountPassword: '',
+    accountConfirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [accountNotice, setAccountNotice] = useState('');
   const [submittingReg, setSubmittingReg] = useState(false);
   const [regSuccessData, setRegSuccessData] = useState(null);
   const [copiedNote, setCopiedNote] = useState(false);
@@ -124,6 +129,26 @@ export const Events = () => {
       return;
     }
 
+    if (regForm.createAccount) {
+      const login = regForm.accountLogin.trim() || regForm.phone.trim() || regForm.email.trim();
+      if (!login) {
+        alert('Vui lòng nhập Tài khoản (Email hoặc Số điện thoại) để tạo tài khoản theo dõi vé.');
+        return;
+      }
+      if (!regForm.accountPassword) {
+        alert('Vui lòng nhập mật khẩu cho tài khoản theo dõi vé.');
+        return;
+      }
+      if (regForm.accountPassword.length < 6) {
+        alert('Mật khẩu phải có ít nhất 6 ký tự.');
+        return;
+      }
+      if (regForm.accountPassword !== regForm.accountConfirmPassword) {
+        alert('Mật khẩu xác nhận không khớp. Vui lòng nhập lại chính xác.');
+        return;
+      }
+    }
+
     setSubmittingReg(true);
     try {
       const res = await fetch(`/api/events/${currentEvent.id}/register`, {
@@ -137,13 +162,19 @@ export const Events = () => {
           email: regForm.email.trim() || null,
           company: regForm.company.trim() || null,
           quantity: parseInt(regForm.quantity, 10) || 1,
-          create_account: regForm.createAccount
+          create_account: regForm.createAccount,
+          account_login: regForm.accountLogin.trim() || regForm.phone.trim() || regForm.email.trim(),
+          account_password: regForm.accountPassword,
+          account_confirm_password: regForm.accountConfirmPassword
         })
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
         setRegSuccessData(data.registration);
+        if (data.account_message) {
+          setAccountNotice(data.account_message);
+        }
         // Cập nhật lại số lượng vé còn lại trên giao diện
         setCurrentEvent(prev => ({
           ...prev,
@@ -260,10 +291,19 @@ export const Events = () => {
             />
           </div>
 
+          <style>{`
+            @media (max-width: 920px) {
+              .event-detail-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+              }
+            }
+          `}</style>
+
           {/* 2. TWO-COLUMN GRID: LEFT INFO + RIGHT REGISTRATION CARD (CHUẨN ẢNH 1) */}
-          <div style={{
+          <div className="event-detail-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gridTemplateColumns: 'minmax(0, 1.85fr) minmax(300px, 350px)',
             gap: '2.5rem',
             alignItems: 'start'
           }}>
@@ -558,13 +598,122 @@ export const Events = () => {
                         type="checkbox"
                         id="chkCreateAcc"
                         checked={regForm.createAccount}
-                        onChange={(e) => setRegForm(prev => ({ ...prev, createAccount: e.target.checked }))}
-                        style={{ cursor: 'pointer', width: '15px', height: '15px' }}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setRegForm(prev => ({
+                            ...prev,
+                            createAccount: checked,
+                            accountLogin: checked && !prev.accountLogin ? (prev.email || prev.phone) : prev.accountLogin
+                          }));
+                        }}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#064E3B' }}
                       />
-                      <label htmlFor="chkCreateAcc" style={{ fontSize: '12px', color: '#475569', cursor: 'pointer' }}>
+                      <label htmlFor="chkCreateAcc" style={{ fontSize: '12.5px', fontWeight: '600', color: '#334155', cursor: 'pointer' }}>
                         Tạo tài khoản để theo dõi vé
                       </label>
                     </div>
+
+                    {/* Hiển thị 3 ô khi tích chọn tạo tài khoản */}
+                    {regForm.createAccount && (
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        padding: '10px 12px',
+                        backgroundColor: '#F0FDF4',
+                        border: '1px solid #BBF7D0',
+                        borderRadius: '8px',
+                        marginTop: '2px'
+                      }}>
+                        <div style={{ fontSize: '11px', color: '#166534', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <i className="ti ti-user-plus"></i>
+                          <span>Thiết lập tài khoản thành viên:</span>
+                        </div>
+
+                        {/* Ô 1: Tài khoản (Email hoặc Số điện thoại) */}
+                        <div>
+                          <input
+                            type="text"
+                            required={regForm.createAccount}
+                            placeholder="Tài khoản (Email hoặc Số điện thoại) *"
+                            value={regForm.accountLogin}
+                            onChange={(e) => setRegForm(prev => ({ ...prev, accountLogin: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '8px 10px',
+                              borderRadius: '6px',
+                              border: '1px solid #86EFAC',
+                              fontSize: '12.5px',
+                              outline: 'none',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        </div>
+
+                        {/* Ô 2: Mật khẩu */}
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            required={regForm.createAccount}
+                            placeholder="Mật khẩu (tối thiểu 6 ký tự) *"
+                            value={regForm.accountPassword}
+                            onChange={(e) => setRegForm(prev => ({ ...prev, accountPassword: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '8px 32px 8px 10px',
+                              borderRadius: '6px',
+                              border: '1px solid #86EFAC',
+                              fontSize: '12.5px',
+                              outline: 'none',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(p => !p)}
+                            style={{
+                              position: 'absolute',
+                              right: '8px',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'none',
+                              border: 'none',
+                              color: '#64748B',
+                              cursor: 'pointer',
+                              padding: '2px',
+                              fontSize: '14px'
+                            }}
+                            title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                          >
+                            <i className={showPassword ? "ti ti-eye-off" : "ti ti-eye"}></i>
+                          </button>
+                        </div>
+
+                        {/* Ô 3: Xác nhận mật khẩu */}
+                        <div>
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            required={regForm.createAccount}
+                            placeholder="Xác nhận mật khẩu *"
+                            value={regForm.accountConfirmPassword}
+                            onChange={(e) => setRegForm(prev => ({ ...prev, accountConfirmPassword: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '8px 10px',
+                              borderRadius: '6px',
+                              border: '1px solid #86EFAC',
+                              fontSize: '12.5px',
+                              outline: 'none',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ fontSize: '10.5px', color: '#15803D', lineHeight: 1.35 }}>
+                          * Hệ thống sẽ tự động tạo tài khoản như đăng ký thành viên (các trường bắt buộc khác sẽ để mặc định là "Cần bổ sung"). Sau khi admin duyệt, bạn có thể đăng nhập vào để cập nhật thông tin.
+                        </div>
+                      </div>
+                    )}
 
                     {/* Nút Đăng ký ngay */}
                     <button
@@ -709,6 +858,27 @@ export const Events = () => {
                   <div><strong>Số lượng:</strong> {regSuccessData.quantity} vé</div>
                   {regSuccessData.company && <div><strong>Đơn vị:</strong> {regSuccessData.company}</div>}
                 </div>
+
+                {/* Thông báo tạo tài khoản nếu có */}
+                {accountNotice && (
+                  <div style={{
+                    backgroundColor: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    color: '#065F46',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    lineHeight: 1.45,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '8px'
+                  }}>
+                    <i className="ti ti-check-circle" style={{ fontSize: '18px', color: '#059669', flexShrink: 0, marginTop: '2px' }}></i>
+                    <div>
+                      <strong>Tài khoản theo dõi vé:</strong> {accountNotice} Sau khi Ban quản trị phê duyệt hồ sơ, bạn có thể đăng nhập bằng tài khoản này để xem và quản lý vé trong Dashboard thành viên.
+                    </div>
+                  </div>
+                )}
 
                 {/* Khối thanh toán Chuyển khoản VietQR nếu có phí */}
                 {regSuccessData.total_amount > 0 && (

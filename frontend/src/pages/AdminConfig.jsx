@@ -223,7 +223,7 @@ export const AdminConfig = () => {
               <textarea 
                 value={systemInstruction} 
                 onChange={(e) => setSystemInstruction(e.target.value)} 
-                placeholder="Ví dụ: Bạn là trợ lý AI thông thái và thân thiện, chuyên cung cấp thông tin du lịch và kinh doanh của hệ sinh thái số VTV8.vn..." 
+                placeholder="Ví dụ: Bạn là trợ lý AI thông thái và thân thiện, chuyên cung cấp thông tin du lịch và kinh doanh của hệ sinh thái số DoanhNghiepVN.today..." 
                 style={{ padding: '9px 12px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '13px', outline: 'none', minHeight: '120px', resize: 'vertical', fontFamily: 'inherit' }}
               />
               <span style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>
@@ -265,7 +265,7 @@ export const AdminConfig = () => {
 
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBlockStart: 0, marginBlockEnd: '1rem', lineHeight: 1.5 }}>
-            Tải lên các tài liệu văn bản để bổ sung kiến thức về văn hóa, lịch sử, di sản, điểm đến du lịch và đối tác VTV8.vn. AI sẽ đọc và sử dụng thông tin trong các tệp này để trả lời hội viên.
+            Tải lên các tài liệu văn bản để bổ sung kiến thức về văn hóa, lịch sử, di sản, điểm đến du lịch và đối tác DoanhNghiepVN.today. AI sẽ đọc và sử dụng thông tin trong các tệp này để trả lời hội viên.
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -148,7 +148,7 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // Helper sinh tệp sitemap.xml và robots.txt thực tế vào thư mục public/
 async function generateSitemapFiles() {
   try {
-    const baseUrl = process.env.SITE_URL || 'https://vtv8.vn';
+    const baseUrl = process.env.SITE_URL || 'https://doanhnghiepvn.today';
     const staticPages = ['', '/posts', '/members', '/events', '/guide', '/register'];
 
     const [approvedPosts] = await db.query(
@@ -209,7 +209,7 @@ app.get('/sitemap.xml', async (req, res) => {
 });
 
 app.get('/robots.txt', (req, res) => {
-  const baseUrl = process.env.SITE_URL || 'https://vtv8.vn';
+  const baseUrl = process.env.SITE_URL || 'https://doanhnghiepvn.today';
   const content = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -566,10 +566,15 @@ db.query(`
         await db.query("ALTER TABLE event_interests ADD COLUMN member_id INT DEFAULT NULL AFTER event_id, ADD INDEX idx_member (member_id)");
       }
 
+      const [regMemberCols] = await db.query("SHOW COLUMNS FROM event_registrations LIKE 'member_id'");
+      if (!regMemberCols.length) {
+        await db.query("ALTER TABLE event_registrations ADD COLUMN member_id INT DEFAULT NULL AFTER event_id, ADD INDEX idx_reg_member (member_id)");
+      }
+
       // Khởi tạo sự kiện mẫu chuẩn theo mockup giao diện DoanhNghiepVN.today
       const [existingEvents] = await db.query("SELECT id FROM events WHERE slug = 'su-kien-demo' OR title LIKE '%Sự kiện demo%' LIMIT 1");
       if (!existingEvents.length) {
-        // Xóa sự kiện mẫu VTV8 cũ nếu có
+        // Xóa sự kiện mẫu cũ nếu có
         await db.query("DELETE FROM events WHERE title LIKE '%Festival Văn hóa%' OR title LIKE '%Cồng chiêng Tây Nguyên%'");
         
         await db.query(`
@@ -2074,7 +2079,7 @@ app.get('/api/posts', async (req, res) => {
       }
     }
 
-    let sql = `SELECT p.*, COALESCE(c.name, m.name, p.author_name, 'Ban Biên tập VTV8.vn') AS company_name, COALESCE(m.tier, 'Standard') AS company_tier
+    let sql = `SELECT p.*, COALESCE(c.name, m.name, p.author_name, 'Ban Biên tập DoanhNghiepVN.today') AS company_name, COALESCE(m.tier, 'Standard') AS company_tier
                FROM posts p 
                LEFT JOIN members m ON p.member_id = m.id 
                LEFT JOIN content_creators c ON p.creator_id = c.id
@@ -2533,7 +2538,7 @@ app.delete('/api/creator/posts/:id', creatorAuthMiddleware, async (req, res) => 
 // ════════════════════════════════════════════
 app.get('/sitemap.xml', async (req, res) => {
   try {
-    const baseUrl = process.env.SITE_URL || 'https://vtv8.vn';
+    const baseUrl = process.env.SITE_URL || 'https://doanhnghiepvn.today';
     const staticPages = ['', '/posts', '/members', '/events', '/guide', '/register'];
 
     const [approvedPosts] = await db.query(
@@ -2572,7 +2577,7 @@ app.get('/sitemap.xml', async (req, res) => {
 });
 
 app.get('/robots.txt', (req, res) => {
-  const baseUrl = process.env.SITE_URL || 'https://vtv8.vn';
+  const baseUrl = process.env.SITE_URL || 'https://doanhnghiepvn.today';
   const content = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
   res.header('Content-Type', 'text/plain');
   res.send(content);
@@ -3555,7 +3560,18 @@ app.post('/api/events/:id/register', async (req, res) => {
     }
 
     const event = events[0];
-    const { full_name, phone, email, company, quantity = 1, create_account = false, notes = '' } = req.body;
+    const { 
+      full_name, 
+      phone, 
+      email, 
+      company, 
+      quantity = 1, 
+      create_account = false, 
+      account_login, 
+      account_password, 
+      account_confirm_password, 
+      notes = '' 
+    } = req.body;
 
     if (!full_name || !full_name.trim()) {
       return res.status(400).json({ success: false, error: 'Vui lòng nhập Họ và tên.' });
@@ -3565,20 +3581,88 @@ app.post('/api/events/:id/register', async (req, res) => {
     }
 
     const qty = Math.max(1, parseInt(quantity) || 1);
+    const eventCapacity = Number(event.capacity) || 0;
 
-    // Kiểm tra số lượng vé còn lại
-    if (event.capacity && event.capacity > 0) {
+    // Kiểm tra số lượng vé còn lại (ép kiểu Number chính xác)
+    if (eventCapacity > 0) {
       const [sumRows] = await db.query(
         "SELECT COALESCE(SUM(quantity), 0) as registered FROM event_registrations WHERE event_id = ? AND payment_status != 'cancelled'",
         [event.id]
       );
-      const currentRegistered = sumRows[0].registered || 0;
-      if (currentRegistered + qty > event.capacity) {
-        const remaining = Math.max(0, event.capacity - currentRegistered);
+      const currentRegistered = Number(sumRows[0]?.registered) || 0;
+      if (currentRegistered + qty > eventCapacity) {
+        const remaining = Math.max(0, eventCapacity - currentRegistered);
         return res.status(400).json({
           success: false,
           error: remaining > 0 ? `Chỉ còn ${remaining} vé, không đủ số lượng ${qty} bạn yêu cầu.` : 'Sự kiện này đã hết vé.'
         });
+      }
+    }
+
+    const cleanPhone = phone.trim().replace(/\s+/g, '');
+    const cleanEmail = (email && email.trim()) ? email.trim() : null;
+
+    // Xử lý tạo tài khoản nếu người dùng tích chọn "Tạo tài khoản để theo dõi vé"
+    let createdMemberId = null;
+    let accountCreated = false;
+    let accountMsg = '';
+
+    const willCreateAccount = create_account === true || create_account === 'true' || create_account === 1 || create_account === '1';
+
+    if (willCreateAccount) {
+      const loginUser = (account_login && account_login.trim()) ? account_login.trim() : (cleanPhone || cleanEmail || '');
+      const pass = account_password ? account_password.trim() : '';
+      const passConfirm = account_confirm_password ? account_confirm_password.trim() : '';
+
+      if (!loginUser) {
+        return res.status(400).json({ success: false, error: 'Vui lòng nhập tài khoản (Email hoặc Số điện thoại) để tạo tài khoản theo dõi vé.' });
+      }
+      if (!pass) {
+        return res.status(400).json({ success: false, error: 'Vui lòng nhập mật khẩu cho tài khoản theo dõi vé.' });
+      }
+      if (pass.length < 6) {
+        return res.status(400).json({ success: false, error: 'Mật khẩu phải có ít nhất 6 ký tự.' });
+      }
+      if (passConfirm && pass !== passConfirm) {
+        return res.status(400).json({ success: false, error: 'Mật khẩu xác nhận không khớp.' });
+      }
+
+      // Kiểm tra xem username/email/phone này đã tồn tại trong bảng members chưa
+      const [existingMem] = await db.query(
+        'SELECT id, username, email, phone FROM members WHERE username = ? OR (email IS NOT NULL AND email != "" AND email = ?) OR (phone IS NOT NULL AND phone != "" AND phone = ?)',
+        [loginUser, loginUser, loginUser]
+      );
+
+      if (existingMem.length > 0) {
+        // Đã có tài khoản
+        createdMemberId = existingMem[0].id;
+        accountCreated = false;
+        accountMsg = 'Tài khoản đã tồn tại trên hệ thống, vé đã được liên kết với tài khoản này.';
+      } else {
+        // Tạo tài khoản mới
+        const hash = await bcrypt.hash(pass, 10);
+        const isEmail = loginUser.includes('@');
+        const regEmail = isEmail ? loginUser : (cleanEmail || `${cleanPhone}@doanhnghiepvn.today`);
+        const regPhone = !isEmail ? loginUser : cleanPhone;
+        const orgName = (company && company.trim()) ? company.trim() : (full_name.trim() || 'Hội viên mới');
+
+        const [insertMem] = await db.query(
+          `INSERT INTO members (name, tax_code, license, industry, size, address, city, website, social,
+            description, tier, status, contact_name, contact_pos, email, username, password_hash, phone, goal, referral)
+           VALUES (?, 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', NULL, NULL,
+            'Tài khoản đăng ký qua vé sự kiện', 'Silver', 'pending', ?, 'Cần bổ sung', ?, ?, ?, ?, 'Theo dõi vé sự kiện và kết nối', 'Đăng ký vé sự kiện')`,
+          [
+            orgName,
+            full_name.trim(),
+            regEmail,
+            loginUser,
+            hash,
+            regPhone
+          ]
+        );
+        createdMemberId = insertMem.insertId;
+        accountCreated = true;
+        accountMsg = 'Đã tạo tài khoản thành viên (hồ sơ đang ở trạng thái Chờ duyệt bởi Ban quản trị).';
       }
     }
 
@@ -3591,25 +3675,25 @@ app.post('/api/events/:id/register', async (req, res) => {
     const unitPrice = isPaid ? Number(event.price) : 0;
     const totalAmount = unitPrice * qty;
     const paymentStatus = isPaid ? 'pending' : 'free';
-    const cleanPhone = phone.trim().replace(/\s+/g, '');
     const paymentNote = `VE ${ticketCode} ${cleanPhone}`;
 
     const [result] = await db.query(
       `INSERT INTO event_registrations 
-       (event_id, ticket_code, full_name, phone, email, company, quantity, total_amount, payment_status, payment_note, checkin_status, create_account, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'not_checked_in', ?, ?)`,
+       (event_id, member_id, ticket_code, full_name, phone, email, company, quantity, total_amount, payment_status, payment_note, checkin_status, create_account, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'not_checked_in', ?, ?)`,
       [
         event.id,
+        createdMemberId,
         ticketCode,
         full_name.trim(),
         cleanPhone,
-        email ? email.trim() : null,
+        cleanEmail,
         company ? company.trim() : null,
         qty,
         totalAmount,
         paymentStatus,
         paymentNote,
-        create_account ? 1 : 0,
+        willCreateAccount ? 1 : 0,
         notes || null
       ]
     );
@@ -3636,15 +3720,18 @@ app.post('/api/events/:id/register', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Đăng ký vé tham gia sự kiện thành công!',
+      message: 'Đăng ký vé tham gia sự kiện thành công!' + (accountMsg ? ` (${accountMsg})` : ''),
+      account_created: accountCreated,
+      account_message: accountMsg,
       registration: {
         id: result.insertId,
+        member_id: createdMemberId,
         event_id: event.id,
         event_title: event.title,
         ticket_code: ticketCode,
         full_name: full_name.trim(),
         phone: cleanPhone,
-        email: email || '',
+        email: cleanEmail || '',
         company: company || '',
         quantity: qty,
         total_amount: totalAmount,
@@ -3658,6 +3745,47 @@ app.post('/api/events/:id/register', async (req, res) => {
     });
   } catch (err) {
     console.error('Lỗi POST /api/events/:id/register:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Hội viên: Xem lịch sử đăng ký sự kiện & vé điện tử
+app.get('/api/member/events', memberAuthMiddleware, async (req, res) => {
+  try {
+    const memberId = req.member.id;
+    const [mRows] = await db.query('SELECT id, email, phone, username FROM members WHERE id = ?', [memberId]);
+    const mem = mRows[0] || req.member;
+
+    const [rows] = await db.query(
+      `SELECT r.*, e.title as event_title, e.start_time, e.end_time, e.event_date, e.end_date, e.location, e.address as event_address, e.image_url, e.slug as event_slug, e.is_paid, e.price
+       FROM event_registrations r
+       JOIN events e ON r.event_id = e.id
+       WHERE (r.member_id = ? 
+              OR (r.email IS NOT NULL AND r.email != '' AND r.email = ?) 
+              OR (r.phone IS NOT NULL AND r.phone != '' AND r.phone = ?)
+              OR (r.phone IS NOT NULL AND r.phone != '' AND r.phone = ?))
+       ORDER BY r.created_at DESC`,
+      [memberId, mem.email || '', mem.phone || '', mem.username || '']
+    );
+
+    const formatted = rows.map(item => {
+      const qrData = `https://doanhnghiepvn.today/checkin?code=${encodeURIComponent(item.ticket_code)}`;
+      const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(item.ticket_code)}`;
+      let vietqrUrl = null;
+      if (item.payment_status === 'pending' && Number(item.total_amount) > 0) {
+        vietqrUrl = `https://img.vietqr.io/image/970407-19036730021017-compact2.png?amount=${item.total_amount}&addInfo=${encodeURIComponent(item.payment_note || ('VE ' + item.ticket_code))}&accountName=${encodeURIComponent('CONG TY CO PHAN ADT QUOC TE')}`;
+      }
+      return {
+        ...item,
+        qr_data: qrData,
+        qr_image: qrImage,
+        vietqr_url: vietqrUrl
+      };
+    });
+
+    res.json({ success: true, data: formatted });
+  } catch (err) {
+    console.error('Lỗi GET /api/member/events:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -3907,7 +4035,7 @@ app.post('/api/leads', async (req, res) => {
     res.json({
       success: true,
       id: result.insertId,
-      message: 'Đăng ký thành công! Đội ngũ phát triển VTV8.vn sẽ liên hệ với bạn trong thời gian sớm nhất.'
+      message: 'Đăng ký thành công! Đội ngũ phát triển DoanhNghiepVN.today sẽ liên hệ với bạn trong thời gian sớm nhất.'
     });
   } catch (err) {
     console.error('Lỗi lưu lead /api/leads:', err.message);

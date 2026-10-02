@@ -130,8 +130,8 @@ export const Guide = () => {
   return (
     <div className="public-body">
       <SEOHead 
-        title={isEn ? "System User Guide | VTV8.vn" : "Hướng Dẫn Sử Dụng Hệ Thống | VTV8.vn"} 
-        description={isEn ? "Detailed step-by-step user guide for Business Members, Content Creators, and System Administrators on VTV8.vn." : "Tài liệu hướng dẫn sử dụng chi tiết các tính năng dành cho Doanh nghiệp Hội viên, Biên tập viên và Quản trị viên hệ thống VTV8.vn."}
+        title={isEn ? "System User Guide | DoanhNghiepVN.today" : "Hướng Dẫn Sử Dụng Hệ Thống | DoanhNghiepVN.today"} 
+        description={isEn ? "Detailed step-by-step user guide for Business Members, Content Creators, and System Administrators on DoanhNghiepVN.today." : "Tài liệu hướng dẫn sử dụng chi tiết các tính năng dành cho Doanh nghiệp Hội viên, Biên tập viên và Quản trị viên hệ thống DoanhNghiepVN.today."}
       />
       <Navbar />
 
@@ -144,9 +144,9 @@ export const Guide = () => {
           </div>
           <h1 style={{ fontFamily: 'var(--font-title)', fontSize: '30px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 12px 0', lineHeight: 1.3 }}>
             {isEn ? (
-              <>User Guide for <span style={{ color: 'var(--neon-cyan)' }}>VTV8.vn</span> Platform</>
+              <>User Guide for <span style={{ color: 'var(--neon-cyan)' }}>DoanhNghiepVN.today</span> Platform</>
             ) : (
-              <>Hướng Dẫn Sử Dụng Nền Tảng <span style={{ color: 'var(--neon-cyan)' }}>VTV8.vn</span></>
+              <>Hướng Dẫn Sử Dụng Nền Tảng <span style={{ color: 'var(--neon-cyan)' }}>DoanhNghiepVN.today</span></>
             )}
           </h1>
           <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', maxWidth: '750px', margin: '0 auto', lineHeight: 1.6 }}>
@@ -422,9 +422,9 @@ export const Guide = () => {
                   </h2>
                   <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
                     {isEn ? (
-                      <>VTV8.vn employs a smart unified authentication mechanism. Whether you are a Business Member, Content Creator, or Admin, simply click {renderLinkPill("Login Portal", "/login")} and enter your credentials to be automatically routed to your respective Dashboard.</>
+                      <>DoanhNghiepVN.today employs a smart unified authentication mechanism. Whether you are a Business Member, Content Creator, or Admin, simply click {renderLinkPill("Login Portal", "/login")} and enter your credentials to be automatically routed to your respective Dashboard.</>
                     ) : (
-                      <>VTV8.vn ứng dụng cơ chế đăng nhập hợp nhất thông minh. Cho dù bạn là Hội viên Doanh nghiệp, Biên tập viên hay Admin Quản trị, bạn chỉ cần nhấp vào {renderLinkPill("Đăng nhập", "/login")} và điền Tên đăng nhập (Email / SĐT) và Mật khẩu tại một biểu mẫu duy nhất ➔ Hệ thống tự động chuyển hướng bạn tới Dashboard tương ứng.</>
+                      <>DoanhNghiepVN.today ứng dụng cơ chế đăng nhập hợp nhất thông minh. Cho dù bạn là Hội viên Doanh nghiệp, Biên tập viên hay Admin Quản trị, bạn chỉ cần nhấp vào {renderLinkPill("Đăng nhập", "/login")} và điền Tên đăng nhập (Email / SĐT) và Mật khẩu tại một biểu mẫu duy nhất ➔ Hệ thống tự động chuyển hướng bạn tới Dashboard tương ứng.</>
                     )}
                   </p>
                   <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)', maxWidth: '800px', margin: '0 auto' }}>
@@ -522,9 +522,9 @@ export const Guide = () => {
                   </h2>
                   <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
                     {isEn ? (
-                      <>VTV8.vn provides a feature-rich WYSIWYG editor to create professional posts optimized for Google Search. Access {renderLinkPill("Post Article", "/member-dashboard")} from your dashboard to begin:</>
+                      <>DoanhNghiepVN.today provides a feature-rich WYSIWYG editor to create professional posts optimized for Google Search. Access {renderLinkPill("Post Article", "/member-dashboard")} from your dashboard to begin:</>
                     ) : (
-                      <>VTV8.vn trang bị công cụ soạn thảo phong phú Rich Text Editor giúp bài viết của doanh nghiệp chuyên nghiệp và tối ưu cho Google Search. Nhấn vào {renderLinkPill("Đăng bài viết mới", "/member-dashboard")} tại Dashboard để trải nghiệm:</>
+                      <>DoanhNghiepVN.today trang bị công cụ soạn thảo phong phú Rich Text Editor giúp bài viết của doanh nghiệp chuyên nghiệp và tối ưu cho Google Search. Nhấn vào {renderLinkPill("Đăng bài viết mới", "/member-dashboard")} tại Dashboard để trải nghiệm:</>
                     )}
                   </p>
                   
@@ -694,7 +694,7 @@ export const Guide = () => {
                   </h2>
                   <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
                     {isEn ? (
-                      <>Content Creator accounts are created by Admins to publish official media articles, tourism news, and economic reports for VTV8.vn. Access your {renderLinkPill("Creator Dashboard", "/creator-dashboard")} once authenticated.</>
+                      <>Content Creator accounts are created by Admins to publish official media articles, tourism news, and economic reports for DoanhNghiepVN.today. Access your {renderLinkPill("Creator Dashboard", "/creator-dashboard")} once authenticated.</>
                     ) : (
                       <>Tài khoản Biên tập viên được tạo bởi Ban quản trị Admin, có nhiệm vụ chuyên trách sáng tạo, biên tập và xuất bản các bài viết truyền thông, tin tức du lịch - kinh tế chính thống. Quản lý tác phẩm tại {renderLinkPill("Dashboard Biên tập viên", "/creator-dashboard")}.</>
                     )}
@@ -1013,7 +1013,7 @@ export const Guide = () => {
                     {isEn ? (
                       <>Every time a prospective enterprise or traveler submits the "Join the Ecosystem" form on the Homepage, their data is instantly logged into {renderLinkPill("Leads & Contacts", "/admin-dashboard")}. Admin can track status, update contact logs, and add internal notes.</>
                     ) : (
-                      <>Khi khách truy cập hoặc doanh nghiệp gửi form "Tham gia Hệ sinh thái VTV8.vn" ở trang chủ, toàn bộ thông tin sẽ được tiếp nhận tức thời vào trang {renderLinkPill("Liên hệ / Đăng ký", "/admin-dashboard")}. Ban quản trị có thể dễ dàng quản lý tiến độ liên hệ:</>
+                      <>Khi khách truy cập hoặc doanh nghiệp gửi form "Tham gia Hệ sinh thái DoanhNghiepVN.today" ở trang chủ, toàn bộ thông tin sẽ được tiếp nhận tức thời vào trang {renderLinkPill("Liên hệ / Đăng ký", "/admin-dashboard")}. Ban quản trị có thể dễ dàng quản lý tiến độ liên hệ:</>
                     )}
                   </p>
 

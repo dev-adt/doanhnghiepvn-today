@@ -268,7 +268,7 @@ export const CreatorDashboard = () => {
 
   return (
     <div className="public-body">
-      <SEOHead title="Dashboard Biên tập viên | VTV8.vn" description="Trang quản trị bài viết dành riêng cho Biên tập viên VTV8.vn" />
+      <SEOHead title="Dashboard Biên tập viên | DoanhNghiepVN.today" description="Trang quản trị bài viết dành riêng cho Biên tập viên DoanhNghiepVN.today" />
       <Navbar />
 
       <div className="public-container" style={{ minHeight: '80vh', paddingBottom: '4rem', paddingTop: '2rem' }}>
@@ -294,7 +294,7 @@ export const CreatorDashboard = () => {
               </span>
             </div>
             <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0 }}>
-              Quản trị & xuất bản tin tức, bài viết truyền thông VTV8.vn.
+              Quản trị & xuất bản tin tức, bài viết truyền thông DoanhNghiepVN.today.
             </p>
           </div>
 

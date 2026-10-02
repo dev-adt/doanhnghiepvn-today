@@ -17,11 +17,11 @@ const SEOHead = ({
   schemaData
 }) => {
   useEffect(() => {
-    const defaultSiteName = 'VTV8.vn — Tôn vinh cội nguồn, kết nối thời đại | Chuyên trang Du lịch, Văn hóa, Di sản';
-    const siteUrl = 'https://vtv8.vn';
+    const defaultSiteName = 'DoanhNghiepVN.today — Tạp chí Doanh Nghiệp Việt Nam | Hệ sinh thái số Kết nối Giao thương & Trợ lý AI';
+    const siteUrl = 'https://doanhnghiepvn.today';
 
     // 1. Set Document Title
-    const fullTitle = title ? `${title} | VTV8.vn` : defaultSiteName;
+    const fullTitle = title ? `${title} | DoanhNghiepVN.today` : defaultSiteName;
     document.title = fullTitle;
 
     // Helper function to create or update meta tags
@@ -48,8 +48,8 @@ const SEOHead = ({
     };
 
     // 2. Standard Meta Tags
-    const pageDesc = description || 'Hệ sinh thái số VTV8.vn kết nối văn hóa, di sản, lịch sử và điểm đến Việt Nam với cộng đồng hội viên doanh nghiệp, chuyên gia, du khách.';
-    const pageKeywords = keywords || 'VTV8, vtv8 vn, vtv8.vn, du lịch Việt Nam, di sản, văn hóa, lịch sử, điểm đến miền Trung, Tây Nguyên, hội viên du lịch, trợ lý AI du lịch';
+    const pageDesc = description || 'Hệ sinh thái số Tạp chí Doanh Nghiệp Việt Nam DoanhNghiepVN.today kết nối giao thương, cơ hội đầu tư, tư vấn vay vốn và trợ lý AI cho doanh nghiệp.';
+    const pageKeywords = keywords || 'DoanhNghiepVN, doanhnghiepvn today, tạp chí doanh nghiệp việt nam, kết nối giao thương, hội viên doanh nghiệp, trợ lý AI doanh nghiệp';
     const canonicalUrl = url ? (url.startsWith('http') ? url : `${siteUrl}${url}`) : window.location.href;
     const ogImage = image || `${siteUrl}/assets/og-image.jpg`;
 
@@ -58,7 +58,7 @@ const SEOHead = ({
     setCanonical(canonicalUrl);
 
     // 3. Open Graph Tags (Facebook, Zalo, LinkedIn)
-    setMetaTag('property', 'og:site_name', 'VTV8.vn');
+    setMetaTag('property', 'og:site_name', 'DoanhNghiepVN.today');
     setMetaTag('property', 'og:title', fullTitle);
     setMetaTag('property', 'og:description', pageDesc);
     setMetaTag('property', 'og:image', ogImage);
