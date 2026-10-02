@@ -56,6 +56,9 @@ function App() {
             <Route path="/posts" element={<Posts />} />
             <Route path="/posts/:id" element={<PostDetail />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/events/:id" element={<Events />} />
+            <Route path="/su-kien" element={<Events />} />
+            <Route path="/su-kien/:id" element={<Events />} />
             <Route path="/ai-chat" element={<AIChat />} />
             <Route path="/search" element={<Search />} />
             <Route path="/guide" element={<Guide />} />

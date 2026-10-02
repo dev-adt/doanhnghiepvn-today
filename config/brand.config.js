@@ -8,33 +8,44 @@
 require('dotenv').config();
 
 const brandConfig = {
-  appName: process.env.APP_NAME || 'VTV8.today Platform',
-  brandName: process.env.BRAND_NAME || 'VTV8.today',
-  brandShortName: process.env.BRAND_SHORT_NAME || 'VTV8',
-  siteUrl: process.env.SITE_URL || 'https://vtv8.vn',
+  appName: process.env.APP_NAME || 'DoanhNghiepVN.today Platform',
+  brandName: process.env.BRAND_NAME || 'DoanhNghiepVN.today',
+  brandShortName: process.env.BRAND_SHORT_NAME || 'DoanhNghiepVN',
+  siteUrl: process.env.SITE_URL || 'https://doanhnghiepvn.today',
+  demoSiteUrl: 'https://demo.edunow.today',
   
+  // Thông tin thanh toán ngân hàng (Theo hợp đồng số 204-100126/ADT-DNVN)
+  bankAccount: {
+    bankName: 'Techcombank',
+    bankBranch: 'PGD Văn Quán - Hà Đông - Hà Nội',
+    accountNumber: '19036730021017',
+    accountHolder: 'CONG TY CO PHAN ADT QUOC TE',
+    binCode: '970407'
+  },
+
   // AI System Persona Prompt
   ai: {
-    agentName: process.env.AI_AGENT_NAME || 'AI VTV8 Assistant',
+    agentName: process.env.AI_AGENT_NAME || 'AI Doanh Nghiệp VN',
     systemPrompt: process.env.AI_SYSTEM_PROMPT || 
-      "Bạn là trợ lý AI chuyên nghiệp của nền tảng VTV8.today — Hệ sinh thái số Văn hóa, Di sản, Lịch sử và Du lịch Việt Nam. Tôn vinh cội nguồn, kết nối thời đại. Hãy trả lời chuyên sâu, chuẩn xác, truyền cảm hứng và thân thiện bằng tiếng Việt hoặc tiếng Anh theo yêu cầu."
+      "Bạn là trợ lý AI chuyên nghiệp của nền tảng DoanhNghiepVN.today — Hệ sinh thái số Tạp chí Doanh Nghiệp Việt Nam. Kết nối giao thương — Đồng hành cùng doanh nghiệp Việt. Hãy tư vấn chuyên sâu, chuẩn xác, truyền cảm hứng và tận tâm về các giải pháp vay vốn, truyền thông thương hiệu, marketing bán hàng, ứng dụng AI và thực hành ESG."
   },
 
   // Email Brand Info
   email: {
-    fromName: process.env.SMTP_FROM_NAME || 'Ban Quản Trị VTV8.today',
-    fromAddress: process.env.SMTP_FROM || `"VTV8.today" <${process.env.SMTP_USER || 'no-reply@vtv8.vn'}>`,
-    supportEmail: process.env.SUPPORT_EMAIL || 'support@vtv8.vn'
+    fromName: process.env.SMTP_FROM_NAME || 'Ban Biên Tập DoanhNghiepVN.today',
+    fromAddress: process.env.SMTP_FROM || `"DoanhNghiepVN.today" <${process.env.SMTP_USER || 'no-reply@doanhnghiepvn.today'}>`,
+    supportEmail: process.env.SUPPORT_EMAIL || 'support@doanhnghiepvn.today'
   },
 
-  // Chuyên mục mặc định khi tạo mới cơ sở dữ liệu
+  // Chuyên mục mặc định Doanh Nghiệp Việt Nam theo Hợp đồng
   defaultCategories: [
-    { name: 'Văn hóa & Di sản', slug: 'van-hoa-di-san', icon: '🏛️', description: 'Bảo tồn, tôn vinh và lan tỏa giá trị di sản văn hóa' },
-    { name: 'Du lịch & Trải nghiệm', slug: 'du-lich-trai-nghiem', icon: '✈️', description: 'Khám phá danh lam thắng cảnh, điểm đến độc đáo' },
-    { name: 'Ẩm thực & Đặc sản', slug: 'am-thuc-dac-san', icon: '🍲', description: 'Tinh hoa ẩm thực truyền thống và đặc sản vùng miền' },
-    { name: 'Giao thương & Đầu tư', slug: 'giao-thuong-dau-tu', icon: '💼', description: 'Kết nối doanh nghiệp, xúc tiến thương mại và đầu tư' },
-    { name: 'Công nghệ & Chuyển đổi số', slug: 'cong-nghe-so', icon: '🚀', description: 'Ứng dụng AI, số hóa di sản và công nghệ thông minh' },
-    { name: 'Sự kiện & Lễ hội', slug: 'su-kien-le-hoi', icon: '🎉', description: 'Lịch trình festival, hội chợ triển lãm và hội thảo' }
+    { name: 'Sự kiện & Diễn đàn', slug: 'su-kien-dien-dan', icon: '📅', description: 'Hội thảo, diễn đàn kinh tế, xúc tiến thương mại và kết nối B2B' },
+    { name: 'Tư vấn Vay vốn & Tài chính', slug: 'tu-van-vay-von', icon: '💰', description: 'Tín dụng ngân hàng, quỹ hỗ trợ SME và cơ cấu tài chính' },
+    { name: 'Truyền thông Thương hiệu', slug: 'truyen-thong-thuong-hieu', icon: '📢', description: 'Báo chí, quan hệ công chúng PR và nhận diện thương hiệu' },
+    { name: 'Marketing & Bán hàng', slug: 'marketing-ban-hang', icon: '📈', description: 'Chuyển đổi số bán hàng, thương mại điện tử và chuỗi cung ứng' },
+    { name: 'Ứng dụng AI & Công nghệ', slug: 'ung-dung-ai-cong-nghe', icon: '🤖', description: 'Trợ lý AI Agent, tự động hóa quy trình và ERP thông minh' },
+    { name: 'Thực hành ESG', slug: 'thuc-hanh-esg', icon: '🌱', description: 'Tiêu chuẩn xanh, giảm phát thải Carbon và phát triển bền vững' },
+    { name: 'Hiệp hội & Giao thương', slug: 'hiep-hoi-giao-thuong', icon: '🤝', description: 'Hiệp hội doanh nghiệp, danh bạ hội viên và tìm kiếm đối tác' }
   ]
 };
 

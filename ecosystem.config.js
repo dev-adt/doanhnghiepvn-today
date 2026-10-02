@@ -1,18 +1,18 @@
-// PM2 Ecosystem Config
+// PM2 Ecosystem Config cho DoanhNghiepVN.today
 // Chạy: pm2 start ecosystem.config.js
-// Xem log: pm2 logs bizhub-ai
-// Reload: pm2 reload bizhub-ai
+// Xem log: pm2 logs doanhnghiepvn-today
+// Reload: pm2 reload doanhnghiepvn-today
 // Auto-start khi reboot: pm2 startup && pm2 save
 
 module.exports = {
   apps: [
     {
-      name        : 'vtv8-today-prod',
+      name        : 'doanhnghiepvn-today',
       script      : 'server.js',
       instances   : 1,           // tăng lên 'max' nếu muốn cluster
       exec_mode   : 'fork',
       watch       : false,
-      max_memory_restart: '300M',
+      max_memory_restart: '400M',
 
       env: {
         NODE_ENV : 'production',

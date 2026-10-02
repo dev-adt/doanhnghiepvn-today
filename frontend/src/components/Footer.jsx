@@ -47,11 +47,11 @@ export const Footer = () => {
               marginTop: '0.5rem'
             }}>
               {currentLang === 'en'
-                ? `SPECIALIZED DIGITAL PORTAL FOR CULTURE, HERITAGE AND TOURISM ${brandConfig.brandShortName.toUpperCase()}`
-                : `CHUYÊN TRANG VĂN HÓA, DI SẢN, LỊCH SỬ VÀ DU LỊCH ${brandConfig.brandShortName.toUpperCase()}`}
+                ? `DIGITAL ECOSYSTEM — VIETNAM ENTERPRISE MAGAZINE ${brandConfig.brandShortName.toUpperCase()}`
+                : `HỆ SINH THÁI SỐ TẠP CHÍ DOANH NGHIỆP VIỆT NAM — ${brandConfig.brandShortName.toUpperCase()}`}
             </div>
-            <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: '600', marginTop: '4px', letterSpacing: '0.4px' }}>
-              {currentLang === 'en' ? `DIGITAL ECOSYSTEM — ${brandConfig.domain.toUpperCase()}` : `HỆ SINH THÁI SỐ TOÀN DIỆN — ${brandConfig.domain.toUpperCase()}`}
+            <div style={{ fontSize: '11px', color: '#14b8a6', fontWeight: '600', marginTop: '4px', letterSpacing: '0.4px' }}>
+              {currentLang === 'en' ? `DIGITAL ECOSYSTEM — ${brandConfig.domain.toUpperCase()}` : `KẾT NỐI DOANH NGHIỆP — ${brandConfig.domain.toUpperCase()}`}
             </div>
           </div>
 

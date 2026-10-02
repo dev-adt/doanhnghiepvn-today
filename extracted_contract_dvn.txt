@@ -1,0 +1,129 @@
+CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM
+Độc lập - Tự do - Hạnh phúc
+-----------------*-----------------
+HỢP ĐỒNG CUNG CẤP DỊCH VỤ
+Số:  204-100126/ADT-DNVN
+- Căn cứ Bộ luật Dân sự số 91/2015/QH13 được Quốc hội thông qua ngày 24 tháng 11 năm 2015;
+- Căn cứ Luật Thương mại số 36/2005/QH11 được Quốc hội thông qua ngày 14 tháng 6 năm 2005;
+- Căn cứ vào nhu cầu và khả năng của hai bên.
+Hôm nay, ngày 01 tháng  10 năm 2026, tại Văn phòng  Công ty Cổ phần ADT Quốc tế, địa chỉ: 26 TT23 Văn phú, P. Kiến Hưng,  Hà nội, Việt Nam,  Chúng tôi gồm có:
+BÊN A: CÔNG TY CỔ PHẦN ADT QUỐC TẾ
+- Mã số doanh nghiệp: 0107272126
+- Địa chỉ trụ sở: 26 TT23 Khu đô thị  Văn phú, phường Kiến Hưng,  Hà nội, Việt Nam
+- Điện thoại: 0986354152/0948509698
+- Đại diện: Ông Lê Khắc Hiệp              Chức vụ: Tổng Giám đốc.
+- Tài khoản : 19036730021017
+Ngân hàng Techcombank- PGD Văn Quán- Hà Đông- Hà Nội
+BÊN B:  TẠP CHÍ DOANH NGHIỆP VIỆT NAM
+- Địa chỉ:A1.4 (A5A) Khu Liền kề 671 Hoàng Hoa Thám, phường Ngọc Hà, Thành phố Hà Nội
+- MST: 0106557175
+- Điện thoại: 024.22169595/0912480246
+- Đại diện:Bà Nguyễn Thị Bích Hường; Chức vụ: Phó Tổng Biên tập
+(Theo giấy ủy quyền số 02/UQ-DNVN ngày 18/12/2020 của Tổng Biên tập Tạp chí)
+Sau khi bàn bạc, thỏa thuận các bên thống nhất ký kết Hợp đồng cung cấp dịch vụ với nội dung sau:
+ĐIỀU 1: NỘI DUNG CÔNG VIỆC
+Bên A xây dựng và chuyển giao HỆ THỐNG  DOANHNGHIEPVN tích hợp  AI , (gọi tắt là Hệ thống) bao gồm website, app như sau:
+TT
+Hạng mục triển khai
+Đơn giá (VNĐ)
+Thành tiền (VNĐ)
+1
+Kết cấu
+Trang chủ: Sự kiện; Các hoạt động tư vấn hỗ trợ doanh nghiệp; Các box quảng cáo; Tìm kiếm
+Trang cấp 2: Các trang chuyên đề về: Sự kiện, các chuyên đề tư vấn: Vay vốn; Truyền thông thương hiệu; Marketing bán hàng; Ứng dụng AI; Thực hành ESG; Kết nối công nghệ
+Trang cấp 3: Hiệp hội doanh nghiệp (Điều lệ; Đăng ký tahnfh viên; Hoạt động giao thương kết nối; Doanh nghiệp (Thông tin doanh nghiệp; Truyền thông); Tìm kiếm đối tác
+2
+Module tổ chức sự kiện
+Tạo và quản lý sự kiện trực tuyến, trực tiếp; công khai hoặc dành cho nhóm kín. Quản lý biểu mẫu đăng ký, chấp nhận điều khoản, danh sách tham dự, phí tham gia và trạng thái thanh toán. Cấp mã QR, check in online, nhắc lịch và thống kê sau sự kiện, xuất file các thông tin theo yêu cầu ….
+60.000.000
+25.000.000
+3
+Module quản lý khách hàng và hội viên
+Quản lý hồ sơ doanh nghiệp, người liên hệ, khách hàng và hội viên. Phân nhóm theo hiệp hội, hội, địa phương, ngành nghề và đặc điểm cộng đồng. Theo dõi phí hội viên, nhắc đóng phí; tiếp nhận nhu cầu, upload tài liệu, phân công nhân sự, cập nhật trạng thái và thông báo tiến độ xử lý, xuất file các thông tin theo yêu cầu …..
+25.000.000
+25.000.000
+4
+Module CMS quản trị nội dung
+Quản lý bài viết, chuyên mục, hình ảnh, video, sự kiện, chương trình đào tạo và nội dung quảng cáo đối tác. Tạo trang giới thiệu riêng cho doanh nghiệp thành viên. Phân quyền biên tập, duyệt và xuất bản; quản lý nội dung công khai và nội dung dành cho hội viên, chấm nhuận bút, xuất file các thông tin theo yêu cầu
+15.000.000
+15.000.000
+5
+Module AI Center
+Tích hợp nhiều mô hình AI qua API; cấu hình lựa chọn mô hình theo tác vụ. Hỗ trợ tạo và quản lý nhiều AI Agent với hướng dẫn, kho tri thức và nhiệm vụ riêng. Triển khai trợ lý đa ngôn ngữ giới thiệu doanh nghiệp thành viên, sản phẩm, dịch vụ, sự kiện và chương trình đào tạo; hỗ trợ hỏi đáp
+35.000.000
+35.000.000
+TỔNG GIÁ TRỊ ĐẦU TƯ BAN ĐẦU
+100.000.000
+Bằng chữ: Một trăm triệu Đồng chẵn.
+CÁC CHI PHÍ KHÁC
+1
+Server/VPS riêng- bên B tự thuê
+38.000.000/năm
+Thanh toán hằng năm
+2
+Chi phí AI API (OpenAI/Claude/Gemini hoặc nhà cung cấp khác)
+Khách hàng tự nạp
+Theo mức sử dụng thực tế
+3
+Chi phí đăng ký với bộ Công
+Bên A viết các bài cần thiết
+Bên B đóng các phí -nếu có
+Tổng giá trị 4 module: 100.000.000 Đ
+Giảm giá đặc biệt khi khách hàng chốt sales trong vòng 24 h.
+Giá trị thanh toán: 30.000.000 Đ
+Bằng chữ: Ba mươi triệu Đồng chẵn.
+Ghi chú:
++ Chi phí AI API: bên B tự nạp, thanh toán.
+Giai đoạn chạy thử: sử dụng server bên A
++ Giai đoạn chính thức: sử dụng server do bên B cung cấp.
++ Phí duy trì, bảo hành mở rộng và hỗ trợ kỹ thuật từ năm thứ hai: 15% giá trị đầu tư ban đầu, tức 4,5 triệu/năm
+ĐIỀU 2: THANH TOÁN
+Tổng giá trị đơn hàng: 30.000.000 VNĐ.
+Bằng chữ: ba mươi triệu  Đồng chẵn.
+Thanh toán 1 lần – 100% giá trị hợp đồng : 30.000.000 VNĐ, thanh toán trong vòng 2 ngày khi hai bên ký hợp đồng.
+ĐIỀU 3: Hình thức thanh toán:
+Bên B thanh toán hợp đồng cho Bên A bằng hình thức sau:
+Thanh toán bằng Việt Nam Đồng (VNĐ)
+- Hình thức thanh toán: Chuyển khoản
+Chủ Tài khoản: Công ty Cổ phần ADT Quốc tế, -
+Tài khoản : 19036730021017
+Ngân hàng Techcombank- PGD Văn Quán- Hà Đông- Hà Nội
+ĐIỀU 4.  QUYỀN VÀ NGHĨA VỤ CỦA CÁC BÊN
+4.1. Quyền và nghĩa vụ của bên A
+4.1.1. Quyền của bên A
+- Được phép tạm ngừng cung cấp dịch vụ nếu bên B vi phạm trách nhiệm thanh toán cho đến khi Bên B thanh toán theo đúng thỏa thuận trong hợp đồng.
+- Được Bên B cung cấp các thông tin cần thiết để xây dựng và cài đặt Hệ thống
+- Được hưởng quyền lợi theo Điều 3 của hợp đồng này.
+4.1.2. Nghĩa vụ của bên A
+- Bên A xây dựng và chuyển giao Hệ thống cho Bên B bao gồm các tính năng như mô tả trong Điều 2 của hợp đồng.
+- Thực hiện đúng tiến độ công việc và các quyền lợi của Bên B đã nêu trong hợp đồng này.
+- Thực hiện hỗ trợ kỹ thuật phát sinh trong quá trình Bên B đưa vào vận hành.
+- Hỗ trợ toàn bộ kỹ thuật để đảm bảo hệ thống của Bên B hoạt động bình thường trong suốt quá trình sử dụng
+- Cung cấp hỗ trợ kỹ thuật trong suốt thời gian vận hành; sự cố thông thường sẽ xử lý trong 48 giờ.
+- Xuất hóa đơn GTGT cho bên B
+4.2.  Quyền và nghĩa vụ của bên B
+4.2.1. Quyền của bên B
+- Được toàn quyền sử dụng  hệ thống do Bên A xây dựng và chuyển giao.
+- Được Bên A hỗ trợ toàn bộ kỹ thuật để đảm bảo duy trì hệ thống hoạt động bình thường trong suốt quá trình sử dụng
+- Được Bên A đào tạo và hướng dẫn nhân sự để sử dụng thành thạo hệ thống.
+Nghĩa vụ của bên B
+- Cung cấp đầy đủ các thông tin cần thiết để Bên A xây dựng website.
+- Thực hiện đúng và đủ những điều khoản quy định trong Hợp đồng này
+ĐIỀU 5 : BẢO MẬT VÀ BẢO VỆ AN TOÀN
+- Hai bên có trách nhiệm và cam kết bảo mật thông tin dữ liệu trong quá trình triển khai hệ thống, chỉ sử dụng dữ liệu và thông tin với mục đích là phục vụ kinh doanh.
+- Bên A cam kết bảo mật tuyệt đối thông tin quy trình nghiệp vụ và  nội dung của bên B.
+Bên A cam kết bảo mật sản phẩm thuộc sở hữu bên B, không copy hoặc nhân bản, các tài liệu liên quan tới dự án cần được bảo mật.
+- Các bên cam đoan cung cấp chính xác và trung thực thông tin cần thiết để xây dựng hệ thống. Trường hợp có thay đổi, các bên phải thông báo cho nhau bằng văn bản.
+ĐIỀU 6: GIẢI QUYẾT TRANH CHẤP
+- Bất cứ tranh chấp nào phát sinh hoặc có liên quan đến hợp đồng này trước hết được ưu tiên giải quyết bằng thương lượng. Nếu các bên không thể thương lượng được thì vụ việc sẽ được đưa ra giải quyết tại Tòa án nhân dân thành phố Hà Nội.
+- Trong thời gian Tòa án giải quyết tranh chấp, bản hợp đồng này sẽ tiếp tục được thực hiện ngoại trừ một phần hoặc các phần là đối tượng thuộc phán quyết của Tòa án.
+ĐIỀU 7:  ĐIỀU KHOẢN CHUNG
+- Các bên cam kết thực hiện đúng các điều khoản trong Hợp đồng này theo nguyên tắc hợp tác, thiện chí, trung thực và đúng pháp luật.
+- Bên nào vi phạm hợp đồng gây thiệt hại cho bên kia (trừ trường hợp bất khả kháng) phải bồi thường toàn bộ thiệt hại xảy ra trên thực tế và chịu phạt vi phạm hợp đồng. Không bên nào được chuyển giao bản Hợp đồng này cho bên thứ ba mà không có sự đồng ý bằng văn bản của bên còn lại.
+- Trong quá trình thực hiện hợp đồng nếu bên nào có khó khăn trở ngại thì phải báo cho bên kia trong vòng 03 (ba) ngày để cùng tháo gỡ và giải quyết vấn đề.
+ĐIỀU 8:  HIỆU LỰC CỦA HỢP ĐỒNG
+- Hợp đồng có hiệu lực ngay sau khi được hai bên ký kết.
+- Các nội dung khác liên quan tới việc hợp tác nếu chưa được quy định tại Hợp đồng này sẽ được các Bên trao đổi kỹ lưỡng và sẽ có thêm phần phụ lục cho hợp đồng này (nếu cần thiết) và thực hiện theo quy định của pháp luật Việt Nam.
+- Hợp đồng này gồm 8 (tám) điều,  05 (năm) trang, được lập thành 02(hai) bản, mỗi bên giữ 01 (một) bản, có giá trị pháp lý như nhau, các bên đã đọc Hợp đồng, hiểu rõ và cùng ký tên dưới đây.
+ĐẠI DIỆN BÊN A
+ĐẠI DIỆN BÊN B

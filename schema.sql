@@ -1,7 +1,7 @@
 -- ============================================
--- VTV8.vn — MySQL Database Schema
--- Database: vtv8 | User: vtv8
--- Lệnh import: mysql -u vtv8 -p vtv8 < schema.sql
+-- DoanhNghiepVN.today — MySQL Database Schema
+-- Hệ sinh thái số Tạp chí Doanh Nghiệp Việt Nam
+-- Database: doanhnghiepvn_db | User: dnvn_user
 -- ============================================
 
 -- ── Bảng hội viên ─────────────────────────────────────────────
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS members (
   INDEX idx_status (status),
   INDEX idx_tier (tier),
   INDEX idx_industry (industry)
-) ENGINE=InnoDB COMMENT='Danh sách hội viên';
+) ENGINE=InnoDB COMMENT='Danh sách hội viên doanh nghiệp';
 
 -- ── Bảng bài viết ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS posts (
@@ -66,27 +66,60 @@ CREATE TABLE IF NOT EXISTS posts (
   INDEX idx_created (created_at),
   INDEX idx_category (category),
   INDEX idx_creator (creator_id)
-) ENGINE=InnoDB COMMENT='Bài viết và tin đăng';
+) ENGINE=InnoDB COMMENT='Bài viết và tin đăng doanh nghiệp';
 
--- ── Bảng sự kiện ──────────────────────────────────────────────
+-- ── Bảng sự kiện (Mở rộng theo Hợp đồng và thiết kế UI) ──────
 CREATE TABLE IF NOT EXISTS events (
   id            INT AUTO_INCREMENT PRIMARY KEY,
-  title         VARCHAR(255) NOT NULL,
-  description   TEXT,
-  event_date    DATETIME     NOT NULL,
-  end_date      DATETIME,
-  location      VARCHAR(255),
-  organizer     VARCHAR(100),
-  capacity      INT          DEFAULT NULL,
-  image_url     VARCHAR(500),
+  title         VARCHAR(255) NOT NULL COMMENT 'Tiêu đề sự kiện',
+  slug          VARCHAR(255) DEFAULT NULL COMMENT 'Đường dẫn thân thiện',
+  short_desc    TEXT         DEFAULT NULL COMMENT 'Mô tả ngắn',
+  description   TEXT         DEFAULT NULL COMMENT 'Tóm tắt sự kiện',
+  content       LONGTEXT     DEFAULT NULL COMMENT 'Nội dung chi tiết (Rich Text HTML)',
+  event_date    DATETIME     NOT NULL     COMMENT 'Thời gian bắt đầu',
+  end_date      DATETIME     DEFAULT NULL COMMENT 'Thời gian kết thúc',
+  location      VARCHAR(255) DEFAULT NULL COMMENT 'Địa điểm tổ chức',
+  organizer     VARCHAR(100) DEFAULT 'Tạp chí Doanh Nghiệp Việt Nam',
+  capacity      INT          DEFAULT 0    COMMENT 'Giới hạn số lượng vé (0 = không giới hạn)',
+  image_url     VARCHAR(500) DEFAULT NULL COMMENT 'Ảnh đại diện sự kiện',
+  is_paid       TINYINT(1)   DEFAULT 0    COMMENT '0: Miễn phí, 1: Có thu phí',
+  price         DECIMAL(15,2) DEFAULT 0   COMMENT 'Mức phí (đ/vé)',
+  is_published  TINYINT(1)   DEFAULT 1    COMMENT '1: Công khai lên website, 0: Ẩn',
   status        ENUM('upcoming','ongoing','completed','cancelled') DEFAULT 'upcoming',
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_event_date (event_date),
-  INDEX idx_status (status)
-) ENGINE=InnoDB COMMENT='Sự kiện và hội thảo';
+  INDEX idx_status (status),
+  INDEX idx_published (is_published)
+) ENGINE=InnoDB COMMENT='Quản lý sự kiện và hội thảo doanh nghiệp';
 
--- ── Bảng quan tâm sự kiện ─────────────────────────────────────
+-- ── Bảng đăng ký tham gia sự kiện & cấp vé QR ─────────────────
+CREATE TABLE IF NOT EXISTS event_registrations (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  event_id        INT          NOT NULL,
+  ticket_code     VARCHAR(50)  NOT NULL UNIQUE COMMENT 'Mã vé / Mã QR check-in',
+  full_name       VARCHAR(150) NOT NULL COMMENT 'Họ và tên người đăng ký',
+  phone           VARCHAR(30)  NOT NULL COMMENT 'Số điện thoại',
+  email           VARCHAR(255) DEFAULT NULL COMMENT 'Email nhận thông tin',
+  company         VARCHAR(255) DEFAULT NULL COMMENT 'Đơn vị / Công ty',
+  quantity        INT          DEFAULT 1    COMMENT 'Số lượng vé đăng ký',
+  total_amount    DECIMAL(15,2) DEFAULT 0   COMMENT 'Tổng tiền thanh toán (VNĐ)',
+  payment_status  ENUM('free','pending','paid','cancelled') DEFAULT 'free' COMMENT 'Trạng thái thanh toán',
+  payment_note    VARCHAR(255) DEFAULT NULL COMMENT 'Ghi chú / Cú pháp chuyển khoản',
+  checkin_status  ENUM('not_checked_in','checked_in') DEFAULT 'not_checked_in' COMMENT 'Trạng thái điểm danh',
+  checkin_time    DATETIME     DEFAULT NULL COMMENT 'Thời gian quét mã QR check-in',
+  create_account  TINYINT(1)   DEFAULT 0    COMMENT 'Yêu cầu tạo tài khoản theo dõi',
+  notes           TEXT         DEFAULT NULL,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+  INDEX idx_event (event_id),
+  INDEX idx_ticket (ticket_code),
+  INDEX idx_phone (phone),
+  INDEX idx_payment_status (payment_status)
+) ENGINE=InnoDB COMMENT='Danh sách đăng ký tham gia sự kiện và vé QR';
+
+-- ── Bảng quan tâm sự kiện (Tương thích ngược) ─────────────────
 CREATE TABLE IF NOT EXISTS event_interests (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   event_id      INT NOT NULL,
@@ -133,26 +166,7 @@ CREATE TABLE IF NOT EXISTS member_sessions (
   INDEX idx_token (token)
 ) ENGINE=InnoDB COMMENT='Token phiên đăng nhập hội viên';
 
--- ── Bảng hội thoại Chatbot AI ─────────────────────────────────
-CREATE TABLE IF NOT EXISTS chat_sessions (
-  id            VARCHAR(100) PRIMARY KEY,
-  user_id       VARCHAR(100),
-  title         VARCHAR(255) DEFAULT 'Cuộc trò chuyện mới',
-  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB COMMENT='Phiên chat AI';
-
-CREATE TABLE IF NOT EXISTS chat_messages (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  session_id    VARCHAR(100) NOT NULL,
-  role          ENUM('user', 'assistant', 'system') NOT NULL,
-  content       LONGTEXT NOT NULL,
-  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE,
-  INDEX idx_session (session_id)
-) ENGINE=InnoDB COMMENT='Lịch sử tin nhắn chat AI';
-
--- ── Bảng chuyên mục & lĩnh vực ────────────────────────────────
+-- ── Bảng chuyên mục & lĩnh vực (Admin quản lý động) ───────────
 CREATE TABLE IF NOT EXISTS categories (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   name          VARCHAR(255) NOT NULL,
@@ -179,30 +193,14 @@ CREATE TABLE IF NOT EXISTS sub_categories (
 ) ENGINE=InnoDB COMMENT='Lĩnh vực con';
 
 -- ============================================
--- DỮ LIỆU KHỞI TẠO MẪU (VTV8.vn)
+-- DỮ LIỆU KHỞI TẠO MẪU (DoanhNghiepVN.today)
 -- ============================================
 
 -- Admin mặc định (Username: admin | Password: Admin@123)
 INSERT INTO admins (username, password_hash, name, email, role) VALUES
-('admin', '$2b$10$3luJFH.EMVPnxeH8BdXn9.5tnCQ9huv13yzOzHrwYGiRhgV7dcufq', 'Ban Quản Trị VTV8.vn', 'admin@vtv8.vn', 'superadmin')
+('admin', '$2b$10$3luJFH.EMVPnxeH8BdXn9.5tnCQ9huv13yzOzHrwYGiRhgV7dcufq', 'Ban Biên Tập DoanhNghiepVN.today', 'admin@doanhnghiepvn.today', 'superadmin')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
--- Hội viên mẫu
-INSERT INTO members (name, tax_code, industry, tier, status, contact_name, contact_pos, email, phone, description, address) VALUES
-('Công ty Du lịch & Di sản Miền Trung', '0401234567', 'Du lịch - Lữ hành', 'Platinum', 'approved', 'Nguyễn Văn Hùng', 'Giám đốc', 'hung@mientrungtravel.vn', '0901111222', 'Đơn vị tổ chức các tour di sản văn hóa thế giới Huế - Hội An - Mỹ Sơn hàng đầu miền Trung.', 'Hải Châu, Đà Nẵng'),
-('Hội An Heritage Eco Resort', '0409876543', 'Khách sạn - Nghỉ dưỡng', 'Gold', 'approved', 'Trần Thị Lan', 'Tổng giám đốc', 'lan@hoianecoresort.vn', '0912333444', 'Khu nghỉ dưỡng sinh thái ven sông Thu Bồn, không gian văn hóa phố cổ độc đáo.', 'Cẩm Châu, Hội An, Quảng Nam'),
-('Hợp tác xã Cà phê Arabica Cầu Đất Đà Lạt', '5801234567', 'Nông sản - OCOP', 'Silver', 'approved', 'Lê Quang Minh', 'Chủ nhiệm HTX', 'minh@caudatcoffee.vn', '0933555666', 'Sản xuất và phân phối cà phê Arabica đặc sản Tây Nguyên đạt chứng nhận OCOP 4 sao.', 'Cầu Đất, Đà Lạt, Lâm Đồng');
-
--- Bài viết mẫu
-INSERT INTO posts (member_id, title, summary, body, type, status, is_featured, contact_info) VALUES
-(1, 'Hành trình 48 Giờ Khám Phá Di Sản Miền Trung: Huế – Đà Nẵng – Hội An', 'Cẩm nang chi tiết lịch trình 48 giờ trải nghiệm các di sản thế giới tại miền Trung.', 'Hành trình kết nối di sản văn hóa thế giới đưa du khách ghé thăm Quần thể di tích Cố đô Huế, ngắm nhìn Cầu Rồng Đà Nẵng và thả hoa đăng trên sông Hoài phố cổ Hội An...', 'Du lịch', 'approved', 1, 'hung@mientrungtravel.vn | 0901 111 222'),
-(2, 'Tôn vinh nghệ nhân giữ lửa làng nghề gốm Thanh Hà 500 năm tuổi', 'Khám phá nét đẹp văn hóa truyền thống của làng gốm cổ bên bờ sông Thu Bồn.', 'Trải qua hơn 5 thế kỷ hình thành và phát triển, các nghệ nhân làng gốm Thanh Hà (Hội An) vẫn miệt mài tạo nên những sản phẩm đất nung mộc mạc mang đậm hồn quê Việt...', 'Văn hóa', 'approved', 1, 'lan@hoianecoresort.vn | 0912 333 444');
-
--- Sự kiện mẫu
-INSERT INTO events (title, event_date, location, organizer, status) VALUES
-('Lễ hội Phố Cổ Hội An & Đêm Rằm Hoa Đăng', '2026-09-15 18:00:00', 'Phố cổ Hội An, Quảng Nam', 'Trung tâm Văn hóa Thể thao Hội An', 'upcoming'),
-('Festival Biển Quốc Tế Đà Nẵng 2026', '2026-09-22 08:30:00', 'Công viên Biển Đông, Đà Nẵng', 'Sở Du lịch TP. Đà Nẵng', 'upcoming'),
-('Diễn đàn Hợp tác Phát triển Du lịch Di sản & Chuyển đổi số VTV8.vn', '2026-10-05 09:00:00', 'Đà Nẵng — Trực tuyến toàn quốc', 'Ban Biên tập VTV8.vn', 'upcoming');
-
 -- Cấu hình AI mặc định
-INSERT INTO ai_config (provider, model, is_active) VALUES ('openrouter', 'google/gemini-3-flash-preview', 1);
+INSERT INTO ai_config (provider, model, is_active) VALUES ('openrouter', 'google/gemini-2.5-flash', 1)
+ON DUPLICATE KEY UPDATE model=VALUES(model);

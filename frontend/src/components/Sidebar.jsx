@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../contexts/LanguageContext';
+import brandConfig from '../brand.config';
 
 export const Sidebar = () => {
   const { logout, getAuthHeaders } = useAuth();
@@ -82,12 +83,12 @@ export const Sidebar = () => {
   return (
     <aside className="sidebar">
       <Link to="/admin-dashboard" className="sb-logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div className="sb-logo-icon" style={{ overflow: 'hidden', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/vtv8_logo.png" alt="VTV8.vn Logo" style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+        <div className="sb-logo-icon" style={{ overflow: 'hidden', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0D9488', width: '32px', height: '32px', color: '#fff', fontWeight: 800, fontSize: '13px' }}>
+          DNVN
         </div>
         <div>
-          <div className="sb-logo-name">VTV8.vn</div>
-          <div className="sb-logo-sub">Hội viên doanh nghiệp</div>
+          <div className="sb-logo-name">{brandConfig.brandShortName || 'DoanhNghiepVN'}</div>
+          <div className="sb-logo-sub">Quản trị Hệ thống</div>
         </div>
       </Link>
       

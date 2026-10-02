@@ -499,37 +499,149 @@ db.query(`
       console.warn("⚠️ Cảnh báo cập nhật status bảng posts:", e.message);
     }
 
-    // Đảm bảo bảng events và event_interests có đầy đủ cột
+    // Đảm bảo bảng events và event_registrations có đầy đủ cột và cấu trúc
     try {
       const [eventsCols] = await db.query("SHOW COLUMNS FROM events LIKE 'capacity'");
       if (!eventsCols.length) {
-        await db.query("ALTER TABLE events ADD COLUMN capacity INT DEFAULT NULL AFTER organizer");
-        console.log('✅ Đã thêm cột capacity vào bảng events');
+        await db.query("ALTER TABLE events ADD COLUMN capacity INT DEFAULT 0 AFTER organizer");
       }
       const [eventsImgCols] = await db.query("SHOW COLUMNS FROM events LIKE 'image_url'");
       if (!eventsImgCols.length) {
         await db.query("ALTER TABLE events ADD COLUMN image_url VARCHAR(500) DEFAULT NULL AFTER capacity");
-        console.log('✅ Đã thêm cột image_url vào bảng events');
       }
+      const [eventsShortDescCols] = await db.query("SHOW COLUMNS FROM events LIKE 'short_desc'");
+      if (!eventsShortDescCols.length) {
+        await db.query("ALTER TABLE events ADD COLUMN short_desc TEXT DEFAULT NULL AFTER title");
+      }
+      const [eventsContentCols] = await db.query("SHOW COLUMNS FROM events LIKE 'content'");
+      if (!eventsContentCols.length) {
+        await db.query("ALTER TABLE events ADD COLUMN content LONGTEXT DEFAULT NULL AFTER description");
+      }
+      const [eventsSlugCols] = await db.query("SHOW COLUMNS FROM events LIKE 'slug'");
+      if (!eventsSlugCols.length) {
+        await db.query("ALTER TABLE events ADD COLUMN slug VARCHAR(255) DEFAULT NULL AFTER title");
+      }
+      const [eventsPaidCols] = await db.query("SHOW COLUMNS FROM events LIKE 'is_paid'");
+      if (!eventsPaidCols.length) {
+        await db.query("ALTER TABLE events ADD COLUMN is_paid TINYINT(1) DEFAULT 0 AFTER image_url");
+      }
+      const [eventsPriceCols] = await db.query("SHOW COLUMNS FROM events LIKE 'price'");
+      if (!eventsPriceCols.length) {
+        await db.query("ALTER TABLE events ADD COLUMN price DECIMAL(15,2) DEFAULT 0 AFTER is_paid");
+      }
+      const [eventsPublishedCols] = await db.query("SHOW COLUMNS FROM events LIKE 'is_published'");
+      if (!eventsPublishedCols.length) {
+        await db.query("ALTER TABLE events ADD COLUMN is_published TINYINT(1) DEFAULT 1 AFTER price");
+      }
+
+      // Tạo bảng event_registrations quản lý vé QR và thanh toán chuyển khoản
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS event_registrations (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          event_id INT NOT NULL,
+          ticket_code VARCHAR(50) NOT NULL UNIQUE,
+          full_name VARCHAR(150) NOT NULL,
+          phone VARCHAR(30) NOT NULL,
+          email VARCHAR(255) DEFAULT NULL,
+          company VARCHAR(255) DEFAULT NULL,
+          quantity INT DEFAULT 1,
+          total_amount DECIMAL(15,2) DEFAULT 0,
+          payment_status ENUM('free','pending','paid','cancelled') DEFAULT 'free',
+          payment_note VARCHAR(255) DEFAULT NULL,
+          checkin_status ENUM('not_checked_in','checked_in') DEFAULT 'not_checked_in',
+          checkin_time DATETIME DEFAULT NULL,
+          create_account TINYINT(1) DEFAULT 0,
+          notes TEXT DEFAULT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+          INDEX idx_event (event_id),
+          INDEX idx_ticket (ticket_code),
+          INDEX idx_phone (phone)
+        ) ENGINE=InnoDB COMMENT='Đăng ký sự kiện và cấp mã QR'
+      `);
+
       const [interestMemberCols] = await db.query("SHOW COLUMNS FROM event_interests LIKE 'member_id'");
       if (!interestMemberCols.length) {
         await db.query("ALTER TABLE event_interests ADD COLUMN member_id INT DEFAULT NULL AFTER event_id, ADD INDEX idx_member (member_id)");
-        console.log('✅ Đã thêm cột member_id vào bảng event_interests');
       }
 
-      // Seed dữ liệu sự kiện mẫu nếu bảng events trống
-      const [existingEvents] = await db.query("SELECT id FROM events LIMIT 1");
+      // Khởi tạo sự kiện mẫu chuẩn theo mockup giao diện DoanhNghiepVN.today
+      const [existingEvents] = await db.query("SELECT id FROM events WHERE slug = 'su-kien-demo' OR title LIKE '%Sự kiện demo%' LIMIT 1");
       if (!existingEvents.length) {
+        // Xóa sự kiện mẫu VTV8 cũ nếu có
+        await db.query("DELETE FROM events WHERE title LIKE '%Festival Văn hóa%' OR title LIKE '%Cồng chiêng Tây Nguyên%'");
+        
         await db.query(`
-          INSERT INTO events (title, description, event_date, end_date, location, organizer, capacity, status, image_url) VALUES
-          ('Festival Văn hóa & Du lịch Miền Trung 2026', 'Sự kiện quảng bá di sản, biểu diễn nghệ thuật truyền thống và kết nối giao thương du lịch các tỉnh miền Trung.', '2026-09-15 08:30:00', '2026-09-18 21:00:00', 'Công viên Biển Đông, TP. Đà Nẵng', 'Ban Quản trị VTV8.vn & Sở Du lịch Đà Nẵng', 500, 'upcoming', 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80'),
-          ('Không gian Văn hóa Cồng chiêng Tây Nguyên 2026', 'Ngày hội giao lưu văn hóa nghệ thuật cồng chiêng, ẩm thực rượu cần và trình diễn nghề dệt thổ cẩm truyền thống.', '2026-10-20 09:00:00', '2026-10-22 18:00:00', 'Quảng trường 10/3, TP. Buôn Ma Thuột, Đắk Lắk', 'Hiệp hội Du lịch Tây Nguyên & VTV8.vn', 300, 'upcoming', 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80'),
-          ('Diễn đàn Chuyển đổi số & Du lịch Di sản Thông minh 2026', 'Hội thảo chuyên sâu kết nối các doanh nghiệp lữ hành, khách sạn, nhà cung cấp công nghệ VR/AR và trợ lý AI.', '2026-11-05 13:30:00', '2026-11-05 17:30:00', 'Trung tâm Hội nghị Quốc tế, TP. Huế', 'Trung tâm Bảo tồn Di tích Cố đô Huế & VTV8.vn', 200, 'upcoming', 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80')
+          INSERT INTO events (title, slug, short_desc, description, content, event_date, end_date, location, organizer, capacity, is_paid, price, is_published, status, image_url) VALUES
+          (
+            'Sự kiện demo',
+            'su-kien-demo',
+            'Sự kiện demo kết nối giao thương và trải nghiệm công nghệ AI dành cho doanh nghiệp thành viên.',
+            'Sự kiện giao lưu, kết nối các doanh nghiệp thành viên Tạp chí Doanh Nghiệp Việt Nam.',
+            '<p><strong>Sự kiện demo</strong> là chương trình kết nối giao thương đặc biệt do <em>Tạp chí Doanh Nghiệp Việt Nam</em> phối hợp cùng <em>Công ty Cổ phần ADT Quốc tế</em> tổ chức.</p><p>Tại sự kiện, các doanh nghiệp sẽ được:</p><ul><li>Gặp gỡ trực tiếp các chuyên gia tài chính và ngân hàng đối tác hỗ trợ các gói vay vốn ưu đãi.</li><li>Trải nghiệm giải pháp Trợ lý AI và nền tảng quản trị thông minh cho SME.</li><li>Nhận mã QR check-in tiện lợi, tra cứu và kết nối trực tiếp với hơn 200 doanh nghiệp hội viên tham gia.</li></ul><p>Kính mời quý đại diện doanh nghiệp hoàn tất đăng ký để nhận mã QR tham gia sự kiện!</p>',
+            '2026-10-30 15:24:00',
+            '2026-10-30 16:10:00',
+            '36 Hùng vương',
+            'Tạp chí Doanh Nghiệp Việt Nam',
+            100,
+            0,
+            0,
+            1,
+            'upcoming',
+            'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80'
+          ),
+          (
+            'Diễn đàn Doanh nghiệp Việt Nam 2026: Đổi mới sáng tạo & Ứng dụng AI',
+            'dien-dan-doanh-nghiep-vn-2026',
+            'Diễn đàn quy mô toàn quốc tập hợp hơn 500 lãnh đạo doanh nghiệp, chuyên gia kinh tế và công nghệ.',
+            'Ứng dụng Trí tuệ nhân tạo và chuyển đổi số trong tái cấu trúc chuỗi cung ứng doanh nghiệp Việt Nam.',
+            '<p>Diễn đàn tập trung thảo luận về các chủ đề cấp thiết: Tự động hóa quy trình với AI Agent, Tối ưu chi phí vận hành bằng giải pháp ERP Cloud, và Chiến lược tiếp cận các quỹ đầu tư mạo hiểm giai đoạn 2026 - 2030.</p>',
+            '2026-11-15 08:30:00',
+            '2026-11-15 17:30:00',
+            'Trung tâm Hội nghị Quốc tế, Hà Nội',
+            'Tạp chí Doanh Nghiệp Việt Nam & ADT Group',
+            300,
+            0,
+            0,
+            1,
+            'upcoming',
+            'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80'
+          ),
+          (
+            'Hội nghị Xúc tiến Giao thương Doanh nghiệp SME & Vay vốn Xanh',
+            'xuc-tien-giao-thuong-sme-von-xanh',
+            'Kết nối ngân hàng thương mại, quỹ tín dụng quốc tế và các doanh nghiệp thực hành ESG.',
+            'Cơ hội tiếp cận các gói tín dụng xanh lãi suất ưu đãi lên tới 500 tỷ đồng.',
+            '<p>Hội nghị có sự tham gia của hơn 20 tổ chức tài chính hàng đầu và các hiệp hội doanh nghiệp ngành nghề, mang lại giải pháp tài chính thiết thực cho quá trình chuyển đổi xanh của doanh nghiệp.</p>',
+            '2026-12-05 09:00:00',
+            '2026-12-05 12:00:00',
+            'Khách sạn Daewoo, Ba Đình, Hà Nội',
+            'Hiệp hội Doanh nghiệp & Tạp chí Doanh Nghiệp VN',
+            200,
+            1,
+            200000,
+            1,
+            'upcoming',
+            'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'
+          )
         `);
-        console.log('✅ Đã khởi tạo 3 sự kiện mẫu tiêu biểu cho VTV8.vn');
+
+        // Tạo 2 đăng ký mẫu cho sự kiện demo để hiển thị: "Đăng ký: 2 / 100 | Còn: 98 vé" đúng chuẩn ảnh người dùng cung cấp!
+        const [demoEvt] = await db.query("SELECT id FROM events WHERE slug = 'su-kien-demo' LIMIT 1");
+        if (demoEvt.length) {
+          const dId = demoEvt[0].id;
+          await db.query(`
+            INSERT INTO event_registrations (event_id, ticket_code, full_name, phone, email, company, quantity, total_amount, payment_status, checkin_status)
+            VALUES 
+            (?, 'DNVN-DEMO-001', 'Nguyễn Văn Minh', '0912345678', 'minh.nguyen@techcorp.vn', 'Công ty Cổ phần TechCorp', 1, 0, 'free', 'not_checked_in'),
+            (?, 'DNVN-DEMO-002', 'Trần Thị Thu Trang', '0987654321', 'trang.tran@vinabiz.com', 'Tập đoàn VinaBiz', 1, 0, 'free', 'not_checked_in')
+          `, [dId, dId]);
+        }
+        console.log('✅ Đã khởi tạo 3 sự kiện chuẩn DoanhNghiepVN và vé mẫu!');
       }
     } catch (e) {
-      console.warn('Cảnh báo kiểm tra bảng events:', e.message);
+      console.warn('Cảnh báo kiểm tra bảng events & event_registrations:', e.message);
     }
 
     // Thêm cột system_instruction vào bảng ai_config
@@ -582,85 +694,76 @@ db.query(`
     }
 
     const [catCount] = await db.query('SELECT COUNT(*) as count FROM categories');
-    const [hasOldCategories] = await db.query("SELECT COUNT(*) as count FROM categories WHERE name LIKE '%Đồ Sơn%'");
+    const [hasOldCategories] = await db.query("SELECT COUNT(*) as count FROM categories WHERE name LIKE '%Đồ Sơn%' OR name LIKE '%Văn hóa – Du lịch%'");
 
     if (catCount[0].count === 0 || hasOldCategories[0].count > 0) {
-      console.log('🌱 Đang khởi tạo/đồng bộ dữ liệu 8 Chuyên mục & Lĩnh vực VTV8.vn...');
+      console.log('🌱 Đang khởi tạo/đồng bộ dữ liệu Chuyên mục & Lĩnh vực DoanhNghiepVN.today...');
       if (hasOldCategories[0].count > 0) {
-        await db.query('DELETE FROM categories WHERE name LIKE "%Đồ Sơn%"');
+        await db.query('DELETE FROM categories WHERE name LIKE "%Đồ Sơn%" OR name LIKE "%Văn hóa – Du lịch%"');
       }
 
       const defaultCategories = [
         {
-          name: 'Văn hóa – Du lịch', name_en: 'Culture & Tourism', order: 1,
+          name: 'Sự kiện & Diễn đàn', name_en: 'Events & Forums', order: 1,
           subs: [
-            { vi: 'Bản sắc văn hóa vùng miền', en: 'Regional Cultural Identity' },
-            { vi: 'Lễ hội & Tín ngưỡng', en: 'Festivals & Beliefs' },
-            { vi: 'Tour văn hóa trải nghiệm', en: 'Experiential Cultural Tours' },
-            { vi: 'Không gian nghệ thuật', en: 'Art Spaces' }
+            { vi: 'Hội thảo & Tọa đàm', en: 'Conferences & Seminars' },
+            { vi: 'Diễn đàn kinh tế', en: 'Economic Forums' },
+            { vi: 'Xúc tiến thương mại', en: 'Trade Promotion' },
+            { vi: 'Giao thương B2B', en: 'B2B Networking' }
           ]
         },
         {
-          name: 'Di sản – Lịch sử', name_en: 'Heritage & History', order: 2,
+          name: 'Tư vấn Vay vốn & Tài chính', name_en: 'Loan & Financial Consulting', order: 2,
           subs: [
-            { vi: 'Di sản thế giới UNESCO', en: 'UNESCO World Heritage' },
-            { vi: 'Di tích lịch sử - văn hóa', en: 'Historical & Cultural Relics' },
-            { vi: 'Danh nhân & Ký ức thời gian', en: 'Celebrities & Time Memories' },
-            { vi: 'Tuyến du lịch di sản', en: 'Heritage Travel Routes' }
+            { vi: 'Tín dụng ngân hàng', en: 'Bank Credits' },
+            { vi: 'Quỹ hỗ trợ SME', en: 'SME Support Funds' },
+            { vi: 'Vốn đầu tư khởi nghiệp', en: 'Startup Investment Capital' },
+            { vi: 'Cơ cấu tài chính doanh nghiệp', en: 'Corporate Financial Restructuring' }
           ]
         },
         {
-          name: 'Điểm đến nổi bật', name_en: 'Featured Destinations', order: 3,
+          name: 'Truyền thông Thương hiệu', name_en: 'Brand & Communication', order: 3,
           subs: [
-            { vi: 'Miền Trung & Duyên hải', en: 'Central Coast Region' },
-            { vi: 'Đại ngàn Tây Nguyên', en: 'Central Highlands' },
-            { vi: 'Kỳ quan Bắc Bộ', en: 'Northern Wonders' },
-            { vi: 'Sắc màu Phương Nam', en: 'Southern Highlights' },
-            { vi: 'Thiên đường biển đảo', en: 'Island & Marine Paradise' }
+            { vi: 'Báo chí & Truyền thông', en: 'Press & Media' },
+            { vi: 'Nhận diện thương hiệu', en: 'Brand Identity' },
+            { vi: 'Chiến dịch PR', en: 'PR Campaigns' },
+            { vi: 'Quản trị khủng hoảng truyền thông', en: 'Crisis Management' }
           ]
         },
         {
-          name: 'Lễ hội và sự kiện', name_en: 'Festivals & Events', order: 4,
+          name: 'Marketing & Bán hàng', name_en: 'Marketing & Sales', order: 4,
           subs: [
-            { vi: 'Lễ hội truyền thống', en: 'Traditional Festivals' },
-            { vi: 'Festival văn hóa nghệ thuật', en: 'Cultural & Art Festivals' },
-            { vi: 'Sự kiện du lịch & Thể thao', en: 'Tourism & Sports Events' },
-            { vi: 'Hội chợ & Triển lãm', en: 'Fairs & Exhibitions' }
+            { vi: 'Digital Marketing & SEO', en: 'Digital Marketing & SEO' },
+            { vi: 'Thương mại điện tử', en: 'E-Commerce' },
+            { vi: 'Kênh phân phối & Chuỗi cung ứng', en: 'Distribution & Supply Chain' },
+            { vi: 'Tối ưu chuyển đổi', en: 'Conversion Optimization' }
           ]
         },
         {
-          name: 'Ẩm thực Việt Nam', name_en: 'Vietnamese Cuisine', order: 5,
+          name: 'Ứng dụng AI & Công nghệ', name_en: 'AI & Technology Application', order: 5,
           subs: [
-            { vi: 'Tinh hoa ẩm thực ba miền', en: 'Culinary Quintessence' },
-            { vi: 'Đặc sản địa phương & OCOP', en: 'Local Specialties & OCOP' },
-            { vi: 'Câu chuyện món ngon', en: 'Food Stories' },
-            { vi: 'Địa chỉ ẩm thực tuyển chọn', en: 'Selected Culinary Spots' }
+            { vi: 'Trợ lý AI & Multi-Agent', en: 'AI Assistants & Multi-Agent' },
+            { vi: 'Tự động hóa doanh nghiệp', en: 'Business Automation' },
+            { vi: 'ERP & CRM thông minh', en: 'Smart ERP & CRM' },
+            { vi: 'Chuyển đổi số doanh nghiệp', en: 'Digital Transformation' }
           ]
         },
         {
-          name: 'Con người và làng nghề', name_en: 'People & Craft Villages', order: 6,
+          name: 'Thực hành ESG & Phát triển bền vững', name_en: 'ESG & Sustainable Development', order: 6,
           subs: [
-            { vi: 'Nghệ nhân & Người giữ nghề', en: 'Artisans & Heritage Keepers' },
-            { vi: 'Làng nghề truyền thống', en: 'Traditional Craft Villages' },
-            { vi: 'Sản phẩm thủ công mỹ nghệ', en: 'Handicraft Products' },
-            { vi: 'Trải nghiệm làm nghề', en: 'Craft Village Experience' }
+            { vi: 'Chuyển đổi xanh & Năng lượng sạch', en: 'Green Transition & Clean Energy' },
+            { vi: 'Tiêu chuẩn & Báo cáo ESG', en: 'ESG Standards & Reporting' },
+            { vi: 'Giảm phát thải Carbon', en: 'Carbon Footprint Reduction' },
+            { vi: 'Trách nhiệm xã hội CSR', en: 'Corporate Social Responsibility' }
           ]
         },
         {
-          name: 'Du lịch bền vững', name_en: 'Sustainable Tourism', order: 7,
+          name: 'Hiệp hội & Giao thương', name_en: 'Business Association & Networking', order: 7,
           subs: [
-            { vi: 'Hành trình xanh & Sinh thái', en: 'Eco & Green Travel' },
-            { vi: 'Du lịch cộng đồng & Bản địa', en: 'Community-Based Tourism' },
-            { vi: 'Quy tắc ứng xử điểm đến', en: 'Destination Code of Conduct' }
-          ]
-        },
-        {
-          name: 'Doanh nghiệp & Dịch vụ', name_en: 'Enterprises & Services', order: 8,
-          subs: [
-            { vi: 'Lưu trú & Resort cao cấp', en: 'Accommodations & Luxury Resorts' },
-            { vi: 'Lữ hành & Vận chuyển', en: 'Travel & Transport' },
-            { vi: 'Showroom số doanh nghiệp', en: 'Digital Business Showroom' },
-            { vi: 'Nhu cầu hợp tác & Cung ứng', en: 'Partnership & Supply Needs' }
+            { vi: 'Hiệp hội Doanh nghiệp', en: 'Business Associations' },
+            { vi: 'Danh bạ Hội viên', en: 'Member Directory' },
+            { vi: 'Tìm kiếm đối tác', en: 'Partner Search' },
+            { vi: 'Cơ hội đầu tư & Hợp tác', en: 'Partnership Opportunities' }
           ]
         }
       ];
@@ -691,7 +794,7 @@ db.query(`
           }
         }
       }
-      console.log('✅ Khởi tạo/đồng bộ 8 Chuyên mục & Lĩnh vực VTV8.vn hoàn tất!');
+      console.log('✅ Khởi tạo/đồng bộ 7 Chuyên mục & Lĩnh vực DoanhNghiepVN.today hoàn tất!');
     }
 
     // Tạo thư mục kiến thức
@@ -3295,10 +3398,14 @@ Preserve all HTML tags, line breaks, formatting, and markdown if present. Do not
 // EVENTS API
 // ════════════════════════════════════════════
 
-// Lấy danh sách sự kiện
+// ════════════════════════════════════════════
+// EVENTS API (SỰ KIỆN, ĐĂNG KÝ VÉ QR & CHECK-IN)
+// ════════════════════════════════════════════
+
+// Lấy danh sách sự kiện (Công khai & Quản trị)
 app.get('/api/events', async (req, res) => {
   try {
-    const { status, search, limit } = req.query;
+    const { status, search, limit, all } = req.query;
 
     let isAdmin = false;
     let memberId = null;
@@ -3316,26 +3423,29 @@ app.get('/api/events', async (req, res) => {
       }
     }
 
-    // Tự động cập nhật trạng thái sự kiện dựa trên ngày hiện tại
+    // Tự động cập nhật trạng thái sự kiện dựa trên thời gian thực
     try {
       await db.query(`
         UPDATE events 
         SET status = CASE 
-          WHEN event_date < CURDATE() AND status != 'cancelled' AND status != 'completed' THEN 'completed'
-          WHEN event_date = CURDATE() AND status != 'cancelled' AND status != 'ongoing' THEN 'ongoing'
+          WHEN (end_date IS NOT NULL AND end_date < NOW()) OR (end_date IS NULL AND event_date < NOW()) THEN 'completed'
+          WHEN event_date <= NOW() AND (end_date IS NULL OR end_date >= NOW()) THEN 'ongoing'
           ELSE status
         END
-        WHERE status != 'cancelled' AND (
-          (event_date < CURDATE() AND status != 'completed') OR
-          (event_date = CURDATE() AND status != 'ongoing')
-        )
+        WHERE status != 'cancelled'
       `);
     } catch (e) {
-      console.error('Lỗi tự động cập nhật trạng thái sự kiện:', e.message);
+      console.warn('Lỗi tự động cập nhật trạng thái sự kiện:', e.message);
     }
 
     let sql = `
-      SELECT e.*, 
+      SELECT e.*,
+             COALESCE((SELECT SUM(quantity) FROM event_registrations WHERE event_id = e.id AND payment_status != 'cancelled'), 0) AS registered_count,
+             COALESCE((SELECT SUM(quantity) FROM event_registrations WHERE event_id = e.id AND checkin_status = 'checked_in'), 0) AS checked_in_count,
+             CASE 
+               WHEN e.capacity > 0 THEN GREATEST(0, e.capacity - COALESCE((SELECT SUM(quantity) FROM event_registrations WHERE event_id = e.id AND payment_status != 'cancelled'), 0))
+               ELSE 999999
+             END AS remaining_tickets,
              COALESCE((SELECT COUNT(*) FROM event_interests WHERE event_id = e.id), 0) AS interest_count,
              ${memberId ? `(SELECT COUNT(*) FROM event_interests WHERE event_id = e.id AND member_id = ?) > 0` : '0'} AS is_interested
       FROM events e
@@ -3346,15 +3456,20 @@ app.get('/api/events', async (req, res) => {
       params.push(memberId);
     }
 
+    // Nếu không phải admin hoặc không yêu cầu lấy tất cả, chỉ lấy sự kiện công khai
+    if (!isAdmin && all !== 'true') {
+      sql += ' AND (e.is_published = 1 OR e.is_published IS NULL)';
+    }
+
     if (status && status !== 'all') {
       sql += ' AND e.status = ?';
       params.push(status);
     }
 
     if (search) {
-      sql += ' AND (e.title LIKE ? OR e.organizer LIKE ? OR e.location LIKE ? OR e.description LIKE ?)';
+      sql += ' AND (e.title LIKE ? OR e.organizer LIKE ? OR e.location LIKE ? OR e.description LIKE ? OR e.short_desc LIKE ?)';
       const searchPattern = `%${search}%`;
-      params.push(searchPattern, searchPattern, searchPattern, searchPattern);
+      params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
     }
 
     sql += `
@@ -3382,83 +3497,382 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
-// Lấy chi tiết sự kiện
+// Lấy chi tiết sự kiện theo ID hoặc Slug
 app.get('/api/events/:id', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM events WHERE id = ?', [req.params.id]);
-    if (!rows.length) return res.status(404).json({ success: false, error: 'Không tìm thấy sự kiện.' });
-    res.json({ success: true, data: rows[0] });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
+    const param = req.params.id;
+    const isNumeric = /^\d+$/.test(param);
 
-// Đăng ký quan tâm sự kiện (Toggle)
-app.post('/api/events/:id/interest', memberAuthMiddleware, async (req, res) => {
-  try {
-    const eventId = req.params.id;
-    const memberId = req.member.id;
-
-    // Kiểm tra sự kiện
-    const [events] = await db.query('SELECT id FROM events WHERE id = ?', [eventId]);
-    if (!events.length) {
+    const sql = `
+      SELECT e.*,
+             COALESCE((SELECT SUM(quantity) FROM event_registrations WHERE event_id = e.id AND payment_status != 'cancelled'), 0) AS registered_count,
+             COALESCE((SELECT SUM(quantity) FROM event_registrations WHERE event_id = e.id AND checkin_status = 'checked_in'), 0) AS checked_in_count,
+             CASE 
+               WHEN e.capacity > 0 THEN GREATEST(0, e.capacity - COALESCE((SELECT SUM(quantity) FROM event_registrations WHERE event_id = e.id AND payment_status != 'cancelled'), 0))
+               ELSE 999999
+             END AS remaining_tickets
+      FROM events e
+      WHERE ${isNumeric ? 'e.id = ? OR e.slug = ?' : 'e.slug = ?'}
+      LIMIT 1
+    `;
+    const params = isNumeric ? [param, param] : [param];
+    const [rows] = await db.query(sql, params);
+    if (!rows.length) {
       return res.status(404).json({ success: false, error: 'Không tìm thấy sự kiện.' });
     }
 
-    const [existing] = await db.query('SELECT id FROM event_interests WHERE event_id = ? AND member_id = ?', [eventId, memberId]);
+    const event = rows[0];
 
-    if (existing.length) {
-      await db.query('DELETE FROM event_interests WHERE event_id = ? AND member_id = ?', [eventId, memberId]);
-      res.json({ success: true, is_interested: false, message: 'Đã hủy quan tâm sự kiện.' });
-    } else {
-      await db.query('INSERT INTO event_interests (event_id, member_id, name, phone, email) VALUES (?, ?, ?, ?, ?)', [
-        eventId, 
-        memberId, 
-        req.member.name || 'Hội viên', 
-        req.member.phone || '', 
-        req.member.email || ''
-      ]);
-      res.json({ success: true, is_interested: true, message: 'Đã đăng ký quan tâm sự kiện.' });
-    }
+    // Cung cấp thông tin tài khoản chuyển khoản từ cấu hình thương hiệu
+    const bankInfo = {
+      bank_name: 'Techcombank',
+      bank_branch: 'PGD Văn Quán - Hà Đông - Hà Nội',
+      account_number: '19036730021017',
+      account_holder: 'CONG TY CO PHAN ADT QUOC TE',
+      bin_code: '970407'
+    };
+
+    res.json({ success: true, data: event, bank_info: bankInfo });
   } catch (err) {
-    console.error('[Interest Toggle ERROR]:', err.message);
+    console.error('Lỗi GET /api/events/:id:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Admin: Thêm sự kiện
-app.post('/api/admin/events', authMiddleware, async (req, res) => {
-  const { title, description, event_date, location, organizer, capacity, status, image_url } = req.body;
-  if (!title || !event_date) {
-    return res.status(400).json({ success: false, error: 'Thiếu tiêu đề hoặc ngày tổ chức.' });
-  }
+// Đăng ký tham gia sự kiện & Cấp mã vé QR
+app.post('/api/events/:id/register', async (req, res) => {
   try {
-    const [result] = await db.query(
-      `INSERT INTO events (title, description, event_date, location, organizer, capacity, status, image_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, description || null, event_date, location || null, organizer || null, capacity || null, status || 'upcoming', image_url || null]
+    const eventParam = req.params.id;
+    const isNumeric = /^\d+$/.test(eventParam);
+
+    const [events] = await db.query(
+      `SELECT * FROM events WHERE ${isNumeric ? 'id = ? OR slug = ?' : 'slug = ?'} LIMIT 1`,
+      isNumeric ? [eventParam, eventParam] : [eventParam]
     );
-    res.json({ success: true, id: result.insertId, message: 'Thêm sự kiện thành công.' });
+
+    if (!events.length) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy sự kiện cần đăng ký.' });
+    }
+
+    const event = events[0];
+    const { full_name, phone, email, company, quantity = 1, create_account = false, notes = '' } = req.body;
+
+    if (!full_name || !full_name.trim()) {
+      return res.status(400).json({ success: false, error: 'Vui lòng nhập Họ và tên.' });
+    }
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({ success: false, error: 'Vui lòng nhập Số điện thoại.' });
+    }
+
+    const qty = Math.max(1, parseInt(quantity) || 1);
+
+    // Kiểm tra số lượng vé còn lại
+    if (event.capacity && event.capacity > 0) {
+      const [sumRows] = await db.query(
+        "SELECT COALESCE(SUM(quantity), 0) as registered FROM event_registrations WHERE event_id = ? AND payment_status != 'cancelled'",
+        [event.id]
+      );
+      const currentRegistered = sumRows[0].registered || 0;
+      if (currentRegistered + qty > event.capacity) {
+        const remaining = Math.max(0, event.capacity - currentRegistered);
+        return res.status(400).json({
+          success: false,
+          error: remaining > 0 ? `Chỉ còn ${remaining} vé, không đủ số lượng ${qty} bạn yêu cầu.` : 'Sự kiện này đã hết vé.'
+        });
+      }
+    }
+
+    // Tạo mã vé duy nhất: DNVN-[EventID]-[Random4]-[Timestamp3]
+    const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const timeSuffix = Date.now().toString(36).slice(-3).toUpperCase();
+    const ticketCode = `DNVN-${event.id}-${randomCode}${timeSuffix}`;
+
+    const isPaid = Number(event.is_paid) === 1 && Number(event.price) > 0;
+    const unitPrice = isPaid ? Number(event.price) : 0;
+    const totalAmount = unitPrice * qty;
+    const paymentStatus = isPaid ? 'pending' : 'free';
+    const cleanPhone = phone.trim().replace(/\s+/g, '');
+    const paymentNote = `VE ${ticketCode} ${cleanPhone}`;
+
+    const [result] = await db.query(
+      `INSERT INTO event_registrations 
+       (event_id, ticket_code, full_name, phone, email, company, quantity, total_amount, payment_status, payment_note, checkin_status, create_account, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'not_checked_in', ?, ?)`,
+      [
+        event.id,
+        ticketCode,
+        full_name.trim(),
+        cleanPhone,
+        email ? email.trim() : null,
+        company ? company.trim() : null,
+        qty,
+        totalAmount,
+        paymentStatus,
+        paymentNote,
+        create_account ? 1 : 0,
+        notes || null
+      ]
+    );
+
+    // URL mã QR check-in tiện lợi
+    const qrData = `https://doanhnghiepvn.today/checkin?code=${encodeURIComponent(ticketCode)}`;
+    const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketCode)}`;
+
+    // Tạo mã VietQR chuẩn nếu có thu phí
+    let vietqrUrl = null;
+    const bankInfo = {
+      bank_name: 'Techcombank',
+      bank_branch: 'PGD Văn Quán - Hà Đông - Hà Nội',
+      account_number: '19036730021017',
+      account_holder: 'CONG TY CO PHAN ADT QUOC TE',
+      bin_code: '970407',
+      transfer_amount: totalAmount,
+      transfer_syntax: paymentNote
+    };
+
+    if (isPaid && totalAmount > 0) {
+      vietqrUrl = `https://img.vietqr.io/image/970407-19036730021017-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(paymentNote)}&accountName=${encodeURIComponent('CONG TY CO PHAN ADT QUOC TE')}`;
+    }
+
+    res.json({
+      success: true,
+      message: 'Đăng ký vé tham gia sự kiện thành công!',
+      registration: {
+        id: result.insertId,
+        event_id: event.id,
+        event_title: event.title,
+        ticket_code: ticketCode,
+        full_name: full_name.trim(),
+        phone: cleanPhone,
+        email: email || '',
+        company: company || '',
+        quantity: qty,
+        total_amount: totalAmount,
+        payment_status: paymentStatus,
+        payment_note: paymentNote,
+        qr_data: qrData,
+        qr_image: qrImage,
+        vietqr_url: vietqrUrl,
+        bank_info: bankInfo
+      }
+    });
   } catch (err) {
+    console.error('Lỗi POST /api/events/:id/register:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin: Lấy danh sách người đăng ký vé của sự kiện
+app.get('/api/admin/events/:id/registrations', authMiddleware, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const [rows] = await db.query(
+      `SELECT r.*, e.title as event_title 
+       FROM event_registrations r 
+       JOIN events e ON r.event_id = e.id 
+       WHERE r.event_id = ? 
+       ORDER BY r.created_at DESC`,
+      [eventId]
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    console.error('Lỗi GET /api/admin/events/:id/registrations:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin: Cập nhật trạng thái thanh toán vé
+app.patch('/api/admin/events/registrations/:regId/payment', authMiddleware, async (req, res) => {
+  try {
+    const { regId } = req.params;
+    const { payment_status } = req.body;
+    if (!['free', 'pending', 'paid', 'cancelled'].includes(payment_status)) {
+      return res.status(400).json({ success: false, error: 'Trạng thái thanh toán không hợp lệ.' });
+    }
+
+    await db.query('UPDATE event_registrations SET payment_status = ? WHERE id = ?', [payment_status, regId]);
+    res.json({ success: true, message: 'Đã cập nhật trạng thái thanh toán vé.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin: Điểm danh / Check-in vé sự kiện bằng mã QR hoặc mã vé
+app.post('/api/admin/events/checkin', authMiddleware, async (req, res) => {
+  try {
+    const { ticket_code, event_id } = req.body;
+    if (!ticket_code || !ticket_code.trim()) {
+      return res.status(400).json({ success: false, error: 'Thiếu mã vé cần check-in.' });
+    }
+
+    const cleanCode = ticket_code.trim();
+    let sql = 'SELECT r.*, e.title as event_title FROM event_registrations r JOIN events e ON r.event_id = e.id WHERE r.ticket_code = ?';
+    const params = [cleanCode];
+    if (event_id) {
+      sql += ' AND r.event_id = ?';
+      params.push(event_id);
+    }
+
+    const [rows] = await db.query(sql, params);
+    if (!rows.length) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy vé hợp lệ với mã: ' + cleanCode });
+    }
+
+    const reg = rows[0];
+
+    if (reg.checkin_status === 'checked_in') {
+      return res.json({
+        success: true,
+        already_checked_in: true,
+        message: `Vé này ĐÃ CHECK-IN lúc ${new Date(reg.checkin_time).toLocaleString('vi-VN')}!`,
+        registration: reg
+      });
+    }
+
+    await db.query(
+      "UPDATE event_registrations SET checkin_status = 'checked_in', checkin_time = NOW() WHERE id = ?",
+      [reg.id]
+    );
+
+    const [updatedRows] = await db.query(
+      'SELECT r.*, e.title as event_title FROM event_registrations r JOIN events e ON r.event_id = e.id WHERE r.id = ?',
+      [reg.id]
+    );
+
+    res.json({
+      success: true,
+      already_checked_in: false,
+      message: '✅ Check-in thành công cho khách tham dự!',
+      registration: updatedRows[0]
+    });
+  } catch (err) {
+    console.error('Lỗi POST /api/admin/events/checkin:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin: Thêm sự kiện mới (Đầy đủ trường theo mockup Image 2)
+app.post('/api/admin/events', authMiddleware, async (req, res) => {
+  const {
+    title,
+    slug,
+    short_desc,
+    description,
+    content,
+    event_date,
+    end_date,
+    location,
+    organizer,
+    capacity,
+    is_paid,
+    price,
+    is_published,
+    status,
+    image_url
+  } = req.body;
+
+  if (!title || !title.trim() || !event_date) {
+    return res.status(400).json({ success: false, error: 'Vui lòng nhập Tiêu đề và Thời gian bắt đầu.' });
+  }
+
+  try {
+    const finalSlug = slug && slug.trim() ? slug.trim() : slugify(title.trim());
+    const finalCapacity = capacity !== undefined && capacity !== '' ? parseInt(capacity, 10) : 0;
+    const finalIsPaid = is_paid === true || is_paid === 1 || is_paid === '1' ? 1 : 0;
+    const finalPrice = finalIsPaid ? (parseFloat(price) || 0) : 0;
+    const finalIsPublished = is_published === false || is_published === 0 || is_published === '0' ? 0 : 1;
+
+    const [result] = await db.query(
+      `INSERT INTO events 
+       (title, slug, short_desc, description, content, event_date, end_date, location, organizer, capacity, is_paid, price, is_published, status, image_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        title.trim(),
+        finalSlug,
+        short_desc || null,
+        description || short_desc || null,
+        content || null,
+        event_date,
+        end_date || null,
+        location || null,
+        organizer || 'Tạp chí Doanh Nghiệp Việt Nam',
+        finalCapacity,
+        finalIsPaid,
+        finalPrice,
+        finalIsPublished,
+        status || 'upcoming',
+        image_url || null
+      ]
+    );
+
+    res.json({ success: true, id: result.insertId, message: 'Tạo sự kiện mới thành công.' });
+  } catch (err) {
+    console.error('Lỗi POST /api/admin/events:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Admin: Sửa sự kiện
 app.put('/api/admin/events/:id', authMiddleware, async (req, res) => {
-  const { title, description, event_date, location, organizer, capacity, status, image_url } = req.body;
-  if (!title || !event_date) {
-    return res.status(400).json({ success: false, error: 'Thiếu tiêu đề hoặc ngày tổ chức.' });
+  const eventId = req.params.id;
+  const {
+    title,
+    slug,
+    short_desc,
+    description,
+    content,
+    event_date,
+    end_date,
+    location,
+    organizer,
+    capacity,
+    is_paid,
+    price,
+    is_published,
+    status,
+    image_url
+  } = req.body;
+
+  if (!title || !title.trim() || !event_date) {
+    return res.status(400).json({ success: false, error: 'Vui lòng nhập Tiêu đề và Thời gian bắt đầu.' });
   }
+
   try {
-    const eventId = req.params.id;
+    const finalSlug = slug && slug.trim() ? slug.trim() : slugify(title.trim());
+    const finalCapacity = capacity !== undefined && capacity !== '' ? parseInt(capacity, 10) : 0;
+    const finalIsPaid = is_paid === true || is_paid === 1 || is_paid === '1' ? 1 : 0;
+    const finalPrice = finalIsPaid ? (parseFloat(price) || 0) : 0;
+    const finalIsPublished = is_published === false || is_published === 0 || is_published === '0' ? 0 : 1;
+
     await db.query(
-      `UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, organizer = ?, capacity = ?, status = ?, image_url = ?
+      `UPDATE events 
+       SET title = ?, slug = ?, short_desc = ?, description = ?, content = ?, event_date = ?, end_date = ?, 
+           location = ?, organizer = ?, capacity = ?, is_paid = ?, price = ?, is_published = ?, status = ?, image_url = ?
        WHERE id = ?`,
-      [title, description || null, event_date, location || null, organizer || null, capacity || null, status || 'upcoming', image_url || null, eventId]
+      [
+        title.trim(),
+        finalSlug,
+        short_desc || null,
+        description || short_desc || null,
+        content || null,
+        event_date,
+        end_date || null,
+        location || null,
+        organizer || 'Tạp chí Doanh Nghiệp Việt Nam',
+        finalCapacity,
+        finalIsPaid,
+        finalPrice,
+        finalIsPublished,
+        status || 'upcoming',
+        image_url || null,
+        eventId
+      ]
     );
-    res.json({ success: true, message: 'Cập nhật sự kiện thành công.' });
+
+    res.json({ success: true, message: 'Cập nhật thông tin sự kiện thành công.' });
   } catch (err) {
+    console.error('Lỗi PUT /api/admin/events/:id:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });

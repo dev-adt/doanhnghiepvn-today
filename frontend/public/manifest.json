@@ -1,0 +1,25 @@
+{
+  "name": "Tạp chí Doanh Nghiệp Việt Nam — DoanhNghiepVN.today",
+  "short_name": "DoanhNghiepVN",
+  "description": "Hệ sinh thái số Tạp chí Doanh Nghiệp Việt Nam: Tổ chức sự kiện giao thương, tư vấn tài chính, truyền thông thương hiệu và ứng dụng AI.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1528",
+  "theme_color": "#0D9488",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
