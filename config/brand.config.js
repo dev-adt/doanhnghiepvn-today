@@ -14,6 +14,14 @@ const brandConfig = {
   siteUrl: process.env.SITE_URL || 'https://doanhnghiepvn.today',
   demoSiteUrl: 'https://demo.edunow.today',
   
+  // Nhận diện logo thương hiệu
+  logo: {
+    primary: '/logo_doanhnghiepvn.png',
+    dark: '/logo_doanhnghiepvn_dark.png',
+    icon: '/logo_icon.png',
+    favicon: '/favicon.png'
+  },
+  
   // Thông tin thanh toán ngân hàng (Theo hợp đồng số 204-100126/ADT-DNVN)
   bankAccount: {
     bankName: 'Techcombank',

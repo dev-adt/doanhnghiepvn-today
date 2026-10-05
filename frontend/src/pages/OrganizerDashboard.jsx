@@ -256,18 +256,18 @@ export const OrganizerDashboard = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{
-                width: '34px',
-                height: '34px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '8px',
-                backgroundColor: '#0D9488',
-                color: '#fff',
+                overflow: 'hidden',
+                backgroundColor: '#08101E',
+                border: '1px solid rgba(45, 212, 191, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: '13px'
+                flexShrink: 0
               }}>
-                DNVN
+                <img src="/logo_icon.png" alt="DNVN" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerText = 'DNVN'; }} />
               </div>
               <div>
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>

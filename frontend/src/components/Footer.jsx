@@ -28,12 +28,12 @@ export const Footer = () => {
           <div>
             <Link to="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '1rem' }}>
               <img 
-                src={brandConfig.logo.primary || "/logo_doanhnghiepvn.png"} 
+                src={brandConfig.logo.dark || "/logo_doanhnghiepvn_dark.png"} 
                 alt={brandConfig.logo.alt || `${brandConfig.brandName} Logo`} 
                 onError={(e) => {
-                  e.target.style.display = 'none';
+                  e.target.src = "/logo_doanhnghiepvn.png";
                 }}
-                style={{ height: '46px', width: 'auto', maxHeight: '46px', objectFit: 'contain', display: 'block' }} 
+                style={{ height: '52px', width: 'auto', maxHeight: '52px', objectFit: 'contain', display: 'block', borderRadius: '6px' }} 
               />
             </Link>
             <div style={{

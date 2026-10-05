@@ -83,8 +83,8 @@ export const Sidebar = () => {
   return (
     <aside className="sidebar">
       <Link to="/admin-dashboard" className="sb-logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div className="sb-logo-icon" style={{ overflow: 'hidden', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0D9488', width: '32px', height: '32px', color: '#fff', fontWeight: 800, fontSize: '13px' }}>
-          DNVN
+        <div className="sb-logo-icon" style={{ overflow: 'hidden', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#08101E', width: '32px', height: '32px', flexShrink: 0, border: '1px solid rgba(45, 212, 191, 0.3)' }}>
+          <img src="/logo_icon.png" alt="DNVN" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerText = 'DNVN'; }} />
         </div>
         <div>
           <div className="sb-logo-name">{brandConfig.brandShortName || 'DoanhNghiepVN'}</div>

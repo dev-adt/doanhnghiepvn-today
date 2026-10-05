@@ -29,9 +29,11 @@ export const brandConfig = {
 
   // Nhận diện hình ảnh & Logo
   logo: {
-    primary: '/logo_doanhnghiepvn.png', // Đường dẫn logo chính
+    primary: '/logo_doanhnghiepvn.png', // Đường dẫn logo chính (trong suốt)
+    dark: '/logo_doanhnghiepvn_dark.png', // Logo banner nền tối chuẩn
+    icon: '/logo_icon.png', // Biểu tượng icon vuông
     alt: 'DoanhNghiepVN.today Logo',
-    favicon: '/favicon.ico',
+    favicon: '/favicon.png',
     defaultThumbnail: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
     fallbackCompanyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'
   },

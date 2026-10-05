@@ -83,14 +83,15 @@ export const Login = () => {
 
       <div style={{ width: '100%', maxWidth: '420px', padding: '1.5rem', zIndex: 10 }}>
         <div className="glass-card" style={{ padding: '2.5rem 2.25rem', borderRadius: '16px', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '2rem', textAlign: 'center' }}>
-            <div className="logo-icon" style={{ width: 'auto', height: '60px', borderRadius: '16px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(13, 148, 136, 0.35)', border: '1px solid rgba(45, 212, 191, 0.4)', padding: '6px 14px', background: 'rgba(15, 23, 42, 0.8)' }}>
-              <img src="/logo_doanhnghiepvn.png" alt="DoanhNghiepVN.today Logo" onError={(e) => { e.target.style.display = 'none'; }} style={{ height: '100%', width: 'auto', objectFit: 'contain' }} />
-            </div>
-            <div>
-              <div className="logo-name" style={{ fontFamily: 'var(--font-title)', fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>DoanhNghiepVN<span style={{ color: '#2DD4BF' }}>.today</span></div>
-              <div className="logo-sub" style={{ fontSize: '10.5px', color: '#0D9488', fontWeight: 700, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>TẠP CHÍ DOANH NGHIỆP VIỆT NAM</div>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '1.75rem', textAlign: 'center' }}>
+            <Link to="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              <img 
+                src="/logo_doanhnghiepvn_dark.png" 
+                alt="DoanhNghiepVN.today Logo" 
+                onError={(e) => { e.target.src = "/logo_doanhnghiepvn.png"; }} 
+                style={{ height: '62px', width: 'auto', maxWidth: '100%', objectFit: 'contain', borderRadius: '10px', filter: 'drop-shadow(0 4px 16px rgba(13, 148, 136, 0.3))' }} 
+              />
+            </Link>
           </div>
 
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '1.5rem' }}>

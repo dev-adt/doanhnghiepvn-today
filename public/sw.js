@@ -8,7 +8,9 @@ const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
   '/favicon.png',
-  '/logo_doanhnghiepvn.png'
+  '/logo_icon.png',
+  '/logo_doanhnghiepvn.png',
+  '/logo_doanhnghiepvn_dark.png'
 ];
 
 self.addEventListener('install', (event) => {

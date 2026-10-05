@@ -214,17 +214,23 @@ export const Navbar = () => {
           width: 38px !important;
           height: 38px !important;
           border-radius: 10px !important;
-          background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%) !important;
+          overflow: hidden !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
           color: #ffffff !important;
           font-weight: 900 !important;
-          font-size: 14px !important;
-          letter-spacing: 0.5px !important;
-          box-shadow: 0 2px 10px rgba(13, 148, 136, 0.4) !important;
-          border: 1.5px solid rgba(255,255,255,0.2) !important;
+          box-shadow: 0 2px 12px rgba(13, 148, 136, 0.45) !important;
+          border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
           flex-shrink: 0 !important;
+          background: #08101E !important;
+        }
+
+        .dnvn-brand-icon-img {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          display: block !important;
         }
 
         .dnvn-brand-text-box {
@@ -425,7 +431,12 @@ export const Navbar = () => {
             title={brandConfig.brandName}
           >
             <div className="dnvn-brand-icon">
-              DN
+              <img 
+                src="/logo_icon.png" 
+                alt="DN Logo" 
+                className="dnvn-brand-icon-img"
+                onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerText = 'DN'; }}
+              />
             </div>
             <div className="dnvn-brand-text-box">
               <span className="dnvn-brand-title">
