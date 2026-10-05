@@ -1046,36 +1046,51 @@ export const Home = () => {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
-              {latestPosts.map((post) => (
-                <article
-                  key={post.id}
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '16px',
-                    border: '1px solid #E2E8F0',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.08)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
-                  }}
-                >
-                  <div style={{ height: '200px', backgroundColor: '#F1F5F9', overflow: 'hidden' }}>
-                    <img
-                      src={post.thumbnail || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80'}
-                      alt={post.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </div>
+              {latestPosts.map((post) => {
+                const defaultFallback = 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80';
+                const isValid = (url) => url && typeof url === 'string' && url !== 'null' && url !== 'undefined' && url.trim() !== '';
+                const postCover = isValid(post.image_url)
+                  ? post.image_url.trim()
+                  : (isValid(post.thumbnail)
+                    ? post.thumbnail.trim()
+                    : (isValid(post.cover_image)
+                      ? post.cover_image.trim()
+                      : (isValid(post.image) ? post.image.trim() : defaultFallback)));
+
+                return (
+                  <article
+                    key={post.id}
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '16px',
+                      border: '1px solid #E2E8F0',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
+                    }}
+                  >
+                    <div style={{ height: '200px', backgroundColor: '#F1F5F9', overflow: 'hidden' }}>
+                      <img
+                        src={postCover}
+                        alt={post.title}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = defaultFallback;
+                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
 
                   <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between' }}>
                     <div>
@@ -1125,7 +1140,7 @@ export const Home = () => {
                     </div>
                   </div>
                 </article>
-              ))}
+              ); })}
             </div>
           )}
 
