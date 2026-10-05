@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../contexts/LanguageContext';
+import { usePWA } from '../contexts/PWAContext';
 import brandConfig from '../brand.config';
 
 export const Footer = () => {
   const { currentLang } = useTranslation();
+  const { isInstalled, installApp } = usePWA();
 
   return (
     <footer style={{
@@ -52,6 +54,31 @@ export const Footer = () => {
             </div>
             <div style={{ fontSize: '11px', color: '#14b8a6', fontWeight: '600', marginTop: '4px', letterSpacing: '0.4px' }}>
               {currentLang === 'en' ? `DIGITAL ECOSYSTEM — ${brandConfig.domain.toUpperCase()}` : `KẾT NỐI DOANH NGHIỆP — ${brandConfig.domain.toUpperCase()}`}
+            </div>
+            <div style={{ marginTop: '12px' }}>
+              <button
+                onClick={installApp}
+                title="Cài đặt ứng dụng DoanhNghiepVN.today (PWA)"
+                style={{
+                  background: 'rgba(13, 148, 136, 0.15)',
+                  border: '1px solid rgba(45, 212, 191, 0.4)',
+                  color: '#2DD4BF',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11.5px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.18s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(13, 148, 136, 0.3)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(13, 148, 136, 0.15)'; }}
+              >
+                <i className="ti ti-device-mobile-down"></i>
+                <span>{isInstalled ? '✓ Ứng dụng PWA đã cài đặt' : 'Cài đặt ứng dụng PWA'}</span>
+              </button>
             </div>
           </div>
 

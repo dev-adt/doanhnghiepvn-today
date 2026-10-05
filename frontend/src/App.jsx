@@ -5,6 +5,8 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import brandConfig from './brand.config';
+import { PWAProvider } from './contexts/PWAContext';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 // Pages
 import Home from './pages/Home';
@@ -50,9 +52,11 @@ function App() {
     <ErrorBoundary>
       <LanguageProvider>
         <AuthProvider>
-          <Router>
-            <ScrollToTop />
-            <Routes>
+          <PWAProvider>
+            <Router>
+              <ScrollToTop />
+              <PWAInstallPrompt />
+              <Routes>
             {/* Tuyến đường công khai */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -199,6 +203,7 @@ function App() {
             />
           </Routes>
         </Router>
+          </PWAProvider>
       </AuthProvider>
     </LanguageProvider>
   </ErrorBoundary>

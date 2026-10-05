@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 // Đăng ký Service Worker cho Progressive Web App (PWA)
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then(
       (registration) => {

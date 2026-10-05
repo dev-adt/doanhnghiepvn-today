@@ -2,24 +2,73 @@
   "name": "Tạp chí Doanh Nghiệp Việt Nam — DoanhNghiepVN.today",
   "short_name": "DoanhNghiepVN",
   "description": "Hệ sinh thái số Tạp chí Doanh Nghiệp Việt Nam: Tổ chức sự kiện giao thương, tư vấn tài chính, truyền thông thương hiệu và ứng dụng AI.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0b1528",
+  "background_color": "#08101E",
   "theme_color": "#0D9488",
+  "categories": ["business", "news", "finance"],
   "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/logo_icon.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Sự kiện & Diễn đàn",
+      "short_name": "Sự kiện",
+      "description": "Lịch sự kiện và diễn đàn doanh nghiệp",
+      "url": "/events",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Trợ lý AI Doanh Nghiệp",
+      "short_name": "AI Chat",
+      "description": "Hỏi đáp tư vấn cùng Trợ lý AI",
+      "url": "/ai-chat",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Danh bạ Hội viên",
+      "short_name": "Hội viên",
+      "description": "Tra cứu hồ sơ doanh nghiệp hội viên",
+      "url": "/members",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

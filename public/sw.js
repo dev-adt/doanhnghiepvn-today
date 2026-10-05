@@ -10,7 +10,9 @@ const PRECACHE_ASSETS = [
   '/favicon.png',
   '/logo_icon.png',
   '/logo_doanhnghiepvn.png',
-  '/logo_doanhnghiepvn_dark.png'
+  '/logo_doanhnghiepvn_dark.png',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {

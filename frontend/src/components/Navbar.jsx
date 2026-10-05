@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../contexts/LanguageContext';
+import { usePWA } from '../contexts/PWAContext';
 import brandConfig from '../brand.config';
 
 export const Navbar = () => {
   const { role, user, logout } = useAuth();
   const { currentLang, changeLang, t } = useTranslation();
+  const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesList, setCategoriesList] = useState([]);
   const [activeDropdownId, setActiveDropdownId] = useState(null);
@@ -620,6 +622,44 @@ export const Navbar = () => {
               </button>
             </div>
 
+            {/* Nút Cài đặt PWA Desktop */}
+            {isInstallable && !isInstalled && (
+              <button
+                onClick={installApp}
+                className="dnvn-btn-pwa-install"
+                title="Cài đặt ứng dụng DoanhNghiepVN.today (PWA)"
+                style={{
+                  backgroundColor: 'rgba(13, 148, 136, 0.15)',
+                  border: '1px solid rgba(45, 212, 191, 0.5)',
+                  color: '#2DD4BF',
+                  fontSize: '11.5px',
+                  fontWeight: '700',
+                  padding: '6px 11px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.18s ease',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(45, 212, 191, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.15)';
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <i className="ti ti-device-mobile-down" style={{ fontSize: '13.5px' }}></i>
+                <span>Cài App</span>
+              </button>
+            )}
+
             {/* Nút Đăng ký trải nghiệm / Gia nhập Hội (Chỉ hiện khi chưa đăng nhập và trên desktop) */}
             {role === 'guest' && (
               <Link
@@ -872,6 +912,31 @@ export const Navbar = () => {
 
             {/* Actions trên mobile */}
             <div style={{ paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Cài đặt Ứng dụng PWA trên Mobile */}
+              {isInstallable && !isInstalled && (
+                <button
+                  onClick={() => { installApp(); setMobileMenuOpen(false); }}
+                  style={{
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    border: '1px solid #2DD4BF',
+                    color: '#2DD4BF',
+                    textAlign: 'center',
+                    padding: '9px',
+                    borderRadius: '8px',
+                    fontWeight: '700',
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <i className="ti ti-device-mobile-down" style={{ fontSize: '16px' }}></i>
+                  <span>Cài đặt Ứng dụng PWA</span>
+                </button>
+              )}
+
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
