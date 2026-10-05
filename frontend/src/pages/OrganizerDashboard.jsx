@@ -43,6 +43,9 @@ export const OrganizerDashboard = () => {
   const [loadingRegs, setLoadingRegs] = useState(false);
   const [regSearch, setRegSearch] = useState('');
   const [regFilterStatus, setRegFilterStatus] = useState('all');
+  const [viewingProof, setViewingProof] = useState(null);
+
+  const isTicketInspector = user?.role === 'ticket_inspector' || user?.staff_role === 'ticket_inspector';
 
   const loadEvents = async () => {
     setLoading(true);
@@ -277,8 +280,8 @@ export const OrganizerDashboard = () => {
             </Link>
 
             <span style={{
-              backgroundColor: '#FEF3C7',
-              color: '#92400E',
+              backgroundColor: isTicketInspector ? '#E0E7FF' : '#FEF3C7',
+              color: isTicketInspector ? '#3730A3' : '#92400E',
               padding: '3px 10px',
               borderRadius: '20px',
               fontSize: '11px',
@@ -286,7 +289,7 @@ export const OrganizerDashboard = () => {
               textTransform: 'uppercase',
               letterSpacing: '0.5px'
             }}>
-              BAN TỔ CHỨC SỰ KIỆN
+              {isTicketInspector ? 'NHÂN VIÊN SOÁT VÉ' : 'BAN TỔ CHỨC SỰ KIỆN'}
             </span>
           </div>
 
@@ -355,10 +358,12 @@ export const OrganizerDashboard = () => {
           <div>
             <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <i className="ti ti-calendar-event" style={{ color: '#0D9488' }}></i>
-              Quản lý Sự kiện & Check-in
+              {isTicketInspector ? 'Soát vé & Check-in Sự kiện' : 'Quản lý Sự kiện & Check-in'}
             </h1>
             <p style={{ fontSize: '13px', color: '#64748B', margin: '4px 0 0' }}>
-              Khởi tạo sự kiện, quản lý danh sách đăng ký vé, và thực hiện check-in khách tham dự đồng bộ theo thời gian thực.
+              {isTicketInspector
+                ? 'Theo dõi danh sách sự kiện, danh sách đăng ký vé và thực hiện soát vé / check-in đồng bộ dữ liệu thời gian thực.'
+                : 'Khởi tạo sự kiện, quản lý danh sách đăng ký vé, và thực hiện check-in khách tham dự đồng bộ theo thời gian thực.'}
             </p>
           </div>
 
@@ -383,26 +388,28 @@ export const OrganizerDashboard = () => {
               Mở trang Check-in
             </Link>
 
-            <button
-              onClick={handleOpenAddModal}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '9px 18px',
-                backgroundColor: '#0D9488',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(13, 148, 136, 0.2)'
-              }}
-            >
-              <i className="ti ti-plus"></i>
-              Tạo sự kiện mới
-            </button>
+            {!isTicketInspector && (
+              <button
+                onClick={handleOpenAddModal}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '9px 18px',
+                  backgroundColor: '#0D9488',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(13, 148, 136, 0.2)'
+                }}
+              >
+                <i className="ti ti-plus"></i>
+                Tạo sự kiện mới
+              </button>
+            )}
           </div>
         </div>
 
@@ -587,36 +594,41 @@ export const OrganizerDashboard = () => {
                             >
                               <i className="ti ti-users"></i> Vé ({registered})
                             </button>
-                            <button
-                              onClick={() => handleOpenEditModal(evt)}
-                              title="Sửa sự kiện"
-                              style={{
-                                padding: '6px 10px',
-                                backgroundColor: '#F8FAFC',
-                                color: '#334155',
-                                border: '1px solid #CBD5E1',
-                                borderRadius: '6px',
-                                fontSize: '12px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              <i className="ti ti-edit"></i>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteEvent(evt.id, evt.title)}
-                              title="Xóa sự kiện"
-                              style={{
-                                padding: '6px 10px',
-                                backgroundColor: '#FEF2F2',
-                                color: '#DC2626',
-                                border: '1px solid #FECACA',
-                                borderRadius: '6px',
-                                fontSize: '12px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              <i className="ti ti-trash"></i>
-                            </button>
+
+                            {!isTicketInspector && (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditModal(evt)}
+                                  title="Sửa sự kiện"
+                                  style={{
+                                    padding: '6px 10px',
+                                    backgroundColor: '#F8FAFC',
+                                    color: '#334155',
+                                    border: '1px solid #CBD5E1',
+                                    borderRadius: '6px',
+                                    fontSize: '12px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <i className="ti ti-edit"></i>
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteEvent(evt.id, evt.title)}
+                                  title="Xóa sự kiện"
+                                  style={{
+                                    padding: '6px 10px',
+                                    backgroundColor: '#FEF2F2',
+                                    color: '#DC2626',
+                                    border: '1px solid #FECACA',
+                                    borderRadius: '6px',
+                                    fontSize: '12px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <i className="ti ti-trash"></i>
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -1161,6 +1173,31 @@ export const OrganizerDashboard = () => {
                               <option value="paid">Đã thanh toán</option>
                               <option value="cancelled">Hủy vé</option>
                             </select>
+
+                            {r.payment_proof ? (
+                              <button
+                                type="button"
+                                onClick={() => setViewingProof({ url: r.payment_proof, reg: r })}
+                                style={{
+                                  marginTop: '4px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px',
+                                  padding: '2px 7px',
+                                  borderRadius: '4px',
+                                  backgroundColor: '#EFF6FF',
+                                  color: '#1D4ED8',
+                                  border: '1px solid #BFDBFE',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <i className="ti ti-receipt"></i> Xem bill
+                              </button>
+                            ) : r.payment_status === 'pending' && Number(r.total_amount) > 0 ? (
+                              <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block', marginTop: '2px' }}>Chưa có bill</span>
+                            ) : null}
                           </td>
                           <td style={{ padding: '10px' }}>
                             {r.checkin_status === 'checked_in' ? (
@@ -1191,6 +1228,109 @@ export const OrganizerDashboard = () => {
                   </table>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL XEM ẢNH BILL CHUYỂN KHOẢN VÀ DUYỆT THANH TOÁN */}
+      {viewingProof && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.25rem'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            maxWidth: '520px',
+            width: '100%',
+            overflow: 'hidden',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)'
+          }}>
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <i className="ti ti-receipt" style={{ color: '#2563EB' }}></i>
+                Ảnh biên lai chuyển khoản
+              </h4>
+              <button onClick={() => setViewingProof(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748B' }}>✕</button>
+            </div>
+
+            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ fontSize: '12.5px', color: '#334155', backgroundColor: '#F8FAFC', padding: '10px 12px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div><strong>Khách tham dự:</strong> {viewingProof.reg?.full_name} ({viewingProof.reg?.phone})</div>
+                <div><strong>Mã vé:</strong> <code>{viewingProof.reg?.ticket_code}</code> · <strong>Số tiền:</strong> <strong style={{ color: '#B45309' }}>{Number(viewingProof.reg?.total_amount).toLocaleString('vi-VN')} VNĐ</strong></div>
+                <div><strong>Cú pháp CK:</strong> <code>{viewingProof.reg?.payment_note}</code></div>
+              </div>
+
+              <div style={{ maxHeight: '360px', overflowY: 'auto', textAlign: 'center', backgroundColor: '#0F172A', borderRadius: '8px', padding: '8px' }}>
+                <img
+                  src={viewingProof.url}
+                  alt="Bill thanh toán"
+                  style={{ maxWidth: '100%', maxHeight: '340px', objectFit: 'contain', borderRadius: '4px' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+              <a
+                href={viewingProof.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontSize: '12px', color: '#2563EB', textDecoration: 'underline', fontWeight: '600' }}
+              >
+                Mở ảnh gốc trong tab mới
+              </a>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {viewingProof.reg?.payment_status !== 'paid' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdatePaymentStatus(viewingProof.reg.id, 'paid');
+                      setViewingProof(null);
+                    }}
+                    style={{
+                      padding: '7px 16px',
+                      backgroundColor: '#16A34A',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '12.5px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    <i className="ti ti-check"></i> Duyệt đã thanh toán
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setViewingProof(null)}
+                  style={{
+                    padding: '7px 16px',
+                    backgroundColor: '#64748B',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Đóng
+                </button>
+              </div>
             </div>
           </div>
         </div>

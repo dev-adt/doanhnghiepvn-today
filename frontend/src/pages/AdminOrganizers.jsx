@@ -18,6 +18,7 @@ export const AdminOrganizers = () => {
     password: '',
     phone: '',
     email: '',
+    role: 'organizer',
     status: 'active'
   });
   const [submitting, setSubmitting] = useState(false);
@@ -50,6 +51,7 @@ export const AdminOrganizers = () => {
       password: '',
       phone: '',
       email: '',
+      role: 'organizer',
       status: 'active'
     });
     setModalOpen(true);
@@ -63,6 +65,7 @@ export const AdminOrganizers = () => {
       password: '', // Bỏ trống nếu không đổi
       phone: org.phone || '',
       email: org.email || '',
+      role: org.role || 'organizer',
       status: org.status || 'active'
     });
     setModalOpen(true);
@@ -205,6 +208,7 @@ export const AdminOrganizers = () => {
                 <thead>
                   <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0', color: '#475569' }}>
                     <th style={{ padding: '12px 16px', fontWeight: '700' }}>Tên Ban tổ chức / Đại diện</th>
+                    <th style={{ padding: '12px 16px', fontWeight: '700' }}>Chức vụ</th>
                     <th style={{ padding: '12px 16px', fontWeight: '700' }}>Tên đăng nhập</th>
                     <th style={{ padding: '12px 16px', fontWeight: '700' }}>Số điện thoại</th>
                     <th style={{ padding: '12px 16px', fontWeight: '700' }}>Email</th>
@@ -218,6 +222,39 @@ export const AdminOrganizers = () => {
                     <tr key={org.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                       <td style={{ padding: '12px 16px', fontWeight: '700', color: '#0F172A' }}>
                         {org.name}
+                      </td>
+                      <td style={{ padding: '12px 16px' }}>
+                        {org.role === 'ticket_inspector' ? (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '3px 10px',
+                            borderRadius: '12px',
+                            fontSize: '11.5px',
+                            fontWeight: '700',
+                            backgroundColor: '#EFF6FF',
+                            color: '#1D4ED8',
+                            border: '1px solid #BFDBFE'
+                          }}>
+                            <i className="ti ti-scan"></i> Soát vé
+                          </span>
+                        ) : (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '3px 10px',
+                            borderRadius: '12px',
+                            fontSize: '11.5px',
+                            fontWeight: '700',
+                            backgroundColor: '#F0FDFA',
+                            color: '#0F766E',
+                            border: '1px solid #99F6E4'
+                          }}>
+                            <i className="ti ti-id-badge-2"></i> Ban tổ chức
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <code style={{ backgroundColor: '#F1F5F9', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>
@@ -377,6 +414,18 @@ export const AdminOrganizers = () => {
                       style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>Chức vụ / Quyền hạn *</label>
+                  <select
+                    value={formData.role}
+                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', backgroundColor: '#F8FAFC' }}
+                  >
+                    <option value="organizer">Ban tổ chức (Toàn quyền quản lý sự kiện & soát vé)</option>
+                    <option value="ticket_inspector">Nhân viên soát vé (Chỉ xem sự kiện & soát vé, không sửa/xóa)</option>
+                  </select>
                 </div>
 
                 <div>

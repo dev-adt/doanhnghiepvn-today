@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS event_registrations (
   total_amount    DECIMAL(15,2) DEFAULT 0   COMMENT 'Tổng tiền thanh toán (VNĐ)',
   payment_status  ENUM('free','pending','paid','cancelled') DEFAULT 'free' COMMENT 'Trạng thái thanh toán',
   payment_note    VARCHAR(255) DEFAULT NULL COMMENT 'Ghi chú / Cú pháp chuyển khoản',
+  payment_proof   VARCHAR(500) DEFAULT NULL COMMENT 'Ảnh chứng từ thanh toán chuyển khoản',
   checkin_status  ENUM('not_checked_in','checked_in') DEFAULT 'not_checked_in' COMMENT 'Trạng thái điểm danh',
   checkin_time    DATETIME     DEFAULT NULL COMMENT 'Thời gian quét mã QR check-in',
   create_account  TINYINT(1)   DEFAULT 0    COMMENT 'Yêu cầu tạo tài khoản theo dõi',
@@ -118,6 +119,29 @@ CREATE TABLE IF NOT EXISTS event_registrations (
   INDEX idx_phone (phone),
   INDEX idx_payment_status (payment_status)
 ) ENGINE=InnoDB COMMENT='Danh sách đăng ký tham gia sự kiện và vé QR';
+
+-- ── Bảng ban tổ chức sự kiện & nhân viên soát vé ───────────────
+CREATE TABLE IF NOT EXISTS event_organizers (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  name          VARCHAR(255) NOT NULL,
+  username      VARCHAR(100) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  phone         VARCHAR(50)  DEFAULT NULL,
+  email         VARCHAR(191) DEFAULT NULL,
+  role          VARCHAR(50)  DEFAULT 'organizer' COMMENT 'organizer hoặc ticket_inspector',
+  status        VARCHAR(50)  DEFAULT 'active',
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB COMMENT='Tài khoản Ban tổ chức Sự kiện & Soát vé';
+
+CREATE TABLE IF NOT EXISTS organizer_sessions (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  organizer_id  INT NOT NULL,
+  token         VARCHAR(255) NOT NULL UNIQUE,
+  expires_at    DATETIME NOT NULL,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (organizer_id) REFERENCES event_organizers(id) ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT='Phiên đăng nhập Ban tổ chức Sự kiện';
 
 -- ── Bảng quan tâm sự kiện (Tương thích ngược) ─────────────────
 CREATE TABLE IF NOT EXISTS event_interests (

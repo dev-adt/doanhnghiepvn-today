@@ -470,7 +470,7 @@ db.query(`
     `);
     console.log('✅ Bảng content_creators và creator_sessions đã sẵn sàng');
 
-    // Tự động tạo bảng event_organizers và organizer_sessions cho vai trò Ban tổ chức sự kiện
+    // Tự động tạo bảng event_organizers và organizer_sessions cho vai trò Ban tổ chức sự kiện & Nhân viên soát vé
     await db.query(`
       CREATE TABLE IF NOT EXISTS event_organizers (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -479,11 +479,19 @@ db.query(`
         password_hash VARCHAR(255) NOT NULL,
         phone VARCHAR(50) DEFAULT NULL,
         email VARCHAR(191) DEFAULT NULL,
+        role VARCHAR(50) DEFAULT 'organizer' COMMENT 'organizer hoặc ticket_inspector',
         status VARCHAR(50) DEFAULT 'active',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB COMMENT='Tài khoản Ban tổ chức Sự kiện'
+      ) ENGINE=InnoDB COMMENT='Tài khoản Ban tổ chức Sự kiện & Soát vé'
     `);
+
+    // Đảm bảo event_organizers có cột role
+    const [existingOrgCols] = await db.query("SHOW COLUMNS FROM event_organizers LIKE 'role'");
+    if (!existingOrgCols.length) {
+      await db.query("ALTER TABLE event_organizers ADD COLUMN role VARCHAR(50) DEFAULT 'organizer' AFTER email");
+      console.log('✅ Đã thêm cột role vào bảng event_organizers');
+    }
 
     await db.query(`
       CREATE TABLE IF NOT EXISTS organizer_sessions (
@@ -626,6 +634,12 @@ db.query(`
       const [regMemberCols] = await db.query("SHOW COLUMNS FROM event_registrations LIKE 'member_id'");
       if (!regMemberCols.length) {
         await db.query("ALTER TABLE event_registrations ADD COLUMN member_id INT DEFAULT NULL AFTER event_id, ADD INDEX idx_reg_member (member_id)");
+      }
+
+      const [regProofCols] = await db.query("SHOW COLUMNS FROM event_registrations LIKE 'payment_proof'");
+      if (!regProofCols.length) {
+        await db.query("ALTER TABLE event_registrations ADD COLUMN payment_proof VARCHAR(500) DEFAULT NULL AFTER payment_note");
+        console.log('✅ Đã thêm cột payment_proof vào bảng event_registrations');
       }
 
       // Tự động liên kết các vé đã đăng ký chưa có member_id với tài khoản thành viên phù hợp
@@ -1067,7 +1081,7 @@ async function creatorAuthMiddleware(req, res, next) {
   }
 }
 
-// Middleware xác thực Ban tổ chức Sự kiện (Organizer) bằng token
+// Middleware xác thực Ban tổ chức Sự kiện & Soát vé (Organizer) bằng token
 async function organizerAuthMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -1077,7 +1091,7 @@ async function organizerAuthMiddleware(req, res, next) {
   const token = authHeader.substring(7);
   try {
     const [sessions] = await db.query(
-      `SELECT s.*, o.name, o.username, o.phone, o.email, o.status
+      `SELECT s.*, o.name, o.username, o.phone, o.email, o.status, o.role
        FROM organizer_sessions s 
        JOIN event_organizers o ON s.organizer_id = o.id 
        WHERE s.token = ? AND (s.expires_at > NOW() OR s.expires_at > UTC_TIMESTAMP())`, 
@@ -1089,7 +1103,7 @@ async function organizerAuthMiddleware(req, res, next) {
     }
 
     if (sessions[0].status === 'inactive' || sessions[0].status === 'suspended') {
-      return res.status(403).json({ success: false, error: 'Tài khoản Ban tổ chức này đã bị tạm khóa.' });
+      return res.status(403).json({ success: false, error: 'Tài khoản này đã bị tạm khóa.' });
     }
 
     req.organizer = {
@@ -1098,6 +1112,7 @@ async function organizerAuthMiddleware(req, res, next) {
       username: sessions[0].username,
       phone: sessions[0].phone,
       email: sessions[0].email,
+      role: sessions[0].role || 'organizer',
       token: token
     };
     next();
@@ -1106,7 +1121,7 @@ async function organizerAuthMiddleware(req, res, next) {
   }
 }
 
-// Middleware xác thực Quản lý Sự kiện (Admin HOẶC Ban tổ chức / Organizer)
+// Middleware xác thực Quản lý Sự kiện (Admin HOẶC Ban tổ chức / Organizer / Soát vé)
 async function eventManagerAuthMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -1136,7 +1151,7 @@ async function eventManagerAuthMiddleware(req, res, next) {
 
     // 2. Thử xác thực Ban tổ chức (Organizer)
     const [orgSessions] = await db.query(
-      `SELECT s.*, o.name, o.username, o.phone, o.email, o.status
+      `SELECT s.*, o.name, o.username, o.phone, o.email, o.status, o.role
        FROM organizer_sessions s 
        JOIN event_organizers o ON s.organizer_id = o.id 
        WHERE s.token = ? AND (s.expires_at > NOW() OR s.expires_at > UTC_TIMESTAMP())`, 
@@ -1144,7 +1159,7 @@ async function eventManagerAuthMiddleware(req, res, next) {
     );
     if (orgSessions.length) {
       if (orgSessions[0].status === 'inactive' || orgSessions[0].status === 'suspended') {
-        return res.status(403).json({ success: false, error: 'Tài khoản Ban tổ chức này đã bị tạm khóa.' });
+        return res.status(403).json({ success: false, error: 'Tài khoản này đã bị tạm khóa.' });
       }
       req.organizer = {
         id: orgSessions[0].organizer_id,
@@ -1152,6 +1167,7 @@ async function eventManagerAuthMiddleware(req, res, next) {
         username: orgSessions[0].username,
         phone: orgSessions[0].phone,
         email: orgSessions[0].email,
+        role: orgSessions[0].role || 'organizer',
         token: token
       };
       req.authRole = 'organizer';
@@ -1306,13 +1322,15 @@ app.post('/api/auth/login', async (req, res) => {
           'INSERT INTO organizer_sessions (organizer_id, token, expires_at) VALUES (?, ?, ?)',
           [org.id, token, expiresAt]
         );
+        const orgRole = org.role === 'ticket_inspector' ? 'ticket_inspector' : 'organizer';
         const orgData = {
           id: org.id,
           name: org.name,
           username: org.username,
           phone: org.phone,
           email: org.email,
-          role: 'organizer'
+          role: orgRole,
+          staff_role: orgRole
         };
         return res.json({
           success: true,
@@ -2776,11 +2794,11 @@ app.post('/api/organizer/logout', organizerAuthMiddleware, async (req, res) => {
   }
 });
 
-// 2. Admin: Danh sách tài khoản Ban tổ chức
+// 2. Admin: Danh sách tài khoản Ban tổ chức & Soát vé
 app.get('/api/admin/organizers', authMiddleware, async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT o.id, o.name, o.username, o.phone, o.email, o.status, o.created_at, o.updated_at
+      SELECT o.id, o.name, o.username, o.phone, o.email, o.role, o.status, o.created_at, o.updated_at
       FROM event_organizers o
       ORDER BY o.id DESC
     `);
@@ -2790,9 +2808,9 @@ app.get('/api/admin/organizers', authMiddleware, async (req, res) => {
   }
 });
 
-// Admin: Thêm tài khoản Ban tổ chức mới
+// Admin: Thêm tài khoản Ban tổ chức / Nhân viên soát vé mới
 app.post('/api/admin/organizers', authMiddleware, async (req, res) => {
-  const { name, username, password, phone, email, status } = req.body;
+  const { name, username, password, phone, email, role, status } = req.body;
   if (!name || !username || !password) {
     return res.status(400).json({ success: false, error: 'Vui lòng điền đầy đủ Tên, Tên đăng nhập và Mật khẩu.' });
   }
@@ -2803,21 +2821,22 @@ app.post('/api/admin/organizers', authMiddleware, async (req, res) => {
     }
     const hash = await bcrypt.hash(password, 10);
     const orgStatus = status === 'inactive' ? 'inactive' : 'active';
+    const orgRole = role === 'ticket_inspector' ? 'ticket_inspector' : 'organizer';
 
     const [result] = await db.query(
-      'INSERT INTO event_organizers (name, username, password_hash, phone, email, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [name.trim(), username.trim(), hash, phone ? phone.trim() : null, email ? email.trim() : null, orgStatus]
+      'INSERT INTO event_organizers (name, username, password_hash, phone, email, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name.trim(), username.trim(), hash, phone ? phone.trim() : null, email ? email.trim() : null, orgRole, orgStatus]
     );
 
-    res.json({ success: true, id: result.insertId, message: 'Thêm tài khoản Ban tổ chức thành công.' });
+    res.json({ success: true, id: result.insertId, message: 'Thêm tài khoản thành công.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Admin: Cập nhật tài khoản Ban tổ chức
+// Admin: Cập nhật tài khoản Ban tổ chức / Nhân viên soát vé
 app.put('/api/admin/organizers/:id', authMiddleware, async (req, res) => {
-  const { name, username, password, phone, email, status } = req.body;
+  const { name, username, password, phone, email, role, status } = req.body;
   const organizerId = req.params.id;
 
   if (!name || !username) {
@@ -2831,21 +2850,22 @@ app.put('/api/admin/organizers/:id', authMiddleware, async (req, res) => {
     }
 
     const orgStatus = status === 'inactive' ? 'inactive' : 'active';
+    const orgRole = role === 'ticket_inspector' ? 'ticket_inspector' : 'organizer';
 
     if (password && password.trim()) {
       const hash = await bcrypt.hash(password.trim(), 10);
       await db.query(
-        'UPDATE event_organizers SET name = ?, username = ?, password_hash = ?, phone = ?, email = ?, status = ? WHERE id = ?',
-        [name.trim(), username.trim(), hash, phone ? phone.trim() : null, email ? email.trim() : null, orgStatus, organizerId]
+        'UPDATE event_organizers SET name = ?, username = ?, password_hash = ?, phone = ?, email = ?, role = ?, status = ? WHERE id = ?',
+        [name.trim(), username.trim(), hash, phone ? phone.trim() : null, email ? email.trim() : null, orgRole, orgStatus, organizerId]
       );
     } else {
       await db.query(
-        'UPDATE event_organizers SET name = ?, username = ?, phone = ?, email = ?, status = ? WHERE id = ?',
-        [name.trim(), username.trim(), phone ? phone.trim() : null, email ? email.trim() : null, orgStatus, organizerId]
+        'UPDATE event_organizers SET name = ?, username = ?, phone = ?, email = ?, role = ?, status = ? WHERE id = ?',
+        [name.trim(), username.trim(), phone ? phone.trim() : null, email ? email.trim() : null, orgRole, orgStatus, organizerId]
       );
     }
 
-    res.json({ success: true, message: 'Cập nhật tài khoản Ban tổ chức thành công.' });
+    res.json({ success: true, message: 'Cập nhật tài khoản thành công.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -3898,6 +3918,17 @@ app.post('/api/events/:id/register', async (req, res) => {
     }
 
     const event = events[0];
+
+    // Kiểm tra nếu sự kiện đã kết thúc thì không cho phép đăng ký
+    const eventEndDate = new Date(event.end_date || event.event_date);
+    const now = new Date();
+    if (event.status === 'completed' || (eventEndDate.getTime() && eventEndDate < now)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Sự kiện này đã kết thúc, cổng đăng ký đã đóng.'
+      });
+    }
+
     const { 
       full_name, 
       phone, 
@@ -4201,8 +4232,9 @@ app.get('/api/member/events', memberAuthMiddleware, async (req, res) => {
     );
 
     const formatted = rows.map(item => {
-      const qrData = `https://doanhnghiepvn.today/checkin?code=${encodeURIComponent(item.ticket_code)}`;
-      const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(item.ticket_code)}`;
+      const isPaidOrFree = item.payment_status === 'paid' || item.payment_status === 'free';
+      const qrData = isPaidOrFree ? `https://doanhnghiepvn.today/checkin?code=${encodeURIComponent(item.ticket_code)}` : null;
+      const qrImage = isPaidOrFree ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(item.ticket_code)}` : null;
       let vietqrUrl = null;
       if (item.payment_status === 'pending' && Number(item.total_amount) > 0) {
         vietqrUrl = `https://img.vietqr.io/image/970407-19036730021017-compact2.png?amount=${item.total_amount}&addInfo=${encodeURIComponent(item.payment_note || ('VE ' + item.ticket_code))}&accountName=${encodeURIComponent('CONG TY CO PHAN ADT QUOC TE')}`;
@@ -4290,6 +4322,57 @@ app.patch('/api/admin/events/registrations/:regId/payment', eventManagerAuthMidd
   }
 });
 
+// Người đăng ký: Gửi ảnh chụp màn hình chứng từ chuyển khoản thanh toán
+app.post('/api/events/registrations/:regId/payment-proof', async (req, res) => {
+  try {
+    const { regId } = req.params;
+    const { payment_proof, fileName, base64Data } = req.body || {};
+
+    let proofUrl = payment_proof;
+
+    // Nếu gửi base64 data trực tiếp từ client
+    if (!proofUrl && base64Data) {
+      const uploadDir = path.join(__dirname, 'public', 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      const buffer = Buffer.from(base64Data, 'base64');
+      let ext = (path.extname(fileName || '') || '.jpg').toLowerCase();
+      const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+      if (!allowedExts.includes(ext)) {
+        ext = '.jpg';
+      }
+      const uniqueName = 'proof_' + crypto.randomBytes(16).toString('hex') + ext;
+      const filePath = path.join(uploadDir, uniqueName);
+      fs.writeFileSync(filePath, buffer);
+      proofUrl = `/uploads/${uniqueName}`;
+    }
+
+    if (!proofUrl) {
+      return res.status(400).json({ success: false, error: 'Vui lòng cung cấp hình ảnh chứng từ chuyển khoản.' });
+    }
+
+    const [regs] = await db.query('SELECT * FROM event_registrations WHERE id = ?', [regId]);
+    if (!regs.length) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy thông tin đăng ký vé.' });
+    }
+
+    await db.query(
+      'UPDATE event_registrations SET payment_proof = ? WHERE id = ?',
+      [proofUrl, regId]
+    );
+
+    res.json({
+      success: true,
+      payment_proof: proofUrl,
+      message: 'Đã gửi ảnh thanh toán thành công. Thông tin của bạn đang được chờ Ban tổ chức duyệt.'
+    });
+  } catch (err) {
+    console.error('Lỗi POST /api/events/registrations/:regId/payment-proof:', err);
+    res.status(500).json({ success: false, error: 'Lỗi tải ảnh chứng từ: ' + err.message });
+  }
+});
+
 // Admin & Ban tổ chức: Điểm danh / Check-in vé sự kiện bằng mã QR, camera hoặc mã vé (Chuẩn Ảnh 3)
 app.post('/api/admin/events/checkin', eventManagerAuthMiddleware, async (req, res) => {
   try {
@@ -4360,6 +4443,13 @@ app.post('/api/admin/events/checkin', eventManagerAuthMiddleware, async (req, re
 
 // Admin & Ban tổ chức: Thêm sự kiện mới (Đầy đủ trường theo mockup Image 2)
 app.post('/api/admin/events', eventManagerAuthMiddleware, async (req, res) => {
+  if (req.organizer && req.organizer.role === 'ticket_inspector') {
+    return res.status(403).json({
+      success: false,
+      error: 'Tài khoản Nhân viên soát vé chỉ có quyền xem thông tin và soát vé, không có quyền tạo sự kiện mới.'
+    });
+  }
+
   const {
     title,
     slug,
@@ -4421,6 +4511,13 @@ app.post('/api/admin/events', eventManagerAuthMiddleware, async (req, res) => {
 
 // Admin & Ban tổ chức: Sửa sự kiện
 app.put('/api/admin/events/:id', eventManagerAuthMiddleware, async (req, res) => {
+  if (req.organizer && req.organizer.role === 'ticket_inspector') {
+    return res.status(403).json({
+      success: false,
+      error: 'Tài khoản Nhân viên soát vé chỉ có quyền xem thông tin và soát vé, không có quyền chỉnh sửa sự kiện.'
+    });
+  }
+
   const eventId = req.params.id;
   const {
     title,
@@ -4485,6 +4582,13 @@ app.put('/api/admin/events/:id', eventManagerAuthMiddleware, async (req, res) =>
 
 // Admin & Ban tổ chức: Xóa sự kiện
 app.delete('/api/admin/events/:id', eventManagerAuthMiddleware, async (req, res) => {
+  if (req.organizer && req.organizer.role === 'ticket_inspector') {
+    return res.status(403).json({
+      success: false,
+      error: 'Tài khoản Nhân viên soát vé không có quyền xóa sự kiện.'
+    });
+  }
+
   try {
     await db.query('DELETE FROM events WHERE id = ?', [req.params.id]);
     res.json({ success: true, message: 'Đã xóa sự kiện thành công.' });

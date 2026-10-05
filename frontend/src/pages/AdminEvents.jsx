@@ -25,6 +25,7 @@ export const AdminEvents = () => {
   const [registrationsList, setRegistrationsList] = useState([]);
   const [loadingRegs, setLoadingRegs] = useState(false);
   const [regSearch, setRegSearch] = useState('');
+  const [viewingProof, setViewingProof] = useState(null);
 
   // Check-in State
   const [checkinCodeInput, setCheckinCodeInput] = useState('');
@@ -204,8 +205,7 @@ export const AdminEvents = () => {
   };
 
   // Cập nhật trạng thái thanh toán vé
-  const handleTogglePaymentStatus = async (regId, currentStatus) => {
-    const nextStatus = currentStatus === 'paid' ? 'pending' : 'paid';
+  const handleUpdatePaymentStatus = async (regId, newStatus) => {
     try {
       const res = await fetch(`/api/admin/events/registrations/${regId}/payment`, {
         method: 'PATCH',
@@ -213,10 +213,13 @@ export const AdminEvents = () => {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ payment_status: nextStatus })
+        body: JSON.stringify({ payment_status: newStatus })
       });
-      if (res.ok) {
-        setRegistrationsList(prev => prev.map(r => r.id === regId ? { ...r, payment_status: nextStatus } : r));
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRegistrationsList(prev => prev.map(r => r.id === regId ? { ...r, payment_status: newStatus } : r));
+      } else {
+        alert(data.error || 'Không thể cập nhật trạng thái thanh toán.');
       }
     } catch (e) {
       alert('Lỗi cập nhật: ' + e.message);
@@ -1355,21 +1358,49 @@ export const AdminEvents = () => {
                         <td style={{ padding: '10px', color: '#475569' }}>{r.company || '—'}</td>
                         <td style={{ padding: '10px', fontWeight: '700' }}>{r.quantity}</td>
                         <td style={{ padding: '10px' }}>
-                          <button
-                            onClick={() => handleTogglePaymentStatus(r.id, r.payment_status)}
+                          <select
+                            value={r.payment_status}
+                            onChange={(e) => handleUpdatePaymentStatus(r.id, e.target.value)}
                             style={{
-                              padding: '2px 8px',
-                              borderRadius: '10px',
-                              fontSize: '11px',
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              border: '1px solid #CBD5E1',
+                              fontSize: '11.5px',
                               fontWeight: '600',
-                              border: 'none',
-                              cursor: 'pointer',
-                              backgroundColor: r.payment_status === 'paid' ? '#DCFCE7' : r.payment_status === 'free' ? '#E0F2FE' : '#FEF3C7',
-                              color: r.payment_status === 'paid' ? '#166534' : r.payment_status === 'free' ? '#0369A1' : '#92400E'
+                              backgroundColor: r.payment_status === 'paid' ? '#DCFCE7' : r.payment_status === 'pending' ? '#FEF9C3' : '#F1F5F9',
+                              color: r.payment_status === 'paid' ? '#15803D' : r.payment_status === 'pending' ? '#A16207' : '#475569'
                             }}
                           >
-                            {r.payment_status === 'paid' ? 'Đã TT' : r.payment_status === 'free' ? 'Miễn phí' : 'Chờ TT (click đổi)'}
-                          </button>
+                            <option value="free">Miễn phí</option>
+                            <option value="pending">Chờ thanh toán</option>
+                            <option value="paid">Đã thanh toán</option>
+                            <option value="cancelled">Hủy vé</option>
+                          </select>
+
+                          {r.payment_proof ? (
+                            <button
+                              type="button"
+                              onClick={() => setViewingProof({ url: r.payment_proof, reg: r })}
+                              style={{
+                                marginTop: '4px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '3px',
+                                padding: '2px 7px',
+                                borderRadius: '4px',
+                                backgroundColor: '#EFF6FF',
+                                color: '#1D4ED8',
+                                border: '1px solid #BFDBFE',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <i className="ti ti-receipt"></i> Xem bill
+                            </button>
+                          ) : r.payment_status === 'pending' && Number(r.total_amount) > 0 ? (
+                            <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block', marginTop: '2px' }}>Chưa có bill</span>
+                          ) : null}
                         </td>
                         <td style={{ padding: '10px' }}>
                           {r.checkin_status === 'checked_in' ? (
@@ -1419,6 +1450,109 @@ export const AdminEvents = () => {
               >
                 Đóng
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL XEM ẢNH BILL CHUYỂN KHOẢN VÀ DUYỆT THANH TOÁN */}
+      {viewingProof && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.25rem'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            maxWidth: '520px',
+            width: '100%',
+            overflow: 'hidden',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)'
+          }}>
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <i className="ti ti-receipt" style={{ color: '#2563EB' }}></i>
+                Ảnh biên lai chuyển khoản
+              </h4>
+              <button onClick={() => setViewingProof(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748B' }}>✕</button>
+            </div>
+
+            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ fontSize: '12.5px', color: '#334155', backgroundColor: '#F8FAFC', padding: '10px 12px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div><strong>Khách tham dự:</strong> {viewingProof.reg?.full_name} ({viewingProof.reg?.phone})</div>
+                <div><strong>Mã vé:</strong> <code>{viewingProof.reg?.ticket_code}</code> · <strong>Số tiền:</strong> <strong style={{ color: '#B45309' }}>{Number(viewingProof.reg?.total_amount).toLocaleString('vi-VN')} VNĐ</strong></div>
+                <div><strong>Cú pháp CK:</strong> <code>{viewingProof.reg?.payment_note}</code></div>
+              </div>
+
+              <div style={{ maxHeight: '360px', overflowY: 'auto', textAlign: 'center', backgroundColor: '#0F172A', borderRadius: '8px', padding: '8px' }}>
+                <img
+                  src={viewingProof.url}
+                  alt="Bill thanh toán"
+                  style={{ maxWidth: '100%', maxHeight: '340px', objectFit: 'contain', borderRadius: '4px' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+              <a
+                href={viewingProof.url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontSize: '12px', color: '#2563EB', textDecoration: 'underline', fontWeight: '600' }}
+              >
+                Mở ảnh gốc trong tab mới
+              </a>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {viewingProof.reg?.payment_status !== 'paid' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdatePaymentStatus(viewingProof.reg.id, 'paid');
+                      setViewingProof(null);
+                    }}
+                    style={{
+                      padding: '7px 16px',
+                      backgroundColor: '#16A34A',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '12.5px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    <i className="ti ti-check"></i> Duyệt đã thanh toán
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setViewingProof(null)}
+                  style={{
+                    padding: '7px 16px',
+                    backgroundColor: '#64748B',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Đóng
+                </button>
+              </div>
             </div>
           </div>
         </div>

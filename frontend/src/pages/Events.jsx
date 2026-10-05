@@ -49,8 +49,62 @@ export const Events = () => {
   const [accountNotice, setAccountNotice] = useState('');
   const [submittingReg, setSubmittingReg] = useState(false);
   const [regSuccessData, setRegSuccessData] = useState(null);
+  const [paidFlowStep, setPaidFlowStep] = useState('transfer'); // 'transfer' | 'pending_approval'
+  const [proofFile, setProofFile] = useState(null);
+  const [proofPreview, setProofPreview] = useState('');
+  const [uploadingProof, setUploadingProof] = useState(false);
   const [copiedNote, setCopiedNote] = useState(false);
   const [copiedBank, setCopiedBank] = useState(false);
+
+  const handleProofChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      alert('Dung lượng ảnh vượt quá 20MB. Vui lòng chọn ảnh nhỏ hơn.');
+      return;
+    }
+    setProofFile(file);
+    setProofPreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmitPaymentProof = async () => {
+    if (!proofFile || !regSuccessData?.id) {
+      alert('Vui lòng tải lên ảnh chụp màn hình giao dịch chuyển khoản thành công.');
+      return;
+    }
+    setUploadingProof(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64Data = reader.result.split(',')[1];
+          const res = await fetch(`/api/events/registrations/${regSuccessData.id}/payment-proof`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileName: proofFile.name,
+              base64Data,
+              ticket_code: regSuccessData.ticket_code
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            setPaidFlowStep('pending_approval');
+          } else {
+            alert(data.error || 'Không thể gửi ảnh chuyển khoản.');
+          }
+        } catch (err) {
+          alert('Lỗi gửi ảnh chuyển khoản: ' + err.message);
+        } finally {
+          setUploadingProof(false);
+        }
+      };
+      reader.readAsDataURL(proofFile);
+    } catch (err) {
+      setUploadingProof(false);
+      alert('Lỗi đọc tệp ảnh: ' + err.message);
+    }
+  };
 
   // 1. Tải danh sách sự kiện nếu không có id hoặc khi tải trang
   useEffect(() => {
@@ -200,6 +254,9 @@ export const Events = () => {
       const data = await res.json();
       if (res.ok && data.success) {
         setRegSuccessData(data.registration);
+        setPaidFlowStep('transfer');
+        setProofFile(null);
+        setProofPreview('');
         if (data.account_message) {
           setAccountNotice(data.account_message);
         }
@@ -519,7 +576,42 @@ export const Events = () => {
 
                 <div style={{ height: '1px', backgroundColor: '#F1F5F9' }}></div>
 
-                {/* 2. Form: Đăng ký tham gia (Đúng từng trường trong ảnh 1) */}
+                {/* 2. Form: Đăng ký tham gia hoặc thông báo Sự kiện đã kết thúc */}
+                {timeLeft.isPassed || currentEvent.status === 'completed' ? (
+                  <div style={{
+                    padding: '1.5rem 1rem',
+                    backgroundColor: '#FEF2F2',
+                    border: '1px solid #FECACA',
+                    borderRadius: '12px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      backgroundColor: '#FEE2E2',
+                      color: '#DC2626',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '24px'
+                    }}>
+                      <i className="ti ti-calendar-off"></i>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#991B1B', marginBottom: '4px' }}>
+                        Sự kiện đã kết thúc
+                      </div>
+                      <p style={{ fontSize: '12.5px', color: '#7F1D1D', margin: 0, lineHeight: 1.5 }}>
+                        Cổng đăng ký tham gia sự kiện này đã đóng do thời gian sự kiện đã kết thúc. Quý vị vui lòng theo dõi các sự kiện sắp diễn ra khác.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
                 <div>
                   <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#0F172A', margin: '0 0 1rem 0' }}>
                     Đăng ký tham gia
@@ -809,9 +901,11 @@ export const Events = () => {
                       {submittingReg ? 'Đang xử lý...' : (capacity > 0 && remaining === 0) ? 'Đã hết vé' : 'Đăng ký ngay'}
                     </button>
 
-                    {/* Subtext chú thích (Ảnh 1) */}
+                    {/* Subtext chú thích */}
                     <div style={{ fontSize: '11px', color: '#64748B', textAlign: 'center', marginTop: '6px', lineHeight: 1.4 }}>
-                      Bạn sẽ nhận được mã QR ngay sau khi hoàn tất đăng ký.
+                      {Number(currentEvent?.is_paid) === 1 && Number(currentEvent?.price) > 0
+                        ? 'Sự kiện có phí: Vui lòng chuyển khoản và tải ảnh xác nhận để kích hoạt vé.'
+                        : 'Bạn sẽ nhận được mã QR ngay sau khi hoàn tất đăng ký.'}
                       {!isLoggedIn && (
                         <div style={{ marginTop: '2px' }}>
                           Đã có tài khoản?{' '}
@@ -824,6 +918,7 @@ export const Events = () => {
 
                   </form>
                 </div>
+                )}
 
               </div>
             </div>
@@ -856,230 +951,567 @@ export const Events = () => {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              {/* Header Thành công */}
-              <div style={{
-                backgroundColor: '#064E3B',
-                color: '#ffffff',
-                padding: '1.25rem',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 8px',
-                  fontSize: '24px'
-                }}>
-                  <i className="ti ti-check"></i>
-                </div>
-                <h3 style={{ fontSize: '17px', fontWeight: '800', margin: '0 0 4px 0' }}>
-                  Đăng ký tham gia thành công!
-                </h3>
-                <p style={{ fontSize: '12px', opacity: 0.9, margin: 0 }}>
-                  {regSuccessData.event_title}
-                </p>
-              </div>
-
-              {/* Body Vé & Mã QR */}
-              <div style={{ padding: '1.5rem', maxHeight: '75vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                
-                {/* Thẻ Vé Điện Tử */}
-                <div style={{
-                  border: '2px dashed #0D9488',
-                  borderRadius: '12px',
-                  padding: '1.25rem',
-                  backgroundColor: '#F0FDFA',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '11px', textTransform: 'uppercase', color: '#0F766E', fontWeight: '700', letterSpacing: '0.6px' }}>
-                    MÃ VÉ THAM DỰ CHÍNH THỨC
-                  </div>
-                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#0F172A', letterSpacing: '1px', margin: '4px 0 10px' }}>
-                    {regSuccessData.ticket_code}
-                  </div>
-
-                  {/* QR Image */}
-                  <div style={{
-                    width: '180px',
-                    height: '180px',
-                    margin: '0 auto',
-                    backgroundColor: '#ffffff',
-                    padding: '8px',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                  }}>
-                    <img
-                      src={regSuccessData.qr_image}
-                      alt="Mã QR Check-in"
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#64748B', marginTop: '8px' }}>
-                    Vui lòng xuất trình mã QR này tại quầy lễ tân để check-in vào sự kiện.
-                  </div>
-                </div>
-
-                {/* Thông tin người đăng ký */}
-                <div style={{ fontSize: '12.5px', color: '#334155', backgroundColor: '#F8FAFC', padding: '10px 14px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div><strong>Người tham dự:</strong> {regSuccessData.full_name}</div>
-                  <div><strong>Số điện thoại:</strong> {regSuccessData.phone}</div>
-                  <div><strong>Số lượng:</strong> {regSuccessData.quantity} vé</div>
-                  {regSuccessData.company && <div><strong>Đơn vị:</strong> {regSuccessData.company}</div>}
-                </div>
-
-                {/* Thông báo tạo tài khoản nếu có */}
-                {accountNotice && (
-                  <div style={{
-                    backgroundColor: '#ECFDF5',
-                    border: '1px solid #A7F3D0',
-                    color: '#065F46',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    lineHeight: 1.45,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '8px'
-                  }}>
-                    <i className="ti ti-check-circle" style={{ fontSize: '18px', color: '#059669', flexShrink: 0, marginTop: '2px' }}></i>
-                    <div>
-                      <strong>Tài khoản theo dõi vé:</strong> {accountNotice} Sau khi Ban quản trị phê duyệt hồ sơ, bạn có thể đăng nhập bằng tài khoản này để xem và quản lý vé trong Dashboard thành viên.
-                    </div>
-                  </div>
-                )}
-
-                {/* Khối thanh toán Chuyển khoản VietQR nếu có phí */}
-                {regSuccessData.total_amount > 0 && (
-                  <div style={{
-                    border: '1px solid #FCD34D',
-                    backgroundColor: '#FFFBEB',
-                    borderRadius: '12px',
-                    padding: '1.25rem'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#B45309', fontWeight: '800', fontSize: '13.5px', marginBottom: '8px' }}>
-                      <i className="ti ti-credit-card"></i>
-                      <span>Thông tin thanh toán chuyển khoản</span>
+              {/* ───────────────────────────────────────────────────────────── */}
+              {/* TRƯỜNG HỢP 1: SỰ KIỆN CÓ PHÍ (PAID EVENT FLOW)               */}
+              {/* ───────────────────────────────────────────────────────────── */}
+              {Number(regSuccessData.total_amount) > 0 ? (
+                paidFlowStep === 'transfer' ? (
+                  // BƯỚC 1 CỦA SỰ KIỆN CÓ PHÍ: THÔNG TIN CHUYỂN KHOẢN & BẮT BUỘC TẢI ẢNH BILL
+                  <>
+                    <div style={{ backgroundColor: '#064E3B', color: '#ffffff', padding: '1.25rem', textAlign: 'center' }}>
+                      <div style={{
+                        width: '46px',
+                        height: '46px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 8px',
+                        fontSize: '22px'
+                      }}>
+                        <i className="ti ti-credit-card"></i>
+                      </div>
+                      <h3 style={{ fontSize: '17px', fontWeight: '800', margin: '0 0 4px 0' }}>
+                        Thanh toán & Kích hoạt vé
+                      </h3>
+                      <p style={{ fontSize: '12px', opacity: 0.9, margin: 0 }}>
+                        {regSuccessData.event_title}
+                      </p>
                     </div>
 
-                    <div style={{ fontSize: '12px', color: '#78350F', marginBottom: '10px' }}>
-                      Tổng số tiền cần thanh toán:{' '}
-                      <strong style={{ fontSize: '15px', color: '#B45309' }}>
-                        {Number(regSuccessData.total_amount).toLocaleString('vi-VN')} VNĐ
-                      </strong>
+                    <div style={{ padding: '1.25rem 1.5rem', maxHeight: '72vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {/* Chú thích thông tin người đăng ký */}
+                      <div style={{ fontSize: '12.5px', color: '#334155', backgroundColor: '#F8FAFC', padding: '10px 14px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <div><strong>Khách tham dự:</strong> {regSuccessData.full_name} ({regSuccessData.phone})</div>
+                        <div><strong>Số lượng vé:</strong> {regSuccessData.quantity} vé · <strong>Mã đăng ký:</strong> <code style={{ fontWeight: '700' }}>{regSuccessData.ticket_code}</code></div>
+                      </div>
+
+                      {/* Khối thanh toán Chuyển khoản VietQR */}
+                      <div style={{ border: '1px solid #FCD34D', backgroundColor: '#FFFBEB', borderRadius: '12px', padding: '1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#B45309', fontWeight: '800', fontSize: '14px', marginBottom: '8px' }}>
+                          <i className="ti ti-building-bank"></i>
+                          <span>Thông tin thanh toán chuyển khoản</span>
+                        </div>
+
+                        <div style={{ fontSize: '13px', color: '#78350F', marginBottom: '10px' }}>
+                          Tổng số tiền cần thanh toán:{' '}
+                          <strong style={{ fontSize: '17px', color: '#B45309' }}>
+                            {Number(regSuccessData.total_amount).toLocaleString('vi-VN')} VNĐ
+                          </strong>
+                        </div>
+
+                        {/* VietQR Code Image */}
+                        {regSuccessData.vietqr_url && (
+                          <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                            <img
+                              src={regSuccessData.vietqr_url}
+                              alt="VietQR Chuyển khoản"
+                              style={{ maxWidth: '240px', width: '100%', borderRadius: '8px', border: '1px solid #FDE68A', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}
+                            />
+                            <div style={{ fontSize: '11px', color: '#78350F', marginTop: '4px' }}>
+                              Quét mã VietQR bằng ứng dụng ngân hàng bất kỳ để chuyển khoản tự động
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Chi tiết tài khoản */}
+                        <div style={{ fontSize: '12px', color: '#451A03', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div><strong>Ngân hàng:</strong> {regSuccessData.bank_info?.bank_name} ({regSuccessData.bank_info?.bank_branch})</div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FEF3C7', padding: '6px 8px', borderRadius: '6px' }}>
+                            <span><strong>Số tài khoản:</strong> <code style={{ fontSize: '13px', fontWeight: '800' }}>{regSuccessData.bank_info?.account_number}</code></span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(regSuccessData.bank_info?.account_number, 'bank')}
+                              style={{ padding: '3px 8px', fontSize: '11px', backgroundColor: '#D97706', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+                            >
+                              {copiedBank ? 'Đã chép!' : 'Sao chép'}
+                            </button>
+                          </div>
+                          <div><strong>Chủ tài khoản:</strong> {regSuccessData.bank_info?.account_holder}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FEF3C7', padding: '6px 8px', borderRadius: '6px' }}>
+                            <span><strong>Nội dung CK:</strong> <code style={{ fontSize: '12px', fontWeight: '800', color: '#B45309' }}>{regSuccessData.payment_note}</code></span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(regSuccessData.payment_note, 'note')}
+                              style={{ padding: '3px 8px', fontSize: '11px', backgroundColor: '#D97706', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+                            >
+                              {copiedNote ? 'Đã chép!' : 'Sao chép'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* KHỐI BẮT BUỘC TẢI ẢNH CHUYỂN KHOẢN (BILL) */}
+                      <div style={{
+                        border: '2px dashed #0D9488',
+                        backgroundColor: '#F0FDFA',
+                        borderRadius: '12px',
+                        padding: '1.25rem',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{ fontSize: '13px', fontWeight: '800', color: '#0F766E', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <i className="ti ti-upload"></i>
+                          <span>Tải ảnh chuyển khoản thành công (Bắt buộc) *</span>
+                        </div>
+                        <p style={{ fontSize: '11.5px', color: '#115E59', margin: '0 0 12px', lineHeight: 1.4 }}>
+                          Sau khi chuyển khoản qua ứng dụng ngân hàng, quý khách vui lòng tải ảnh biên lai giao dịch thành công lên đây để Ban tổ chức kiểm duyệt và kích hoạt vé.
+                        </p>
+
+                        {proofPreview ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                            <div style={{
+                              maxHeight: '180px',
+                              width: '100%',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              border: '1px solid #99F6E4',
+                              backgroundColor: '#ffffff'
+                            }}>
+                              <img
+                                src={proofPreview}
+                                alt="Ảnh chuyển khoản"
+                                style={{ width: '100%', maxHeight: '180px', objectFit: 'contain' }}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span style={{ fontSize: '11px', color: '#0F766E', fontWeight: '600' }}>
+                                ✓ Đã chọn ảnh: {proofFile?.name}
+                              </span>
+                              <label
+                                style={{
+                                  fontSize: '11px',
+                                  color: '#2563EB',
+                                  cursor: 'pointer',
+                                  textDecoration: 'underline',
+                                  fontWeight: '600'
+                                }}
+                              >
+                                Đổi ảnh khác
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleProofChange}
+                                  style={{ display: 'none' }}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        ) : (
+                          <label style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '1.5rem',
+                            border: '1px dashed #14B8A6',
+                            borderRadius: '8px',
+                            backgroundColor: '#ffffff',
+                            cursor: 'pointer',
+                            gap: '6px'
+                          }}>
+                            <i className="ti ti-photo-plus" style={{ fontSize: '30px', color: '#0D9488' }}></i>
+                            <span style={{ fontSize: '12.5px', fontWeight: '700', color: '#0F766E' }}>
+                              Nhấn vào đây để tải ảnh bill chuyển khoản
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#64748B' }}>
+                              Hỗ trợ định dạng JPG, PNG, WEBP (Tối đa 20MB)
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleProofChange}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                        )}
+                      </div>
+
                     </div>
 
-                    {/* VietQR Code Image */}
-                    {regSuccessData.vietqr_url && (
-                      <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                        <img
-                          src={regSuccessData.vietqr_url}
-                          alt="VietQR Chuyển khoản"
-                          style={{ maxWidth: '240px', width: '100%', borderRadius: '8px', border: '1px solid #FDE68A' }}
-                        />
+                    {/* Footer Modal Thanh toán */}
+                    <div style={{
+                      padding: '1rem 1.5rem',
+                      borderTop: '1px solid #E2E8F0',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      backgroundColor: '#F8FAFC'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => setRegSuccessData(null)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid #CBD5E1',
+                          backgroundColor: '#ffffff',
+                          color: '#64748B',
+                          fontSize: '12.5px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Đóng
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleSubmitPaymentProof}
+                        disabled={!proofFile || uploadingProof}
+                        style={{
+                          padding: '9px 22px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          backgroundColor: proofFile ? '#064E3B' : '#94A3B8',
+                          color: '#ffffff',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          cursor: proofFile && !uploadingProof ? 'pointer' : 'not-allowed',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: proofFile ? '0 2px 6px rgba(6, 78, 59, 0.3)' : 'none'
+                        }}
+                      >
+                        {uploadingProof ? (
+                          <>
+                            <i className="ti ti-loader animate-spin"></i>
+                            Đang gửi ảnh...
+                          </>
+                        ) : (
+                          <>
+                            <i className="ti ti-send"></i>
+                            Gửi ảnh xác nhận thanh toán
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  // BƯỚC 2 CỦA SỰ KIỆN CÓ PHÍ: THÔNG BÁO CHỜ DUYỆT THANH TOÁN
+                  <>
+                    <div style={{ backgroundColor: '#065F46', color: '#ffffff', padding: '1.5rem 1.25rem', textAlign: 'center' }}>
+                      <div style={{
+                        width: '52px',
+                        height: '52px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 10px',
+                        fontSize: '26px'
+                      }}>
+                        <i className="ti ti-clock"></i>
+                      </div>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0' }}>
+                        Đã gửi thông tin thanh toán!
+                      </h3>
+                      <p style={{ fontSize: '12.5px', opacity: 0.9, margin: 0 }}>
+                        {regSuccessData.event_title}
+                      </p>
+                    </div>
+
+                    <div style={{ padding: '1.5rem', maxHeight: '72vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      
+                      {/* Box thông báo Chờ duyệt */}
+                      <div style={{
+                        backgroundColor: '#FEF3C7',
+                        border: '1px solid #FCD34D',
+                        borderRadius: '12px',
+                        padding: '1.25rem',
+                        textAlign: 'center'
+                      }}>
+                        <span style={{
+                          display: 'inline-block',
+                          backgroundColor: '#F59E0B',
+                          color: '#ffffff',
+                          fontSize: '11.5px',
+                          fontWeight: '800',
+                          padding: '3px 12px',
+                          borderRadius: '12px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          marginBottom: '8px'
+                        }}>
+                          Trạng thái: Chờ duyệt thanh toán
+                        </span>
+                        <div style={{ fontSize: '14px', fontWeight: '800', color: '#92400E', marginBottom: '6px' }}>
+                          Ban tổ chức đang kiểm tra và đối soát chuyển khoản
+                        </div>
+                        <p style={{ fontSize: '12.5px', color: '#78350F', margin: 0, lineHeight: 1.5 }}>
+                          Chứng từ chuyển khoản của bạn đã được tiếp nhận thành công. Sau khi xác nhận hợp lệ, Ban tổ chức sẽ kích hoạt vé tham dự chính thức.
+                        </p>
+                      </div>
+
+                      {/* Hướng dẫn xem vé trong Dashboard */}
+                      <div style={{
+                        backgroundColor: '#F8FAFC',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '10px',
+                        padding: '12px 14px',
+                        fontSize: '12.5px',
+                        color: '#334155',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}>
+                        <div><strong>Mã đăng ký:</strong> <code style={{ fontWeight: '700', color: '#0F172A' }}>{regSuccessData.ticket_code}</code></div>
+                        <div><strong>Khách tham dự:</strong> {regSuccessData.full_name}</div>
+                        <div><strong>Số lượng:</strong> {regSuccessData.quantity} vé · <strong>Tổng tiền:</strong> {Number(regSuccessData.total_amount).toLocaleString('vi-VN')} VNĐ</div>
+                        <div style={{ marginTop: '4px', fontSize: '12px', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <i className="ti ti-info-circle"></i>
+                          <span>Khi vé được duyệt, bạn đăng nhập vào <strong>Dashboard thành viên</strong> sẽ thấy ngay mã QR check-in để tham gia sự kiện.</span>
+                        </div>
+                      </div>
+
+                      {accountNotice && (
+                        <div style={{
+                          backgroundColor: '#ECFDF5',
+                          border: '1px solid #A7F3D0',
+                          color: '#065F46',
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          lineHeight: 1.45
+                        }}>
+                          <strong>Tài khoản theo dõi:</strong> {accountNotice}
+                        </div>
+                      )}
+
+                    </div>
+
+                    <div style={{
+                      padding: '1rem 1.5rem',
+                      borderTop: '1px solid #E2E8F0',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#F8FAFC'
+                    }}>
+                      {isLoggedIn ? (
+                        <Link
+                          to="/member-dashboard"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '8px 16px',
+                            backgroundColor: '#0D9488',
+                            color: '#ffffff',
+                            borderRadius: '8px',
+                            fontSize: '12.5px',
+                            fontWeight: '700',
+                            textDecoration: 'none'
+                          }}
+                        >
+                          <i className="ti ti-ticket"></i> Vào Dashboard theo dõi
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/login"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '8px 16px',
+                            backgroundColor: '#0D9488',
+                            color: '#ffffff',
+                            borderRadius: '8px',
+                            fontSize: '12.5px',
+                            fontWeight: '700',
+                            textDecoration: 'none'
+                          }}
+                        >
+                          <i className="ti ti-login"></i> Đăng nhập Dashboard
+                        </Link>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setRegSuccessData(null)}
+                        style={{
+                          padding: '8px 24px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          backgroundColor: '#064E3B',
+                          color: '#ffffff',
+                          fontSize: '12.5px',
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Hoàn tất
+                      </button>
+                    </div>
+                  </>
+                )
+              ) : (
+                // ─────────────────────────────────────────────────────────────
+                // TRƯỜNG HỢP 2: SỰ KIỆN MIỄN PHÍ (CÓ VÉ LIỀN)
+                // ─────────────────────────────────────────────────────────────
+                <>
+                  <div style={{ backgroundColor: '#064E3B', color: '#ffffff', padding: '1.25rem', textAlign: 'center' }}>
+                    <div style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '50%',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 8px',
+                      fontSize: '24px'
+                    }}>
+                      <i className="ti ti-check"></i>
+                    </div>
+                    <h3 style={{ fontSize: '17px', fontWeight: '800', margin: '0 0 4px 0' }}>
+                      Đăng ký tham gia thành công!
+                    </h3>
+                    <p style={{ fontSize: '12px', opacity: 0.9, margin: 0 }}>
+                      {regSuccessData.event_title}
+                    </p>
+                  </div>
+
+                  <div style={{ padding: '1.5rem', maxHeight: '75vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    
+                    {/* Thẻ Vé Điện Tử */}
+                    <div style={{
+                      border: '2px dashed #0D9488',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      backgroundColor: '#F0FDFA',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: '11px', textTransform: 'uppercase', color: '#0F766E', fontWeight: '700', letterSpacing: '0.6px' }}>
+                        MÃ VÉ THAM DỰ CHÍNH THỨC
+                      </div>
+                      <div style={{ fontSize: '22px', fontWeight: '900', color: '#0F172A', letterSpacing: '1px', margin: '4px 0 10px' }}>
+                        {regSuccessData.ticket_code}
+                      </div>
+
+                      {/* QR Image */}
+                      {regSuccessData.qr_image && (
+                        <div style={{
+                          width: '180px',
+                          height: '180px',
+                          margin: '0 auto',
+                          backgroundColor: '#ffffff',
+                          padding: '8px',
+                          borderRadius: '8px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                        }}>
+                          <img
+                            src={regSuccessData.qr_image}
+                            alt="Mã QR Check-in"
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                      <div style={{ fontSize: '11px', color: '#64748B', marginTop: '8px' }}>
+                        Vui lòng xuất trình mã QR này tại quầy lễ tân để check-in vào sự kiện.
+                      </div>
+                    </div>
+
+                    {/* Thông tin người đăng ký */}
+                    <div style={{ fontSize: '12.5px', color: '#334155', backgroundColor: '#F8FAFC', padding: '10px 14px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div><strong>Người tham dự:</strong> {regSuccessData.full_name}</div>
+                      <div><strong>Số điện thoại:</strong> {regSuccessData.phone}</div>
+                      <div><strong>Số lượng:</strong> {regSuccessData.quantity} vé (Miễn phí)</div>
+                      {regSuccessData.company && <div><strong>Đơn vị:</strong> {regSuccessData.company}</div>}
+                    </div>
+
+                    {/* Thông báo tạo tài khoản nếu có */}
+                    {accountNotice && (
+                      <div style={{
+                        backgroundColor: '#ECFDF5',
+                        border: '1px solid #A7F3D0',
+                        color: '#065F46',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        lineHeight: 1.45,
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px'
+                      }}>
+                        <i className="ti ti-check-circle" style={{ fontSize: '18px', color: '#059669', flexShrink: 0, marginTop: '2px' }}></i>
+                        <div>
+                          <strong>Tài khoản theo dõi vé:</strong> {accountNotice} Sau khi Ban quản trị phê duyệt hồ sơ, bạn có thể đăng nhập bằng tài khoản này để xem và quản lý vé trong Dashboard thành viên.
+                        </div>
                       </div>
                     )}
-
-                    {/* Chi tiết tài khoản */}
-                    <div style={{ fontSize: '12px', color: '#451A03', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <div><strong>Ngân hàng:</strong> {regSuccessData.bank_info?.bank_name} ({regSuccessData.bank_info?.bank_branch})</div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span><strong>Số tài khoản:</strong> <code style={{ fontSize: '13px', fontWeight: '700' }}>{regSuccessData.bank_info?.account_number}</code></span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(regSuccessData.bank_info?.account_number, 'bank')}
-                          style={{ padding: '2px 8px', fontSize: '11px', backgroundColor: '#FDE68A', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                          {copiedBank ? 'Đã chép!' : 'Sao chép'}
-                        </button>
-                      </div>
-                      <div><strong>Chủ tài khoản:</strong> {regSuccessData.bank_info?.account_holder}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FEF3C7', padding: '6px', borderRadius: '6px', marginTop: '4px' }}>
-                        <span><strong>Nội dung CK:</strong> <code style={{ fontSize: '12px', fontWeight: '800', color: '#B45309' }}>{regSuccessData.payment_note}</code></span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(regSuccessData.payment_note, 'note')}
-                          style={{ padding: '2px 8px', fontSize: '11px', backgroundColor: '#F59E0B', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
-                        >
-                          {copiedNote ? 'Đã chép!' : 'Sao chép'}
-                        </button>
-                      </div>
-                    </div>
                   </div>
-                )}
 
-              </div>
-
-              {/* Footer Modal */}
-              <div style={{
-                padding: '1rem 1.5rem',
-                borderTop: '1px solid #E2E8F0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                backgroundColor: '#F8FAFC'
-              }}>
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: '1px solid #CBD5E1',
-                    backgroundColor: '#ffffff',
-                    color: '#334155',
-                    fontSize: '12.5px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px'
-                  }}
-                >
-                  <i className="ti ti-printer"></i> In vé
-                </button>
-
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {isLoggedIn && (
-                    <Link
-                      to="/member-dashboard"
+                  {/* Footer Modal */}
+                  <div style={{
+                    padding: '1rem 1.5rem',
+                    borderTop: '1px solid #E2E8F0',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#F8FAFC'
+                  }}>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
                       style={{
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        backgroundColor: '#ffffff',
+                        color: '#334155',
+                        fontSize: '12.5px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 16px',
-                        backgroundColor: '#0D9488',
-                        color: '#ffffff',
-                        borderRadius: '8px',
-                        fontSize: '12.5px',
-                        fontWeight: '700',
-                        textDecoration: 'none'
+                        gap: '5px'
                       }}
                     >
-                      <i className="ti ti-ticket"></i> Xem vé trong Dashboard
-                    </Link>
-                  )}
+                      <i className="ti ti-printer"></i> In vé
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setRegSuccessData(null)}
-                    style={{
-                      padding: '8px 24px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      backgroundColor: '#064E3B',
-                      color: '#ffffff',
-                      fontSize: '12.5px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Hoàn tất
-                  </button>
-                </div>
-              </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      {isLoggedIn && (
+                        <Link
+                          to="/member-dashboard"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '8px 16px',
+                            backgroundColor: '#0D9488',
+                            color: '#ffffff',
+                            borderRadius: '8px',
+                            fontSize: '12.5px',
+                            fontWeight: '700',
+                            textDecoration: 'none'
+                          }}
+                        >
+                          <i className="ti ti-ticket"></i> Xem vé trong Dashboard
+                        </Link>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setRegSuccessData(null)}
+                        style={{
+                          padding: '8px 24px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          backgroundColor: '#064E3B',
+                          color: '#ffffff',
+                          fontSize: '12.5px',
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Hoàn tất
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
 
             </div>
           </div>
