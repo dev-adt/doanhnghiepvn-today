@@ -330,6 +330,15 @@ export const Navbar = () => {
           }
         }
 
+        @media (max-width: 540px) {
+          .dnvn-btn-pwa-install span {
+            display: none !important;
+          }
+          .dnvn-btn-pwa-install {
+            padding: 5px 8px !important;
+          }
+        }
+
         @media (max-width: 420px) {
           .dnvn-brand-title {
             font-size: 13px !important;
@@ -341,6 +350,25 @@ export const Navbar = () => {
             white-space: nowrap !important;
           }
           .dnvn-lang-switcher {
+            display: none !important;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .dnvn-brand-link {
+            gap: 6px !important;
+          }
+          .dnvn-brand-icon {
+            width: 28px !important;
+            height: 28px !important;
+          }
+          .dnvn-brand-title {
+            font-size: 12px !important;
+          }
+          .dnvn-brand-subtitle {
+            display: none !important;
+          }
+          .dnvn-btn-pwa-install {
             display: none !important;
           }
         }
