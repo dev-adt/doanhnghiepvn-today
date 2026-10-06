@@ -315,6 +315,27 @@ export const OrganizerDashboard = () => {
               Quét QR Check-in
             </Link>
 
+            <Link
+              to="/guide?role=creator"
+              target="_blank"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                backgroundColor: '#F1F5F9',
+                color: '#475569',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '600',
+                textDecoration: 'none',
+                border: '1px solid #CBD5E1'
+              }}
+            >
+              <i className="ti ti-help-circle" style={{ fontSize: '15px' }}></i>
+              Hướng dẫn
+            </Link>
+
             <div style={{ height: '24px', width: '1px', backgroundColor: '#E2E8F0' }}></div>
 
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#334155' }}>

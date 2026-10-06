@@ -107,13 +107,15 @@ export const Guide = () => {
     { id: 'sec-member-dashboard', title: isEn ? "3. Dashboard & Tier Benefits" : "3. Dashboard & Quyền Lợi Gói", icon: "ti-layout-dashboard" },
     { id: 'sec-member-editor', title: isEn ? "4. SEO Post Editor" : "4. Soạn Bài Viết Chuẩn SEO", icon: "ti-edit" },
     { id: 'sec-member-ai', title: isEn ? "5. AI Business Assistant" : "5. Trợ Lý AI Chuyên Sâu", icon: "ti-robot" },
-    { id: 'sec-member-explore', title: isEn ? "6. Posts, Directory & Events" : "6. Bảng Tin, Danh Bạ & Sự Kiện", icon: "ti-news" }
+    { id: 'sec-member-explore', title: isEn ? "6. Posts, Directory & Events" : "6. Bảng Tin, Danh Bạ & Sự Kiện", icon: "ti-news" },
+    { id: 'sec-member-tickets', title: isEn ? "7. Event Ticket Booking (QR Code)" : "7. Đăng Ký Vé & Check-in Sự Kiện", icon: "ti-ticket" }
   ];
 
-  const creatorNavItems = [
-    { id: 'sec-creator-intro', title: isEn ? "1. Content Creator Role" : "1. Vai Trò Biên Tập Viên", icon: "ti-edit-circle" },
-    { id: 'sec-creator-login', title: isEn ? "2. Creator Login Portal" : "2. Đăng Nhập Cổng Hợp Nhất", icon: "ti-login" },
-    { id: 'sec-creator-dashboard', title: isEn ? "3. Creator Dashboard & Approval" : "3. Dashboard & Duyệt Bài Tự Động", icon: "ti-layout-dashboard" }
+  const otherNavItems = [
+    { id: 'sec-other-creator', title: isEn ? "1. Content Creator Role" : "1. Biên tập viên (Content Creator)", icon: "ti-edit-circle" },
+    { id: 'sec-other-organizer', title: isEn ? "2. Event Organizer Role" : "2. Ban tổ chức Sự kiện (Organizer)", icon: "ti-calendar-event" },
+    { id: 'sec-other-inspector', title: isEn ? "3. Ticket Inspector Staff" : "3. Nhân viên Soát vé (Ticket Inspector)", icon: "ti-qrcode" },
+    { id: 'sec-other-login', title: isEn ? "4. Unified Login Portal" : "4. Cổng Đăng Nhập Hợp Nhất", icon: "ti-login" }
   ];
 
   const adminNavItems = [
@@ -121,17 +123,17 @@ export const Guide = () => {
     { id: 'sec-admin-login', title: isEn ? "2. Admin Login & Overview" : "2. Đăng Nhập & Admin Overview", icon: "ti-login" },
     { id: 'sec-admin-members', title: isEn ? "3. Member Management & Tiers" : "3. Quản Lý Hồ Sơ Hội Viên", icon: "ti-users" },
     { id: 'sec-admin-posts', title: isEn ? "4. Moderation & Homepage Pinning" : "4. Quản Lý Bài Viết & Ghim Top", icon: "ti-news" },
-    { id: 'sec-admin-events-cats', title: isEn ? "5. Events, Categories & Creators" : "5. Sự Kiện, Chuyên Mục & Creators", icon: "ti-settings" },
+    { id: 'sec-admin-events-cats', title: isEn ? "5. Events, Categories & Organizers" : "5. Sự Kiện, Chuyên Mục & Ban Tổ Chức", icon: "ti-settings" },
     { id: 'sec-admin-contacts', title: isEn ? "6. Leads & Homepage Contacts" : "6. Quản Lý Liên Hệ & Đăng Ký", icon: "ti-address-book" }
   ];
 
-  const currentNavItems = activeRoleTab === 'member' ? memberNavItems : activeRoleTab === 'creator' ? creatorNavItems : adminNavItems;
+  const currentNavItems = activeRoleTab === 'member' ? memberNavItems : activeRoleTab === 'creator' ? otherNavItems : adminNavItems;
 
   return (
     <div className="public-body">
       <SEOHead 
         title={isEn ? "System User Guide | DoanhNghiepVN.today" : "Hướng Dẫn Sử Dụng Hệ Thống | DoanhNghiepVN.today"} 
-        description={isEn ? "Detailed step-by-step user guide for Business Members, Content Creators, and System Administrators on DoanhNghiepVN.today." : "Tài liệu hướng dẫn sử dụng chi tiết các tính năng dành cho Doanh nghiệp Hội viên, Biên tập viên và Quản trị viên hệ thống DoanhNghiepVN.today."}
+        description={isEn ? "Detailed step-by-step user guide for Business Members, Event Organizers, Ticket Inspectors, Content Creators, and System Administrators on DoanhNghiepVN.today." : "Tài liệu hướng dẫn sử dụng chi tiết các tính năng dành cho Doanh nghiệp Hội viên, Ban tổ chức, Nhân viên soát vé, Biên tập viên và Quản trị viên hệ thống DoanhNghiepVN.today."}
       />
       <Navbar />
 
@@ -151,8 +153,8 @@ export const Guide = () => {
           </h1>
           <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', maxWidth: '750px', margin: '0 auto', lineHeight: 1.6 }}>
             {isEn 
-              ? "Interactive step-by-step user documentation for trade matching, profile management, media content creation, and full system administration."
-              : "Tài liệu hướng dẫn trực quan từng bước cho các tính năng kết nối giao thương, quản lý hồ sơ, sáng tạo nội dung truyền thông và quản trị toàn diện hệ thống."
+              ? "Interactive step-by-step user documentation for trade matching, event registration & QR check-in, media publishing, and full system administration."
+              : "Tài liệu hướng dẫn trực quan từng bước cho các tính năng kết nối giao thương, đăng ký vé & soát vé QR sự kiện, sáng tạo nội dung truyền thông và quản trị toàn diện hệ thống."
             }
           </p>
 
@@ -188,7 +190,7 @@ export const Guide = () => {
                 color: activeRoleTab === 'creator' ? '#0f172a' : 'var(--text-secondary)'
               }}
             >
-              <i className="ti ti-edit-circle"></i> {isEn ? "Content Creator" : "Biên tập viên (Creator)"}
+              <i className="ti ti-apps"></i> {isEn ? "Other Features" : "Các tính năng khác"}
             </button>
             <button 
               onClick={() => handleSwitchTab('admin')}
@@ -668,16 +670,86 @@ export const Guide = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Phần 7: Đăng ký Vé Sự kiện Trực tuyến & Check-in Mã QR */}
+                <div 
+                  id="sec-member-tickets" 
+                  className="glass-card guide-section" 
+                  style={{ 
+                    padding: '2rem', 
+                    borderRadius: '16px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    border: activeSectionId === 'sec-member-tickets' ? '2px solid var(--neon-cyan)' : '1px solid var(--border-strong)',
+                    boxShadow: activeSectionId === 'sec-member-tickets' ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'none'
+                  }}
+                >
+                  {activeSectionId === 'sec-member-tickets' && (
+                    <div style={{ position: 'absolute', top: '16px', right: '16px', padding: '4px 10px', borderRadius: '20px', background: 'rgba(56, 189, 248, 0.2)', color: 'var(--neon-cyan)', border: '1px solid rgba(56, 189, 248, 0.4)', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--neon-cyan)', display: 'inline-block' }}></span>
+                      {isEn ? "Viewing" : "Đang xem"}
+                    </div>
+                  )}
+
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ background: 'var(--primary)', color: '#ffffff', width: '28px', height: '28px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 800 }}>7</span>
+                    {isEn ? "Online Event Ticket Registration & QR Check-in" : "Đăng ký Vé Tham dự Sự kiện Trực tuyến & Check-in Mã QR"}
+                  </h2>
+                  <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                    {isEn ? (
+                      <>Attendees and enterprise representatives can easily register tickets directly on the platform by visiting {renderLinkPill("Events", "/events")}, selecting the event, and clicking "Register / Book Tickets":</>
+                    ) : (
+                      <>Khách mời và đại diện doanh nghiệp có thể dễ dàng đăng ký nhận vé tham dự sự kiện trực tiếp trên website. Truy cập {renderLinkPill("Trang Sự kiện", "/events")}, chọn sự kiện và bấm "Đăng ký tham gia / Đặt vé":</>
+                    )}
+                  </p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                    <div style={{ padding: '1.25rem', background: 'var(--surface-1)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                      <h4 style={{ color: 'var(--neon-cyan)', margin: '0 0 8px 0', fontSize: '15px' }}>
+                        {isEn ? "1. Select Ticket & Quantities" : "1. Chọn loại vé & Số lượng"}
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                        {isEn ? "Choose appropriate ticket tier (Free or Paid VIP/Standard) and select ticket quantity for your delegates." : "Lựa chọn hạng vé phù hợp (Vé miễn phí hoặc Vé có phí VIP/Tiêu chuẩn) và số lượng người tham dự."}
+                      </p>
+                    </div>
+
+                    <div style={{ padding: '1.25rem', background: 'var(--surface-1)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                      <h4 style={{ color: 'var(--neon-cyan)', margin: '0 0 8px 0', fontSize: '15px' }}>
+                        {isEn ? "2. Contact & Attendee Details" : "2. Thông tin Người tham dự"}
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                        {isEn ? "Fill in Full Name, Phone, Email, Company Name, and Position to receive digital registration confirmations." : "Điền họ tên, số điện thoại, email, đơn vị công tác và chức vụ để hệ thống gửi vé điện tử xác nhận."}
+                      </p>
+                    </div>
+
+                    <div style={{ padding: '1.25rem', background: 'var(--surface-1)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                      <h4 style={{ color: '#10b981', margin: '0 0 8px 0', fontSize: '15px' }}>
+                        {isEn ? "3. Instant E-Ticket & QR Code" : "3. Vé điện tử & Mã QR Check-in"}
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                        {isEn ? "Receive a unique ticket code with encrypted QR Code. Present it at the entrance on event day for 1-second check-in." : "Hệ thống cấp ngay mã vé kèm mã QR độc nhất. Xuất trình mã trên điện thoại tại quầy lễ tân để soát vé trong 1 giây."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)' }}>
+                    <img src="/img_guide/Members/event register page.png" alt="Form Đăng ký vé sự kiện trực tuyến" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    <div style={{ padding: '10px 16px', background: 'var(--surface-1)', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
+                      {isEn ? "Online event registration and e-ticket issuance screen with QR verification" : "Giao diện đăng ký vé tham dự sự kiện trực tuyến và cấp mã vé điện tử QR Code"}
+                    </div>
+                  </div>
+                </div>
               </>
             )}
 
             {/* ════════════════════════════════════════════════════════════════ */}
-            {/* TAB 2: HƯỚNG DẪN DÀNH CHO BIÊN TẬP VIÊN (CONTENT CREATOR GUIDE) */}
+            {/* TAB 2: HƯỚNG DẪN CÁC TÍNH NĂNG KHÁC (CREATOR, ORGANIZER, INSPECTOR) */}
             {/* ════════════════════════════════════════════════════════════════ */}
             {activeRoleTab === 'creator' && (
               <>
+                {/* Mục 1: Biên tập viên (Content Creator) */}
                 <div 
-                  id="sec-creator-intro" 
+                  id="sec-other-creator" 
                   className="glass-card guide-section" 
                   style={{ 
                     padding: '2rem', 
@@ -685,71 +757,26 @@ export const Guide = () => {
                     transition: 'all 0.3s ease',
                     position: 'relative',
                     borderLeft: '4px solid var(--neon-cyan)',
-                    border: activeSectionId === 'sec-creator-intro' ? '2px solid var(--neon-cyan)' : '1px solid var(--border-strong)',
-                    boxShadow: activeSectionId === 'sec-creator-intro' ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'none'
+                    border: activeSectionId === 'sec-other-creator' ? '2px solid var(--neon-cyan)' : '1px solid var(--border-strong)',
+                    boxShadow: activeSectionId === 'sec-other-creator' ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'none'
                   }}
                 >
+                  {activeSectionId === 'sec-other-creator' && (
+                    <div style={{ position: 'absolute', top: '16px', right: '16px', padding: '4px 10px', borderRadius: '20px', background: 'rgba(56, 189, 248, 0.2)', color: 'var(--neon-cyan)', border: '1px solid rgba(56, 189, 248, 0.4)', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--neon-cyan)', display: 'inline-block' }}></span>
+                      {isEn ? "Viewing" : "Đang xem"}
+                    </div>
+                  )}
+
                   <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    <i className="ti ti-edit-circle" style={{ color: 'var(--neon-cyan)' }}></i> {isEn ? "Content Creator Role" : "1. Vai Trò Biên Tập Viên (Content Creator)"}
+                    <i className="ti ti-edit-circle" style={{ color: 'var(--neon-cyan)', marginRight: '8px' }}></i>
+                    {isEn ? "1. Content Creator Role & Article Dashboard" : "1. Biên Tập Viên (Content Creator) - Sáng Tạo & Biên Tập Nội Dung"}
                   </h2>
-                  <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
-                    {isEn ? (
-                      <>Content Creator accounts are created by Admins to publish official media articles, tourism news, and economic reports for DoanhNghiepVN.today. Access your {renderLinkPill("Creator Dashboard", "/creator-dashboard")} once authenticated.</>
-                    ) : (
-                      <>Tài khoản Biên tập viên được tạo bởi Ban quản trị Admin, có nhiệm vụ chuyên trách sáng tạo, biên tập và xuất bản các bài viết truyền thông, tin tức du lịch - kinh tế chính thống. Quản lý tác phẩm tại {renderLinkPill("Dashboard Biên tập viên", "/creator-dashboard")}.</>
-                    )}
-                  </p>
-                </div>
-
-                {/* Đăng nhập Creator */}
-                <div 
-                  id="sec-creator-login" 
-                  className="glass-card guide-section" 
-                  style={{ 
-                    padding: '2rem', 
-                    borderRadius: '16px',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    border: activeSectionId === 'sec-creator-login' ? '2px solid var(--neon-cyan)' : '1px solid var(--border-strong)',
-                    boxShadow: activeSectionId === 'sec-creator-login' ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'none'
-                  }}
-                >
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-                    {isEn ? "2. Unified Portal Authentication" : "2. Đăng nhập Cổng Hợp Nhất"}
-                  </h3>
-                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-                    {isEn ? (
-                      <>Content Creators log in using credentials provided by the Admin via the main {renderLinkPill("Login Portal", "/login")}.</>
-                    ) : (
-                      <>Biên tập viên sử dụng Tên đăng nhập (Username) và Mật khẩu được Admin cấp để đăng nhập tại màn hình {renderLinkPill("Đăng nhập chung", "/login")} của hệ thống.</>
-                    )}
-                  </p>
-                  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)', maxWidth: '750px', margin: '0 auto' }}>
-                    <img src="/img_guide/Creator/login.png" alt="Đăng nhập Biên tập viên" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                  </div>
-                </div>
-
-                {/* Dashboard Creator */}
-                <div 
-                  id="sec-creator-dashboard" 
-                  className="glass-card guide-section" 
-                  style={{ 
-                    padding: '2rem', 
-                    borderRadius: '16px',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    border: activeSectionId === 'sec-creator-dashboard' ? '2px solid var(--neon-cyan)' : '1px solid var(--border-strong)',
-                    boxShadow: activeSectionId === 'sec-creator-dashboard' ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'none'
-                  }}
-                >
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-                    {isEn ? "3. Creator Dashboard & Approval Status" : "3. Giao diện Dashboard Biên tập viên & Trạng thái Duyệt bài"}
-                  </h3>
                   <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
                     {isEn ? (
-                      <>The {renderLinkPill("Creator Dashboard", "/creator-dashboard")} is streamlined to remove business profile distractions and focus purely on content creation:</>
+                      <>Content Creators are authorized by Admins to publish official media articles, economic analysis, and enterprise interviews on DoanhNghiepVN.today. Access {renderLinkPill("Creator Dashboard", "/creator-dashboard")} to manage articles.</>
                     ) : (
-                      <>Trang {renderLinkPill("Dashboard Biên tập viên", "/creator-dashboard")} được tối giản hóa toàn bộ các chi tiết doanh nghiệp để giúp người viết tập trung tối đa vào công việc sáng tạo nội dung:</>
+                      <>Tài khoản Biên tập viên được tạo và cấp quyền bởi Admin, chuyên trách xuất bản các bài viết truyền thông, tin tức kinh tế, xúc tiến thương mại cho Tạp chí Doanh Nghiệp Việt Nam. Quản lý tác phẩm tại {renderLinkPill("Dashboard Biên tập viên", "/creator-dashboard")}:</>
                     )}
                   </p>
 
@@ -758,32 +785,178 @@ export const Guide = () => {
                       <>
                         <li><strong>Approval Status Badge</strong>:
                           <ul style={{ marginTop: '4px' }}>
-                            <li><strong style={{ color: '#10b981' }}>⚡ Auto-Approved</strong>: Posts are published immediately on the homepage upon submission.</li>
-                            <li><strong style={{ color: '#f59e0b' }}>⏳ Requires Admin Review</strong>: Posts are submitted to Admins for review prior to publishing.</li>
+                            <li><strong style={{ color: '#10b981' }}>⚡ Auto-Approved</strong>: Posts are published immediately upon clicking Publish.</li>
+                            <li><strong style={{ color: '#f59e0b' }}>⏳ Requires Admin Review</strong>: Posts are queued for Admin moderation prior to homepage release.</li>
                           </ul>
                         </li>
-                        <li><strong>Stats Counters</strong>: Track <em>Total Posts</em>, <em>Published Posts</em>, and <em>Total Views</em>.</li>
-                        <li><strong>Post Management</strong>: Edit, Delete, Save Drafts, or Preview live articles on the homepage.</li>
+                        <li><strong>Performance Analytics</strong>: Track Total Articles, Published Articles, and Live Reader Views in real-time.</li>
+                        <li><strong>Article Tools</strong>: WYSIWYG formatting, draft autosaving, image uploads, YouTube video embeds, and quick preview.</li>
                       </>
                     ) : (
                       <>
-                        <li><strong>Thẻ trạng thái Quyền duyệt bài</strong>:
+                        <li><strong>Trạng thái Phê duyệt bài viết</strong>:
                           <ul style={{ marginTop: '4px' }}>
-                            <li><strong style={{ color: '#10b981' }}>⚡ Duyệt bài tự động</strong>: Bài viết do bạn đăng sẽ có ngay trạng thái <em>"Đã duyệt"</em> và phát hành ngay ngoài Trang chủ.</li>
-                            <li><strong style={{ color: '#f59e0b' }}>⏳ Cần Admin duyệt</strong>: Bài viết khi đăng sẽ gửi yêu cầu tới Admin để phê duyệt trước khi xuất bản.</li>
+                            <li><strong style={{ color: '#10b981' }}>⚡ Duyệt bài tự động</strong>: Bài đăng xuất bản tức thì ra Trang chủ và Bảng tin cơ hội.</li>
+                            <li><strong style={{ color: '#f59e0b' }}>⏳ Cần Admin duyệt</strong>: Bài viết được chuyển vào hàng chờ duyệt của Ban quản trị trước khi xuất bản.</li>
                           </ul>
                         </li>
-                        <li><strong>Bộ thống kê bài viết</strong>: Theo dõi nhanh <em>Tổng tin bài</em>, <em>Số bài đã xuất bản</em> và <em>Tổng lượt đọc (views)</em>.</li>
-                        <li><strong>Danh sách bài đăng</strong>: Quản lý toàn bộ bài viết cá nhân, dễ dàng Chỉnh sửa, Xóa hoặc Xem trực tiếp bài đọc ngoài trang chủ.</li>
+                        <li><strong>Thống kê hiệu quả</strong>: Theo dõi Tổng số tin bài, Số bài đã duyệt và Tổng lượt đọc (views) theo thời gian thực.</li>
+                        <li><strong>Công cụ biên tập</strong>: Đầy đủ tính năng Rich Text, lưu bản nháp, tải ảnh sắc nét, chèn video YouTube và xem trước bài viết.</li>
                       </>
                     )}
                   </ul>
 
                   <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)' }}>
-                    <img src="/img_guide/Creator/creator dashboard.png" alt="Dashboard Biên tập viên" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    <img src="/img_guide/Creator_ticket inspector_organizer/creator dashboard.png" alt="Dashboard Biên tập viên" style={{ width: '100%', height: 'auto', display: 'block' }} />
                     <div style={{ padding: '10px 16px', background: 'var(--surface-1)', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
-                      {isEn ? "Content Creator Dashboard with post management, draft saving, and view stats" : "Dashboard Biên tập viên với các tính năng đăng bài, lưu nháp và theo dõi thống kê lượt xem"}
+                      {isEn ? "Content Creator Dashboard displaying post stats, draft management, and publishing status" : "Giao diện Dashboard Biên tập viên với thống kê lượt xem, quản lý bản nháp và trạng thái duyệt"}
                     </div>
+                  </div>
+                </div>
+
+                {/* Mục 2: Ban tổ chức Sự kiện (Event Organizer) */}
+                <div 
+                  id="sec-other-organizer" 
+                  className="glass-card guide-section" 
+                  style={{ 
+                    padding: '2rem', 
+                    borderRadius: '16px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    borderLeft: '4px solid #10b981',
+                    border: activeSectionId === 'sec-other-organizer' ? '2px solid #10b981' : '1px solid var(--border-strong)',
+                    boxShadow: activeSectionId === 'sec-other-organizer' ? '0 0 25px rgba(16, 185, 129, 0.25)' : 'none'
+                  }}
+                >
+                  {activeSectionId === 'sec-other-organizer' && (
+                    <div style={{ position: 'absolute', top: '16px', right: '16px', padding: '4px 10px', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.4)', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
+                      {isEn ? "Viewing" : "Đang xem"}
+                    </div>
+                  )}
+
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                    <i className="ti ti-calendar-event" style={{ color: '#10b981', marginRight: '8px' }}></i>
+                    {isEn ? "2. Event Organizer Role - Event & Attendee Management" : "2. Ban Tổ Chức Sự Kiện (Event Organizer) - Quản Lý Sự Kiện & Khách Mời"}
+                  </h2>
+                  <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                    {isEn ? (
+                      <>Event Organizer accounts are designed for committees managing B2B forums, exhibitions, and economic seminars via the {renderLinkPill("Organizer Dashboard", "/organizer-dashboard")}:</>
+                    ) : (
+                      <>Tài khoản Ban tổ chức được thiết kế chuyên biệt cho các đơn vị chủ trì, điều phối diễn đàn doanh nghiệp, hội nghị xúc tiến đầu tư và triển lãm thương mại tại {renderLinkPill("Dashboard Ban tổ chức", "/organizer-dashboard")}:</>
+                    )}
+                  </p>
+
+                  <ul style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+                    {isEn ? (
+                      <>
+                        <li><strong>Event Operations</strong>: Create and update event schedules, venue addresses, agenda details, ticket quotas, and registration deadlines.</li>
+                        <li><strong>Attendee Roster</strong>: Monitor real-time registrant lists, participant contacts, company names, and booked ticket types.</li>
+                        <li><strong>Check-in Progress Monitoring</strong>: Track live admission rates (Total Registered vs Checked-In attendees) to manage hall capacity smoothly.</li>
+                        <li><strong>Data Export & Networking</strong>: Export verified attendee rosters for post-event B2B partner matchmaking and outreach.</li>
+                      </>
+                    ) : (
+                      <>
+                        <li><strong>Điều hành sự kiện</strong>: Khởi tạo và cập nhật lịch trình, địa điểm tổ chức, nội dung chương trình, số lượng vé tối đa và thời hạn đóng đăng ký.</li>
+                        <li><strong>Danh sách khách mời</strong>: Theo dõi danh sách đại biểu đăng ký theo thời gian thực, bao gồm họ tên, doanh nghiệp, số điện thoại và loại vé đã nhận.</li>
+                        <li><strong>Giám sát Check-in trực tiếp</strong>: Nắm bắt tỷ lệ vào cửa thực tế (Số người đã check-in / Tổng số vé đã đăng ký) để điều phối hội trường chu đáo.</li>
+                        <li><strong>Xuất dữ liệu & Kết nối B2B</strong>: Xuất danh sách khách tham dự phục vụ công tác báo cáo và kết nối giao thương sau sự kiện.</li>
+                      </>
+                    )}
+                  </ul>
+
+                  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)' }}>
+                    <img src="/img_guide/Creator_ticket inspector_organizer/organizer dashboard.png" alt="Dashboard Ban tổ chức Sự kiện" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    <div style={{ padding: '10px 16px', background: 'var(--surface-1)', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
+                      {isEn ? "Event Organizer Dashboard with event roster, ticket statistics, and check-in controls" : "Giao diện Dashboard Ban tổ chức Sự kiện với danh sách sự kiện, thống kê vé và tiến độ soát vé"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mục 3: Nhân viên Soát vé (Ticket Inspector) */}
+                <div 
+                  id="sec-other-inspector" 
+                  className="glass-card guide-section" 
+                  style={{ 
+                    padding: '2rem', 
+                    borderRadius: '16px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    borderLeft: '4px solid #6366f1',
+                    border: activeSectionId === 'sec-other-inspector' ? '2px solid #6366f1' : '1px solid var(--border-strong)',
+                    boxShadow: activeSectionId === 'sec-other-inspector' ? '0 0 25px rgba(99, 102, 241, 0.25)' : 'none'
+                  }}
+                >
+                  {activeSectionId === 'sec-other-inspector' && (
+                    <div style={{ position: 'absolute', top: '16px', right: '16px', padding: '4px 10px', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.4)', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818cf8', display: 'inline-block' }}></span>
+                      {isEn ? "Viewing" : "Đang xem"}
+                    </div>
+                  )}
+
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                    <i className="ti ti-qrcode" style={{ color: '#818cf8', marginRight: '8px' }}></i>
+                    {isEn ? "3. Ticket Inspector Staff - On-Site QR Verification" : "3. Nhân Viên Soát Vé (Ticket Inspector) - Kiểm Soát Vé & Quét Mã QR"}
+                  </h2>
+                  <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                    {isEn ? (
+                      <>Ticket Inspector accounts are lightweight and optimized for event gatekeepers and reception teams using smartphones or tablets:</>
+                    ) : (
+                      <>Tài khoản Nhân viên soát vé được thiết kế tinh gọn, tải trang siêu nhanh, phục vụ trực tiếp cho đội ngũ lễ tân và nhân sự kiểm soát cửa ra vào sự kiện bằng điện thoại hoặc máy tính bảng:</>
+                    )}
+                  </p>
+
+                  <ul style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+                    {isEn ? (
+                      <>
+                        <li><strong>Fast QR Scanning</strong>: Use your device camera to scan attendee QR codes instantly or search by ticket code / phone number.</li>
+                        <li><strong>Strict Anti-Duplicate Protection</strong>: Immediately alerts if a ticket has already been used, was cancelled, or belongs to another session.</li>
+                        <li><strong>Attendee Identity Display</strong>: Shows attendee name, company, ticket tier, and registration time upon scan for quick badge distribution.</li>
+                        <li><strong>Strict Permissions</strong>: Restricted to admission verification without editing or deleting event configurations, ensuring data security.</li>
+                      </>
+                    ) : (
+                      <>
+                        <li><strong>Quét mã QR siêu tốc</strong>: Sử dụng camera thiết bị để quét mã QR trên vé điện tử của khách mời hoặc tra cứu nhanh bằng mã vé / số điện thoại.</li>
+                        <li><strong>Chống vé trùng lặp & Giả mạo</strong>: Hệ thống cảnh báo tức thì màu đỏ nếu vé đã được check-in trước đó, vé bị hủy hoặc không hợp lệ.</li>
+                        <li><strong>Hiển thị thông tin nhận diện</strong>: Ngay khi quét thành công, màn hình hiển thị tên khách mời, chức vụ, công ty và hạng vé để lễ tân trao thẻ đeo/tài liệu hội thảo.</li>
+                        <li><strong>Phân quyền an toàn</strong>: Chỉ tập trung vào tính năng soát vé, không có quyền can thiệp sửa đổi hay xóa sự kiện, bảo vệ an toàn dữ liệu tổ chức.</li>
+                      </>
+                    )}
+                  </ul>
+
+                  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)' }}>
+                    <img src="/img_guide/Creator_ticket inspector_organizer/ticket inspector dashboard.png" alt="Giao diện Nhân viên Soát vé" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    <div style={{ padding: '10px 16px', background: 'var(--surface-1)', fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
+                      {isEn ? "Ticket Inspector dashboard with rapid QR scanning and live attendance verification" : "Giao diện Dashboard Nhân viên soát vé với chức năng kiểm tra vé nhanh và quét mã QR tại cổng sự kiện"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mục 4: Đăng nhập Cổng Hợp Nhất */}
+                <div 
+                  id="sec-other-login" 
+                  className="glass-card guide-section" 
+                  style={{ 
+                    padding: '2rem', 
+                    borderRadius: '16px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    border: activeSectionId === 'sec-other-login' ? '2px solid var(--neon-cyan)' : '1px solid var(--border-strong)',
+                    boxShadow: activeSectionId === 'sec-other-login' ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'none'
+                  }}
+                >
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1rem' }}>
+                    {isEn ? "4. Unified Portal Authentication for All Roles" : "4. Cổng Đăng Nhập Hợp Nhất Dành Cho Mọi Vai Trò"}
+                  </h3>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                    {isEn ? (
+                      <>Content Creators, Event Organizers, and Ticket Inspectors all authenticate through the single {renderLinkPill("Login Portal", "/login")}. The system identifies account privileges and redirects you to the proper workspace automatically.</>
+                    ) : (
+                      <>Biên tập viên, Ban tổ chức và Nhân viên soát vé đều sử dụng chung cổng {renderLinkPill("Đăng nhập chung", "/login")}. Hệ thống tự động nhận diện phân quyền tài khoản để điều hướng bạn tới đúng trang quản trị chuyên biệt tương ứng.</>
+                    )}
+                  </p>
+                  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-strong)', maxWidth: '750px', margin: '0 auto' }}>
+                    <img src="/img_guide/Creator_ticket inspector_organizer/login.png" alt="Đăng nhập Hợp nhất" style={{ width: '100%', height: 'auto', display: 'block' }} />
                   </div>
                 </div>
               </>
@@ -939,7 +1112,7 @@ export const Guide = () => {
                   }}
                 >
                   <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
-                    {isEn ? "5. Events, Category Taxonomy & Creator Accounts" : "5. Quản lý Sự Kiện, Chuyên Mục & Tài khoản Biên Tập Viên"}
+                    {isEn ? "5. Events, Taxonomy, Organizers & Staff" : "5. Quản lý Sự Kiện, Chuyên Mục, Ban Tổ Chức & Nhân Sự"}
                   </h3>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -988,6 +1161,22 @@ export const Guide = () => {
                       </p>
                       <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                         <img src="/img_guide/Admin/admin manage creator.png" alt="Quản lý Biên tập viên" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 style={{ color: 'var(--neon-cyan)', marginBottom: '8px' }}>
+                        {isEn ? "d. Event Organizers & Ticket Inspectors Management" : "d. Quản lý Ban tổ chức & Nhân viên Soát vé Sự kiện"}
+                      </h4>
+                      <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '10px' }}>
+                        {isEn ? (
+                          <>Create and assign dedicated accounts for Event Organizers and Ticket Inspectors at {renderLinkPill("Manage Organizers", "/admin-dashboard")}. Set granular permissions: Full event administration vs Gate QR scanning only.</>
+                        ) : (
+                          <>Admin tạo tài khoản và phân quyền cho Ban tổ chức sự kiện và Nhân viên soát vé tại {renderLinkPill("Quản lý Ban tổ chức", "/admin-dashboard")}. Phân chia quyền hạn rõ ràng: Toàn quyền quản lý & điều phối sự kiện hoặc chỉ cấp quyền soát vé QR tại cửa.</>
+                        )}
+                      </p>
+                      <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <img src="/img_guide/Admin/admin manage organizer.png" alt="Quản lý Ban tổ chức & Nhân viên soát vé" style={{ width: '100%', height: 'auto', display: 'block' }} />
                       </div>
                     </div>
                   </div>
