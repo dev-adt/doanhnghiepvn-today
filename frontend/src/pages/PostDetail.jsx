@@ -5,6 +5,7 @@ import { useTranslation } from '../contexts/LanguageContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
+import { getCategoryLabel } from '../constants/categories';
 
 export const PostDetail = () => {
   const { id } = useParams();
@@ -226,7 +227,7 @@ export const PostDetail = () => {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
             <i className="ti ti-loader animate-spin" style={{ fontSize: '32px', display: 'block', margin: '0 auto 15px' }}></i>
-            Đang tải chi tiết bài viết...
+            {currentLang === 'en' ? 'Loading post details...' : 'Đang tải chi tiết bài viết...'}
           </div>
         </div>
         <Footer />
@@ -241,9 +242,9 @@ export const PostDetail = () => {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center', maxWidth: '400px', padding: '2rem' }} className="glass-card">
             <i className="ti ti-alert-triangle" style={{ fontSize: '48px', color: '#EF4444', display: 'block', marginBottom: '1rem' }}></i>
-            <h3 style={{ color: '#fff', fontSize: '18px', marginBottom: '10px' }}>Đã xảy ra lỗi</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px', marginBottom: '1.5rem' }}>{error || 'Không tìm thấy thông tin.'}</p>
-            <button onClick={() => navigate('/posts')} className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13px' }}>Quay lại Bảng tin</button>
+            <h3 style={{ color: '#fff', fontSize: '18px', marginBottom: '10px' }}>{currentLang === 'en' ? 'An error occurred' : 'Đã xảy ra lỗi'}</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px', marginBottom: '1.5rem' }}>{error || (currentLang === 'en' ? 'Information not found.' : 'Không tìm thấy thông tin.')}</p>
+            <button onClick={() => navigate('/posts')} className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13px' }}>{currentLang === 'en' ? 'Back to Feed' : 'Quay lại Bảng tin'}</button>
           </div>
         </div>
         <Footer />
@@ -319,9 +320,9 @@ export const PostDetail = () => {
           
           {/* Breadcrumbs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '1.5rem', textAlign: 'left' }}>
-            <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Trang chủ</Link>
+            <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>{currentLang === 'en' ? 'Home' : 'Trang chủ'}</Link>
             <i className="ti ti-chevron-right" style={{ fontSize: '10px' }}></i>
-            <Link to="/posts" style={{ color: 'inherit', textDecoration: 'none' }}>Bảng tin cơ hội</Link>
+            <Link to="/posts" style={{ color: 'inherit', textDecoration: 'none' }}>{currentLang === 'en' ? 'Business Opportunities' : 'Bảng tin cơ hội'}</Link>
             <i className="ti ti-chevron-right" style={{ fontSize: '10px' }}></i>
             <span style={{ color: 'var(--text-primary)' }}>{post.title}</span>
           </div>
@@ -346,7 +347,7 @@ export const PostDetail = () => {
                 <span style={{ fontSize: '11px', background: 'rgba(2, 132, 199, 0.08)', color: 'var(--primary-dark)', border: '1px solid rgba(2, 132, 199, 0.15)', padding: '3px 10px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 600 }}>
                   {post.type === 'offer' ? t('type_offer') : post.type === 'demand' ? t('type_demand') : post.type === 'cooperate' ? t('type_cooperate') : (post.type || t('type_general_news'))}
                 </span>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{post.category || t('category_default')}</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{getCategoryLabel(post.category, currentLang) || t('category_default')}</span>
               </div>
 
               <h1 style={{ fontFamily: 'var(--font-title)', fontSize: '32px', color: 'var(--text-primary)', fontWeight: 700, lineHeight: '1.4', margin: '0 0 14px' }}>
@@ -482,7 +483,7 @@ export const PostDetail = () => {
               {post.tags && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '24px', paddingTop: '18px', borderTop: '1px dashed var(--border)' }}>
                   <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                    <i className="ti ti-tags"></i> Từ khóa:
+                    <i className="ti ti-tags"></i> {currentLang === 'en' ? 'Keywords:' : 'Từ khóa:'}
                   </span>
                   {(Array.isArray(post.tags) ? post.tags : (typeof post.tags === 'string' && post.tags.startsWith('[') ? (function(){ try { return JSON.parse(post.tags); } catch(e) { return post.tags.split(','); } })() : post.tags.split(','))).map((tag, idx) => {
                     const cleanTag = typeof tag === 'string' ? tag.trim() : String(tag);
@@ -522,7 +523,7 @@ export const PostDetail = () => {
                       {t('sidebar_author')}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <h3 style={{ fontSize: '17px', color: 'var(--text-primary)', fontWeight: 700, margin: 0 }}>{post.company_name || 'Hội viên ẩn danh'}</h3>
+                      <h3 style={{ fontSize: '17px', color: 'var(--text-primary)', fontWeight: 700, margin: 0 }}>{post.company_name || (currentLang === 'en' ? 'Anonymous Member' : 'Hội viên ẩn danh')}</h3>
                       <span style={{ 
                         fontSize: '9.5px',
                         background: isPlatinum ? 'rgba(245,158,11,0.15)' : isGold ? 'rgba(245,158,11,0.1)' : 'var(--surface-0)',
@@ -611,7 +612,7 @@ export const PostDetail = () => {
             {loadingMember ? (
               <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
                 <i className="ti ti-loader animate-spin" style={{ fontSize: '28px', display: 'block', margin: '0 auto 10px' }}></i>
-                Đang tải thông tin hội viên...
+                {currentLang === 'en' ? 'Loading member information...' : 'Đang tải thông tin hội viên...'}
               </div>
             ) : memberDetails ? (
               <div>
@@ -634,7 +635,7 @@ export const PostDetail = () => {
                       fontWeight: 700,
                       textTransform: 'uppercase'
                     }}>
-                      Hạng: {memberDetails.tier || 'Silver'}
+                      {currentLang === 'en' ? 'Tier:' : 'Hạng:'} {memberDetails.tier || 'Silver'}
                     </span>
                   </div>
                 </div>
@@ -644,20 +645,20 @@ export const PostDetail = () => {
                 {/* Main Information */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Lĩnh vực hoạt động</div>
-                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.industry || 'Chưa cập nhật'}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{currentLang === 'en' ? 'Industry' : 'Lĩnh vực hoạt động'}</div>
+                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.industry || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Quy mô</div>
-                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.size || 'Chưa cập nhật'}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{currentLang === 'en' ? 'Scale' : 'Quy mô'}</div>
+                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.size || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Tỉnh/Thành phố</div>
-                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.city || 'Chưa cập nhật'}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{currentLang === 'en' ? 'Province / City' : 'Tỉnh/Thành phố'}</div>
+                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.city || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Địa chỉ</div>
-                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.address || 'Chưa cập nhật'}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{currentLang === 'en' ? 'Address' : 'Địa chỉ'}</div>
+                    <div style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>{memberDetails.address || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                   </div>
                   {memberDetails.website && (
                     <div style={{ gridColumn: 'span 2' }}>
@@ -711,7 +712,7 @@ export const PostDetail = () => {
                           }}
                         >
                           <i className={loadingMemberDescTranslate ? "ti ti-loader animate-spin" : "ti ti-language"}></i>
-                          {loadingMemberDescTranslate ? '...' : isMemberDescTranslated ? t('translate_view_original_short') : 'Dịch AI'}
+                          {loadingMemberDescTranslate ? '...' : isMemberDescTranslated ? t('translate_view_original_short') : (currentLang === 'en' ? 'AI Translate' : 'Dịch AI')}
                         </button>
                       </div>
                     </div>
@@ -736,27 +737,27 @@ export const PostDetail = () => {
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                     <div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Người liên hệ</div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.contact_name || 'Chưa cập nhật'}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{currentLang === 'en' ? 'Contact Person' : 'Người liên hệ'}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.contact_name || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Chức vụ</div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.contact_pos || 'Chưa cập nhật'}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{currentLang === 'en' ? 'Position' : 'Chức vụ'}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.contact_pos || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                     </div>
                     <div>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Email</div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.email || 'Chưa cập nhật'}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.email || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Số điện thoại</div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.phone || 'Chưa cập nhật'}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{currentLang === 'en' ? 'Phone Number' : 'Số điện thoại'}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{memberDetails.phone || (currentLang === 'en' ? 'Not specified' : 'Chưa cập nhật')}</div>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)' }}>
-                Không tìm thấy thông tin hội viên này.
+                {currentLang === 'en' ? 'Member details not found.' : 'Không tìm thấy thông tin hội viên này.'}
               </div>
             )}
           </div>

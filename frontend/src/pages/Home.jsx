@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import FloatingAIBot from '../components/FloatingAIBot';
 import SEOHead from '../components/SEOHead';
 import { BRAND_CONFIG } from '../brand.config';
+import { getCategoryLabel } from '../constants/categories';
 
 export const Home = () => {
   const { role } = useAuth();
@@ -104,9 +105,15 @@ export const Home = () => {
 
   const formatEventDateTime = (dStr) => {
     const d = parseEventDate(dStr);
-    if (!d) return 'Đang cập nhật';
-    const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    if (!d) return currentLang === 'en' ? 'TBD' : 'Đang cập nhật';
+    const dayNamesVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const dayNamesEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayNames = currentLang === 'en' ? dayNamesEn : dayNamesVi;
     const pad = (n) => String(n).padStart(2, '0');
+    if (currentLang === 'en') {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${pad(d.getHours())}:${pad(d.getMinutes())} ${dayNames[d.getDay()]}, ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    }
     return `${pad(d.getHours())}:${pad(d.getMinutes())} ${dayNames[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
   };
 
@@ -125,7 +132,7 @@ export const Home = () => {
     const rawDate = topEvent.event_date || topEvent.start_time || topEvent.date;
     const targetDate = parseEventDate(rawDate);
     if (!targetDate) {
-      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true, label: 'Đang cập nhật' });
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true, label: currentLang === 'en' ? 'TBD' : 'Đang cập nhật' });
       return;
     }
 
@@ -140,7 +147,7 @@ export const Home = () => {
           minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((diff % (1000 * 60)) / 1000),
           isPassed: false,
-          label: 'Sự kiện bắt đầu sau'
+          label: currentLang === 'en' ? 'Event starts in' : 'Sự kiện bắt đầu sau'
         });
       } else {
         const endDate = parseEventDate(topEvent.end_date);
@@ -153,10 +160,10 @@ export const Home = () => {
             seconds: Math.floor((endDiff % (1000 * 60)) / 1000),
             isPassed: false,
             isOngoing: true,
-            label: 'Đang diễn ra • Kết thúc sau'
+            label: currentLang === 'en' ? 'Ongoing • Ends in' : 'Đang diễn ra • Kết thúc sau'
           });
         } else {
-          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true, label: 'Sự kiện đã diễn ra' });
+          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true, label: currentLang === 'en' ? 'Event concluded' : 'Sự kiện đã diễn ra' });
         }
       }
     };
@@ -164,7 +171,7 @@ export const Home = () => {
     calculateTime();
     const interval = setInterval(calculateTime, 1000);
     return () => clearInterval(interval);
-  }, [topEvent]);
+  }, [topEvent, currentLang]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -184,11 +191,11 @@ export const Home = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!formData.fullName || !formData.phone || !formData.companyName) {
-      alert('Vui lòng điền họ tên, số điện thoại và tên doanh nghiệp (*).');
+      alert(currentLang === 'en' ? 'Please enter full name, phone number, and company name (*).' : 'Vui lòng điền họ tên, số điện thoại và tên doanh nghiệp (*).');
       return;
     }
     if (!formData.agreeTerms) {
-      alert('Vui lòng đồng ý với điều khoản bảo mật dữ liệu.');
+      alert(currentLang === 'en' ? 'Please agree to data privacy terms.' : 'Vui lòng đồng ý với điều khoản bảo mật dữ liệu.');
       return;
     }
 
@@ -211,11 +218,11 @@ export const Home = () => {
         setFormSubmitted(true);
       } else {
         const errJson = await res.json();
-        alert('Lỗi: ' + (errJson.error || 'Không thể gửi form.'));
+        alert((currentLang === 'en' ? 'Error: ' : 'Lỗi: ') + (errJson.error || (currentLang === 'en' ? 'Could not submit form.' : 'Không thể gửi form.')));
       }
     } catch (err) {
       console.error('Submit form error:', err);
-      alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      alert(currentLang === 'en' ? 'An error occurred. Please try again later.' : 'Đã có lỗi xảy ra. Vui lòng thử lại sau.');
     } finally {
       setFormLoading(false);
     }
@@ -225,8 +232,10 @@ export const Home = () => {
   const CONSULTING_SERVICES = [
     {
       id: 'von',
-      title: 'Tư vấn Vốn & Tín dụng',
-      desc: 'Hỗ trợ chuẩn bị hồ sơ tài chính, báo cáo dòng tiền và kết nối tiếp cận các gói tín dụng ưu đãi từ các ngân hàng hàng đầu.',
+      title: currentLang === 'en' ? 'Capital & Credit Consulting' : 'Tư vấn Vốn & Tín dụng',
+      desc: currentLang === 'en'
+        ? 'Assisting in preparing financial files, cash flow reports, and securing preferential credit lines from leading commercial banks.'
+        : 'Hỗ trợ chuẩn bị hồ sơ tài chính, báo cáo dòng tiền và kết nối tiếp cận các gói tín dụng ưu đãi từ các ngân hàng hàng đầu.',
       icon: 'ti ti-building-bank',
       color: '#0D9488',
       bgGradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(20, 184, 166, 0.28) 100%)',
@@ -236,8 +245,10 @@ export const Home = () => {
     },
     {
       id: 'thuong-hieu',
-      title: 'Truyền thông & Thương hiệu',
-      desc: 'Xây dựng uy tín doanh nghiệp, bảo trợ truyền thông báo chí, xuất bản phóng sự trên Tạp chí Doanh Nghiệp Việt Nam.',
+      title: currentLang === 'en' ? 'Media & Brand Communications' : 'Truyền thông & Thương hiệu',
+      desc: currentLang === 'en'
+        ? 'Elevating corporate credibility, press media sponsorship, and publishing specialized coverage on Vietnam Enterprise Magazine.'
+        : 'Xây dựng uy tín doanh nghiệp, bảo trợ truyền thông báo chí, xuất bản phóng sự trên Tạp chí Doanh Nghiệp Việt Nam.',
       icon: 'ti ti-speakerphone',
       color: '#0284C7',
       bgGradient: 'linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(56, 189, 248, 0.28) 100%)',
@@ -247,8 +258,10 @@ export const Home = () => {
     },
     {
       id: 'marketing',
-      title: 'Marketing & Bán hàng',
-      desc: 'Chiến lược tiếp thị đa kênh, tối ưu phễu bán hàng B2B, phát triển kênh phân phối nội địa và xúc tiến xuất khẩu.',
+      title: currentLang === 'en' ? 'Marketing & B2B Sales' : 'Marketing & Bán hàng',
+      desc: currentLang === 'en'
+        ? 'Omnichannel marketing strategies, B2B sales funnel optimization, domestic distribution channels, and export promotion.'
+        : 'Chiến lược tiếp thị đa kênh, tối ưu phễu bán hàng B2B, phát triển kênh phân phối nội địa và xúc tiến xuất khẩu.',
       icon: 'ti ti-chart-arrows-vertical',
       color: '#E11D48',
       bgGradient: 'linear-gradient(135deg, rgba(225, 29, 72, 0.15) 0%, rgba(251, 113, 133, 0.28) 100%)',
@@ -258,8 +271,10 @@ export const Home = () => {
     },
     {
       id: 'ai-tech',
-      title: 'Ứng dụng AI & Chuyển đổi số',
-      desc: 'Triển khai Trợ lý AI Agent, tự động hóa quy trình nghiệp vụ, số hóa điều hành doanh nghiệp với hệ thống Orion ERP thông minh.',
+      title: currentLang === 'en' ? 'AI Solutions & Digital Transformation' : 'Ứng dụng AI & Chuyển đổi số',
+      desc: currentLang === 'en'
+        ? 'Deploying Enterprise AI Agents, automating business workflows, and digitizing governance with smart Orion ERP systems.'
+        : 'Triển khai Trợ lý AI Agent, tự động hóa quy trình nghiệp vụ, số hóa điều hành doanh nghiệp với hệ thống Orion ERP thông minh.',
       icon: 'ti ti-cpu',
       color: '#7C3AED',
       bgGradient: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(167, 139, 250, 0.28) 100%)',
@@ -269,8 +284,10 @@ export const Home = () => {
     },
     {
       id: 'esg',
-      title: 'Thực hành ESG & Chứng nhận Xanh',
-      desc: 'Lộ trình chuyển đổi xanh, kiểm kê khí nhà kính, xây dựng báo cáo phát triển bền vững đạt chuẩn thâm nhập thị trường quốc tế.',
+      title: currentLang === 'en' ? 'ESG Practices & Green Certification' : 'Thực hành ESG & Chứng nhận Xanh',
+      desc: currentLang === 'en'
+        ? 'Green transition roadmaps, greenhouse gas accounting, and sustainability reporting meeting global market access standards.'
+        : 'Lộ trình chuyển đổi xanh, kiểm kê khí nhà kính, xây dựng báo cáo phát triển bền vững đạt chuẩn thâm nhập thị trường quốc tế.',
       icon: 'ti ti-leaf',
       color: '#16A34A',
       bgGradient: 'linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(74, 222, 128, 0.28) 100%)',
@@ -280,8 +297,10 @@ export const Home = () => {
     },
     {
       id: 'b2b-networking',
-      title: 'Kết nối Công nghệ & Đối tác B2B',
-      desc: 'Giao thương 1-1, tìm kiếm nhà cung cấp, tham gia các đoàn xúc tiến thương mại và chuỗi cung ứng chiến lược trong và ngoài nước.',
+      title: currentLang === 'en' ? 'Technology & B2B Matchmaking' : 'Kết nối Công nghệ & Đối tác B2B',
+      desc: currentLang === 'en'
+        ? '1-on-1 business matchmaking, supplier discovery, participation in strategic trade delegations and supply chain networks.'
+        : 'Giao thương 1-1, tìm kiếm nhà cung cấp, tham gia các đoàn xúc tiến thương mại và chuỗi cung ứng chiến lược trong và ngoài nước.',
       icon: 'ti ti-users-group',
       color: '#D97706',
       bgGradient: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(251, 191, 36, 0.28) 100%)',
@@ -294,24 +313,44 @@ export const Home = () => {
   // 5 FAQs DoanhNghiepVN
   const FAQS = [
     {
-      q: 'DoanhNghiepVN.today là gì và hỗ trợ những gì cho doanh nghiệp?',
-      a: 'DoanhNghiepVN.today là kênh thông tin kinh tế và hệ sinh thái số của Tạp chí Doanh Nghiệp Việt Nam. Chúng tôi kết nối cộng đồng doanh nghiệp với các cơ quan quản lý, ngân hàng, chuyên gia đầu ngành trong 6 lĩnh vực trọng điểm: Vốn tín dụng, Truyền thông thương hiệu, Marketing bán hàng, Ứng dụng AI/Chuyển đổi số, Thực hành ESG và Kết nối B2B.'
+      q: currentLang === 'en' 
+        ? 'What is DoanhNghiepVN.today and how does it support enterprises?'
+        : 'DoanhNghiepVN.today là gì và hỗ trợ những gì cho doanh nghiệp?',
+      a: currentLang === 'en'
+        ? 'DoanhNghiepVN.today is the economic news channel and digital ecosystem of Vietnam Enterprise Magazine. We connect the business community with regulatory authorities, financial institutions, and industry experts across 6 core pillars: Capital & Credit, Brand Media, Marketing & Sales, AI & Digital Transformation, ESG Practices, and B2B Matchmaking.'
+        : 'DoanhNghiepVN.today là kênh thông tin kinh tế và hệ sinh thái số của Tạp chí Doanh Nghiệp Việt Nam. Chúng tôi kết nối cộng đồng doanh nghiệp với các cơ quan quản lý, ngân hàng, chuyên gia đầu ngành trong 6 lĩnh vực trọng điểm: Vốn tín dụng, Truyền thông thương hiệu, Marketing bán hàng, Ứng dụng AI/Chuyển đổi số, Thực hành ESG và Kết nối B2B.'
     },
     {
-      q: 'Làm thế nào để đăng ký tham gia các sự kiện, hội thảo và nhận vé QR Code?',
-      a: 'Quý vị chỉ cần chọn sự kiện trên website, điền thông tin người tham dự và ấn Đăng ký. Hệ thống sẽ tự động cấp mã vé duy nhất và mã QR Code. Với các sự kiện có phí, hệ thống tích hợp sẵn mã VietQR kèm cú pháp chuyển khoản chính xác để Quý vị hoàn tất trong tích tắc.'
+      q: currentLang === 'en'
+        ? 'How do I register for events and receive QR Code tickets?'
+        : 'Làm thế nào để đăng ký tham gia các sự kiện, hội thảo và nhận vé QR Code?',
+      a: currentLang === 'en'
+        ? 'Simply choose an event on the portal, provide attendee details, and click Register. The system instantly generates your unique ticket code and QR Code. For paid events, automatic VietQR codes and payment proof upload ensure fast approval.'
+        : 'Quý vị chỉ cần chọn sự kiện trên website, điền thông tin người tham dự và ấn Đăng ký. Hệ thống sẽ tự động cấp mã vé duy nhất và mã QR Code. Với các sự kiện có phí, hệ thống tích hợp sẵn mã VietQR kèm cú pháp chuyển khoản chính xác để Quý vị hoàn tất trong tích tắc.'
     },
     {
-      q: 'Doanh nghiệp có thể đăng ký trang giới thiệu hồ sơ năng lực (Showroom số) không?',
-      a: 'Có. Hội viên Doanh nghiệp được cấp trang giới thiệu năng lực (Profile Doanh nghiệp số) trên DoanhNghiepVN.today để quảng bá sản phẩm, dịch vụ, dự án và tìm kiếm đối tác liên kết.'
+      q: currentLang === 'en'
+        ? 'Can businesses set up a digital company profile / showroom?'
+        : 'Doanh nghiệp có thể đăng ký trang giới thiệu hồ sơ năng lực (Showroom số) không?',
+      a: currentLang === 'en'
+        ? 'Yes. Member enterprises are provided a dedicated Digital Business Profile on DoanhNghiepVN.today to showcase capabilities, products, services, projects, and connect with prospective partners.'
+        : 'Có. Hội viên Doanh nghiệp được cấp trang giới thiệu năng lực (Profile Doanh nghiệp số) trên DoanhNghiepVN.today để quảng bá sản phẩm, dịch vụ, dự án và tìm kiếm đối tác liên kết.'
     },
     {
-      q: 'DoanhNghiepVN.today có hỗ trợ cài đặt dạng ứng dụng trên điện thoại (PWA) không?',
-      a: 'Có. Trang web được xây dựng theo chuẩn PWA (Progressive Web App). Quý vị có thể cài đặt trực tiếp lên màn hình chính điện thoại (iOS / Android) mà không cần qua App Store hay Google Play, cho phép truy cập nhanh và nhận thông báo sự kiện mượt mà.'
+      q: currentLang === 'en'
+        ? 'Does DoanhNghiepVN.today support app installation on mobile (PWA)?'
+        : 'DoanhNghiepVN.today có hỗ trợ cài đặt dạng ứng dụng trên điện thoại (PWA) không?',
+      a: currentLang === 'en'
+        ? 'Yes. The portal is built as a Progressive Web App (PWA). You can install it directly onto your home screen (iOS / Android) without needing an app store, enabling fast access and real-time event alerts.'
+        : 'Có. Trang web được xây dựng theo chuẩn PWA (Progressive Web App). Quý vị có thể cài đặt trực tiếp lên màn hình chính điện thoại (iOS / Android) mà không cần qua App Store hay Google Play, cho phép truy cập nhanh và nhận thông báo sự kiện mượt mà.'
     },
     {
-      q: 'Trợ lý AI Doanh Nghiệp VN hoạt động như thế nào?',
-      a: 'Trợ lý AI Doanh Nghiệp VN được huấn luyện dựa trên cơ sở dữ liệu pháp lý doanh nghiệp, chính sách thuế, các quy định kinh tế mới nhất kết hợp với mạng lưới thông tin chuyên sâu của Tạp chí Doanh Nghiệp Việt Nam, hỗ trợ giải đáp 24/7 cho các nhà quản trị.'
+      q: currentLang === 'en'
+        ? 'How does the Vietnam Enterprise AI Assistant work?'
+        : 'Trợ lý AI Doanh Nghiệp VN hoạt động như thế nào?',
+      a: currentLang === 'en'
+        ? 'The Vietnam Enterprise AI Assistant is trained on corporate regulations, tax policies, and the latest economic frameworks combined with the specialized editorial database of Vietnam Enterprise Magazine, providing 24/7 strategic guidance.'
+        : 'Trợ lý AI Doanh Nghiệp VN được huấn luyện dựa trên cơ sở dữ liệu pháp lý doanh nghiệp, chính sách thuế, các quy định kinh tế mới nhất kết hợp với mạng lưới thông tin chuyên sâu của Tạp chí Doanh Nghiệp Việt Nam, hỗ trợ giải đáp 24/7 cho các nhà quản trị.'
     }
   ];
 
@@ -326,8 +365,12 @@ export const Home = () => {
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', color: '#0F172A', fontFamily: 'Inter, system-ui, sans-serif' }}>
       <SEOHead
-        title="DoanhNghiepVN.today — Tạp chí Doanh Nghiệp Việt Nam | Kết nối & Phát triển"
-        description="Không gian kết nối cộng đồng doanh nghiệp, cập nhật chính sách, tham gia sự kiện và tiếp cận các chương trình tư vấn về vốn, marketing, thương hiệu, chuyển đổi số và ESG."
+        title={currentLang === 'en'
+          ? "DoanhNghiepVN.today — Vietnam Enterprise Magazine | Connection & Growth"
+          : "DoanhNghiepVN.today — Tạp chí Doanh Nghiệp Việt Nam | Kết nối & Phát triển"}
+        description={currentLang === 'en'
+          ? "Official business connection ecosystem, regulatory updates, events, and consulting programs for credit, marketing, branding, AI, and ESG."
+          : "Không gian kết nối cộng đồng doanh nghiệp, cập nhật chính sách, tham gia sự kiện và tiếp cận các chương trình tư vấn về vốn, marketing, thương hiệu, chuyển đổi số và ESG."}
       />
       
       {/* Header with dynamic categories */}
@@ -384,7 +427,7 @@ export const Home = () => {
                 marginBottom: '1.25rem'
               }}>
                 <i className="fa-solid fa-shield-halved" />
-                <span>Cộng đồng kết nối chính thống • Tạp chí Doanh Nghiệp Việt Nam</span>
+                <span>{currentLang === 'en' ? 'Official Business Network • Vietnam Enterprise Magazine' : 'Cộng đồng kết nối chính thống • Tạp chí Doanh Nghiệp Việt Nam'}</span>
               </div>
 
               <h1 style={{
@@ -395,14 +438,27 @@ export const Home = () => {
                 marginBottom: '1.25rem',
                 color: '#FFFFFF'
               }}>
-                Kết nối doanh nghiệp <br />
-                <span style={{
-                  background: 'linear-gradient(90deg, #2DD4BF 0%, #38BDF8 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>
-                  Đồng hành cùng sự phát triển
-                </span>
+                {currentLang === 'en' ? (
+                  <>Empowering Enterprises <br />
+                    <span style={{
+                      background: 'linear-gradient(90deg, #2DD4BF 0%, #38BDF8 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}>
+                      Growing Together Sustainably
+                    </span>
+                  </>
+                ) : (
+                  <>Kết nối doanh nghiệp <br />
+                    <span style={{
+                      background: 'linear-gradient(90deg, #2DD4BF 0%, #38BDF8 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}>
+                      Đồng hành cùng sự phát triển
+                    </span>
+                  </>
+                )}
               </h1>
 
               <p style={{
@@ -412,7 +468,9 @@ export const Home = () => {
                 marginBottom: '2rem',
                 maxWidth: '560px'
               }}>
-                Không gian kết nối cộng đồng doanh nghiệp, cập nhật chính sách pháp lý, tham gia hội thảo chuyên đề và tiếp cận các giải pháp hỗ trợ về vốn tín dụng, marketing, thương hiệu, chuyển đổi số AI và ESG.
+                {currentLang === 'en'
+                  ? 'Official ecosystem connecting enterprises, updating corporate policies, attending summits, and unlocking solutions in capital credit, brand media, sales marketing, AI digital transformation, and ESG.'
+                  : 'Không gian kết nối cộng đồng doanh nghiệp, cập nhật chính sách pháp lý, tham gia hội thảo chuyên đề và tiếp cận các giải pháp hỗ trợ về vốn tín dụng, marketing, thương hiệu, chuyển đổi số AI và ESG.'}
               </p>
 
               {/* Search & AI Input */}
@@ -431,7 +489,7 @@ export const Home = () => {
                 <i className="fa-solid fa-magnifying-glass" style={{ marginLeft: '14px', color: '#94A3B8', fontSize: '1rem' }} />
                 <input
                   type="text"
-                  placeholder="Tìm tin tức, sự kiện, doanh nghiệp, chuyên mục..."
+                  placeholder={currentLang === 'en' ? 'Search news, events, enterprises, topics...' : 'Tìm tin tức, sự kiện, doanh nghiệp, chuyên mục...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
@@ -462,10 +520,10 @@ export const Home = () => {
                     transition: 'all 0.2s',
                     whiteSpace: 'nowrap'
                   }}
-                  title="Tra cứu thông minh bằng AI Doanh Nghiệp VN"
+                  title={currentLang === 'en' ? "Smart AI Search" : "Tra cứu thông minh bằng AI Doanh Nghiệp VN"}
                 >
                   <i className="fa-solid fa-wand-magic-sparkles" />
-                  <span>Hỏi AI</span>
+                  <span>{currentLang === 'en' ? 'Ask AI' : 'Hỏi AI'}</span>
                 </button>
               </form>
 
@@ -490,7 +548,7 @@ export const Home = () => {
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0F766E'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9488'}
                 >
-                  <span>Xem sự kiện sắp diễn ra</span>
+                  <span>{currentLang === 'en' ? 'Explore Upcoming Events' : 'Xem sự kiện sắp diễn ra'}</span>
                   <i className="fa-solid fa-arrow-down" style={{ fontSize: '0.8rem' }} />
                 </a>
 
@@ -515,7 +573,7 @@ export const Home = () => {
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                 >
                   <i className="fa-solid fa-handshake-angle" />
-                  <span>Đăng ký tư vấn doanh nghiệp</span>
+                  <span>{currentLang === 'en' ? 'Enterprise Consulting' : 'Đăng ký tư vấn doanh nghiệp'}</span>
                 </button>
               </div>
             </div>
@@ -556,18 +614,18 @@ export const Home = () => {
                       padding: '4px 10px',
                       borderRadius: '6px'
                     }}>
-                      Hoạt động tiêu biểu
+                      {currentLang === 'en' ? 'Featured Activity' : 'Hoạt động tiêu biểu'}
                     </span>
                     <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>
                       <i className="fa-regular fa-calendar-days" style={{ marginRight: '4px' }} />
-                      Diễn ra định kỳ
+                      {currentLang === 'en' ? 'Periodic' : 'Diễn ra định kỳ'}
                     </span>
                   </div>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '6px' }}>
-                    Diễn đàn Xúc tiến Thương mại & Tiếp cận Vốn Doanh nghiệp 2026
+                    {currentLang === 'en' ? 'Trade Promotion & Capital Forum 2026' : 'Diễn đàn Xúc tiến Thương mại & Tiếp cận Vốn Doanh nghiệp 2026'}
                   </h3>
                   <p style={{ color: '#CBD5E1', fontSize: '0.85rem', margin: 0 }}>
-                    Quy tụ hơn 300 CEO, chuyên gia kinh tế và đại diện tổ chức tín dụng.
+                    {currentLang === 'en' ? 'Convening 300+ CEOs, economists, and banking leaders.' : 'Quy tụ hơn 300 CEO, chuyên gia kinh tế và đại diện tổ chức tín dụng.'}
                   </p>
                 </div>
               </div>
@@ -580,10 +638,10 @@ export const Home = () => {
                 marginTop: '1.25rem'
               }}>
                 {[
-                  { num: '15.000+', label: 'Doanh nghiệp' },
-                  { num: '63', label: 'Tỉnh thành' },
-                  { num: '120+', label: 'Sự kiện/năm' },
-                  { num: '98%', label: 'Hài lòng' }
+                  { num: '15.000+', label: currentLang === 'en' ? 'Enterprises' : 'Doanh nghiệp' },
+                  { num: '63', label: currentLang === 'en' ? 'Provinces' : 'Tỉnh thành' },
+                  { num: '120+', label: currentLang === 'en' ? 'Events/Year' : 'Sự kiện/năm' },
+                  { num: '98%', label: currentLang === 'en' ? 'Satisfaction' : 'Hài lòng' }
                 ].map((s, idx) => (
                   <div key={idx} style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -611,13 +669,15 @@ export const Home = () => {
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', gap: '1rem' }}>
             <div>
               <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Hoạt động trọng điểm
+                {currentLang === 'en' ? 'Key Programs' : 'Hoạt động trọng điểm'}
               </span>
               <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px', letterSpacing: '-0.02em' }}>
-                SỰ KIỆN SẮP DIỄN RA
+                {currentLang === 'en' ? 'UPCOMING EVENTS' : 'SỰ KIỆN SẮP DIỄN RA'}
               </h2>
               <p style={{ color: '#64748B', fontSize: '1rem', marginTop: '6px', maxWidth: '640px' }}>
-                Cập nhật các hội thảo, tọa đàm và chương trình kết nối giúp doanh nghiệp tiếp cận thông tin, chuyên gia và cơ hội hợp tác kinh doanh.
+                {currentLang === 'en'
+                  ? 'Stay updated with conferences, seminars, and networking programs connecting businesses with insights, experts, and market opportunities.'
+                  : 'Cập nhật các hội thảo, tọa đàm và chương trình kết nối giúp doanh nghiệp tiếp cận thông tin, chuyên gia và cơ hội hợp tác kinh doanh.'}
               </p>
             </div>
             <Link
@@ -632,7 +692,7 @@ export const Home = () => {
                 textDecoration: 'none'
               }}
             >
-              <span>Xem tất cả sự kiện</span>
+              <span>{currentLang === 'en' ? 'View all events' : 'Xem tất cả sự kiện'}</span>
               <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.8rem' }} />
             </Link>
           </div>
@@ -640,11 +700,11 @@ export const Home = () => {
           {loadingEvents ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#94A3B8' }}>
               <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '1rem' }} />
-              <div>Đang tải danh sách sự kiện mới nhất...</div>
+              <div>{currentLang === 'en' ? 'Loading latest events...' : 'Đang tải danh sách sự kiện mới nhất...'}</div>
             </div>
           ) : eventsList.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', backgroundColor: '#F8FAFC', borderRadius: '16px' }}>
-              <p style={{ color: '#64748B', margin: 0 }}>Hiện chưa có sự kiện nào sắp diễn ra.</p>
+              <p style={{ color: '#64748B', margin: 0 }}>{currentLang === 'en' ? 'No upcoming events at the moment.' : 'Hiện chưa có sự kiện nào sắp diễn ra.'}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
@@ -685,7 +745,7 @@ export const Home = () => {
                           borderRadius: '9999px',
                           letterSpacing: '0.04em'
                         }}>
-                          Sự kiện nổi bật
+                          {currentLang === 'en' ? 'Featured Event' : 'Sự kiện nổi bật'}
                         </span>
                         <span style={{
                           backgroundColor: topEvent.is_paid ? 'rgba(239, 68, 68, 0.2)' : 'rgba(13, 148, 136, 0.2)',
@@ -696,7 +756,9 @@ export const Home = () => {
                           padding: '4px 10px',
                           borderRadius: '6px'
                         }}>
-                          {topEvent.is_paid ? `Có phí • ${Number(topEvent.price || 0).toLocaleString('vi-VN')} đ/vé` : 'Miễn phí'}
+                          {topEvent.is_paid 
+                            ? (currentLang === 'en' ? `Paid • ${Number(topEvent.price || 0).toLocaleString('en-US')} VND/ticket` : `Có phí • ${Number(topEvent.price || 0).toLocaleString('vi-VN')} đ/vé`)
+                            : (currentLang === 'en' ? 'Free Admission' : 'Miễn phí')}
                         </span>
                         <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
                           <i className="fa-regular fa-clock" style={{ marginRight: '6px', color: '#2DD4BF' }} />
@@ -709,21 +771,21 @@ export const Home = () => {
                       </h3>
 
                       <p style={{ color: '#CBD5E1', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
-                        {topEvent.short_desc || topEvent.description || 'Tham gia để nhận nhiều giá trị thực tiễn và kết nối mạng lưới doanh nghiệp.'}
+                        {topEvent.short_desc || topEvent.description || (currentLang === 'en' ? 'Join to gain practical values and connect with the business network.' : 'Tham gia để nhận nhiều giá trị thực tiễn và kết nối mạng lưới doanh nghiệp.')}
                       </p>
 
                       {/* Live Realtime Countdown Boxes */}
                       <div style={{ marginBottom: '1.75rem' }}>
                         <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2DD4BF', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <i className="fa-solid fa-hourglass-half" />
-                          <span>{timeLeft.label || 'Sự kiện bắt đầu sau'}</span>
+                          <span>{timeLeft.label || (currentLang === 'en' ? 'Event starts in' : 'Sự kiện bắt đầu sau')}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
                           {[
-                            { val: timeLeft.days, label: 'NGÀY' },
-                            { val: timeLeft.hours, label: 'GIỜ' },
-                            { val: timeLeft.minutes, label: 'PHÚT' },
-                            { val: timeLeft.seconds, label: 'GIÂY' }
+                            { val: timeLeft.days, label: currentLang === 'en' ? 'DAYS' : 'NGÀY' },
+                            { val: timeLeft.hours, label: currentLang === 'en' ? 'HOURS' : 'GIỜ' },
+                            { val: timeLeft.minutes, label: currentLang === 'en' ? 'MINS' : 'PHÚT' },
+                            { val: timeLeft.seconds, label: currentLang === 'en' ? 'SECS' : 'GIÂY' }
                           ].map((t, idx) => (
                             <div key={idx} style={{
                               backgroundColor: '#1E293B',
@@ -758,12 +820,12 @@ export const Home = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#CBD5E1', fontSize: '0.9rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <i className="fa-solid fa-location-dot" style={{ color: '#2DD4BF' }} />
-                          <span>{topEvent.location || 'Trực tuyến / Văn phòng Hội'}</span>
+                          <span>{topEvent.location || (currentLang === 'en' ? 'Online / Association HQ' : 'Trực tuyến / Văn phòng Hội')}</span>
                         </div>
                         {topEvent.capacity > 0 && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FCD34D' }}>
                             <i className="fa-solid fa-ticket" />
-                            <span>Còn {topEvent.remaining_tickets ?? (topEvent.capacity - (topEvent.registered_count || 0))} / {topEvent.capacity} vé</span>
+                            <span>{currentLang === 'en' ? `Tickets left: ${topEvent.remaining_tickets ?? (topEvent.capacity - (topEvent.registered_count || 0))} / ${topEvent.capacity}` : `Còn ${topEvent.remaining_tickets ?? (topEvent.capacity - (topEvent.registered_count || 0))} / ${topEvent.capacity} vé`}</span>
                           </div>
                         )}
                       </div>
@@ -786,7 +848,7 @@ export const Home = () => {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0F766E'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9488'}
                       >
-                        <span>Xem chi tiết & Đăng ký</span>
+                        <span>{currentLang === 'en' ? 'View Details & Register' : 'Xem chi tiết & Đăng ký'}</span>
                         <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.8rem' }} />
                       </Link>
                     </div>
@@ -866,7 +928,9 @@ export const Home = () => {
                         borderRadius: '6px',
                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)'
                       }}>
-                        {evt.is_paid ? `${Number(evt.price || 0).toLocaleString('vi-VN')} đ` : 'Miễn phí'}
+                        {evt.is_paid 
+                          ? (currentLang === 'en' ? `${Number(evt.price || 0).toLocaleString('en-US')} VND` : `${Number(evt.price || 0).toLocaleString('vi-VN')} đ`)
+                          : (currentLang === 'en' ? 'Free' : 'Miễn phí')}
                       </span>
                     </div>
 
@@ -880,14 +944,14 @@ export const Home = () => {
                           {evt.title}
                         </h4>
                         <p style={{ color: '#64748B', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem' }}>
-                          {evt.short_desc || evt.description || 'Hội thảo chuyên môn chia sẻ kinh nghiệm và giải pháp doanh nghiệp.'}
+                          {evt.short_desc || evt.description || (currentLang === 'en' ? 'Professional workshop sharing strategic business insights and solutions.' : 'Hội thảo chuyên môn chia sẻ kinh nghiệm và giải pháp doanh nghiệp.')}
                         </p>
                       </div>
 
                       <div style={{ paddingTop: '1rem', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
                           <i className="fa-solid fa-location-dot" style={{ marginRight: '4px', color: '#0D9488' }} />
-                          {evt.location || 'Văn phòng Hội'}
+                          {evt.location || (currentLang === 'en' ? 'Association HQ' : 'Văn phòng Hội')}
                         </span>
                         <Link
                           to={`/su-kien/${evt.slug || evt.id}`}
@@ -901,7 +965,7 @@ export const Home = () => {
                             gap: '4px'
                           }}
                         >
-                          <span>Chi tiết</span>
+                          <span>{currentLang === 'en' ? 'Details' : 'Chi tiết'}</span>
                           <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.7rem' }} />
                         </Link>
                       </div>
@@ -922,13 +986,15 @@ export const Home = () => {
           
           <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 3.5rem' }}>
             <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Dịch vụ chuyên gia
+              {currentLang === 'en' ? 'Expert Services' : 'Dịch vụ chuyên gia'}
             </span>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
-              6 TRỤ CỘT TƯ VẤN DOANH NGHIỆP
+              {currentLang === 'en' ? '6 PILLARS OF ENTERPRISE SUPPORT' : '6 TRỤ CỘT TƯ VẤN DOANH NGHIỆP'}
             </h2>
             <p style={{ color: '#64748B', fontSize: '1rem', marginTop: '8px' }}>
-              Được bảo trợ bởi Tạp chí Doanh Nghiệp Việt Nam và mạng lưới chuyên gia cố vấn chiến lược, ngân hàng và đối tác công nghệ uy tín.
+              {currentLang === 'en'
+                ? 'Endorsed by Vietnam Enterprise Magazine and a strategic network of senior advisors, leading banks, and technology partners.'
+                : 'Được bảo trợ bởi Tạp chí Doanh Nghiệp Việt Nam và mạng lưới chuyên gia cố vấn chiến lược, ngân hàng và đối tác công nghệ uy tín.'}
             </p>
           </div>
 
@@ -1012,7 +1078,7 @@ export const Home = () => {
                     e.currentTarget.style.color = '#0D9488';
                   }}
                 >
-                  <span>Đăng ký tư vấn</span>
+                  <span>{currentLang === 'en' ? 'Request Consulting' : 'Đăng ký tư vấn'}</span>
                   <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.75rem' }} />
                 </button>
               </div>
@@ -1029,13 +1095,15 @@ export const Home = () => {
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', gap: '1rem' }}>
             <div>
               <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Tin tức & Phóng sự
+                {currentLang === 'en' ? 'News & Special Reports' : 'Tin tức & Phóng sự'}
               </span>
               <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
-                TẠP CHÍ DOANH NGHIỆP VIỆT NAM
+                {currentLang === 'en' ? 'VIETNAM ENTERPRISE MAGAZINE' : 'TẠP CHÍ DOANH NGHIỆP VIỆT NAM'}
               </h2>
               <p style={{ color: '#64748B', fontSize: '1rem', marginTop: '6px' }}>
-                Cập nhật thông tin kinh tế, cơ chế chính sách, thị trường và câu chuyện thành công của doanh nhân Việt.
+                {currentLang === 'en'
+                  ? 'Economic insights, regulatory policy updates, market trends, and entrepreneurial success stories.'
+                  : 'Cập nhật thông tin kinh tế, cơ chế chính sách, thị trường và câu chuyện thành công của doanh nhân Việt.'}
               </p>
             </div>
             <Link
@@ -1050,7 +1118,7 @@ export const Home = () => {
                 textDecoration: 'none'
               }}
             >
-              <span>Xem tất cả bài viết</span>
+              <span>{currentLang === 'en' ? 'View all articles' : 'Xem tất cả bài viết'}</span>
               <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.8rem' }} />
             </Link>
           </div>
@@ -1058,11 +1126,11 @@ export const Home = () => {
           {loadingPosts ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#94A3B8' }}>
               <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '1rem' }} />
-              <div>Đang cập nhật tin tức mới nhất...</div>
+              <div>{currentLang === 'en' ? 'Loading latest news...' : 'Đang cập nhật tin tức mới nhất...'}</div>
             </div>
           ) : latestPosts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', backgroundColor: '#F8FAFC', borderRadius: '16px' }}>
-              <p style={{ color: '#64748B', margin: 0 }}>Chưa có bài viết nào được đăng tải.</p>
+              <p style={{ color: '#64748B', margin: 0 }}>{currentLang === 'en' ? 'No articles published yet.' : 'Chưa có bài viết nào được đăng tải.'}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
@@ -1123,10 +1191,10 @@ export const Home = () => {
                           padding: '3px 8px',
                           borderRadius: '4px'
                         }}>
-                          {post.category || 'Doanh Nghiệp'}
+                          {getCategoryLabel(post.category, currentLang) || (currentLang === 'en' ? 'Enterprises' : 'Doanh Nghiệp')}
                         </span>
                         <span style={{ color: '#94A3B8', fontSize: '0.75rem' }}>
-                          {post.created_at ? new Date(post.created_at).toLocaleDateString('vi-VN') : ''}
+                          {post.created_at ? new Date(post.created_at).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'vi-VN') : ''}
                         </span>
                       </div>
 
@@ -1137,7 +1205,7 @@ export const Home = () => {
                       </h4>
 
                       <p style={{ color: '#64748B', fontSize: '0.85rem', lineHeight: 1.5, margin: 0 }}>
-                        {post.summary || post.excerpt || 'Xem chi tiết bài viết phân tích từ Ban Biên Tập Tạp chí Doanh Nghiệp Việt Nam...'}
+                        {post.summary || post.excerpt || (currentLang === 'en' ? 'View deep-dive analytical report from the Editorial Board...' : 'Xem chi tiết bài viết phân tích từ Ban Biên Tập Tạp chí Doanh Nghiệp Việt Nam...')}
                       </p>
                     </div>
 
@@ -1154,7 +1222,7 @@ export const Home = () => {
                           gap: '6px'
                         }}
                       >
-                        <span>Đọc tiếp</span>
+                        <span>{currentLang === 'en' ? 'Read more' : 'Đọc tiếp'}</span>
                         <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.75rem' }} />
                       </Link>
                     </div>
@@ -1174,18 +1242,20 @@ export const Home = () => {
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
             <div>
               <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Hệ sinh thái kết nối
+                {currentLang === 'en' ? 'Ecosystem Network' : 'Hệ sinh thái kết nối'}
               </span>
               <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
-                DOANH NGHIỆP HỘI VIÊN TIÊU BIỂU
+                {currentLang === 'en' ? 'FEATURED ENTERPRISE MEMBERS' : 'DOANH NGHIỆP HỘI VIÊN TIÊU BIỂU'}
               </h2>
               <p style={{ color: '#64748B', fontSize: '1rem', marginTop: '4px' }}>
-                Các doanh nghiệp và đối tác đã xác nhận và công bố hồ sơ trên DoanhNghiepVN.today.
+                {currentLang === 'en'
+                  ? 'Verified enterprises and partners published on DoanhNghiepVN.today.'
+                  : 'Các doanh nghiệp và đối tác đã xác nhận và công bố hồ sơ trên DoanhNghiepVN.today.'}
               </p>
             </div>
 
             <button
-              onClick={() => scrollToConsult('Hội viên & Trang riêng doanh nghiệp')}
+              onClick={() => scrollToConsult(currentLang === 'en' ? 'Enterprise Membership & Profile' : 'Hội viên & Trang riêng doanh nghiệp')}
               style={{
                 backgroundColor: '#0D9488',
                 color: '#FFFFFF',
@@ -1201,7 +1271,7 @@ export const Home = () => {
               }}
             >
               <i className="fa-solid fa-user-plus" />
-              <span>Đăng ký tham gia Hội</span>
+              <span>{currentLang === 'en' ? 'Join Network' : 'Đăng ký tham gia Hội'}</span>
             </button>
           </div>
 
@@ -1238,12 +1308,12 @@ export const Home = () => {
                         {m.company_name || m.name}
                       </h4>
                       <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
-                        {m.city || 'Toàn quốc'} • {m.industry || 'Thương mại & Dịch vụ'}
+                        {m.city || (currentLang === 'en' ? 'Nationwide' : 'Toàn quốc')} • {m.industry || (currentLang === 'en' ? 'Commerce & Services' : 'Thương mại & Dịch vụ')}
                       </span>
                     </div>
                   </div>
                   <p style={{ color: '#64748B', fontSize: '0.85rem', lineHeight: 1.5, margin: 0 }}>
-                    {m.description || m.bio || 'Hội viên chính thức của Tạp chí Doanh Nghiệp Việt Nam.'}
+                    {m.description || m.bio || (currentLang === 'en' ? 'Official member of Vietnam Enterprise Magazine.' : 'Hội viên chính thức của Tạp chí Doanh Nghiệp Việt Nam.')}
                   </p>
                 </div>
 
@@ -1262,17 +1332,21 @@ export const Home = () => {
                       textDecoration: 'none'
                     }}
                   >
-                    Xem hồ sơ doanh nghiệp
+                    {currentLang === 'en' ? 'View Enterprise Profile' : 'Xem hồ sơ doanh nghiệp'}
                   </Link>
                 </div>
               </div>
             )) : (
               // Fallback sample businesses
-              [
+              (currentLang === 'en' ? [
+                { name: 'ADT International Joint Stock Company', field: 'Technology & AI ERP', city: 'Hanoi', desc: 'Developer of smart enterprise management systems, AI Agents, and DoanhNghiepVN.today digital platform.' },
+                { name: 'Global Logistics Co., Ltd.', field: 'Transport & Import-Export', city: 'Ho Chi Minh City', desc: 'Providing international container shipping, smart warehousing, and end-to-end customs clearance services.' },
+                { name: 'GreenAudit Advisory & Auditing Group', field: 'Finance & ESG', city: 'Da Nang', desc: 'Corporate financial advisory, sustainability reporting, and GHG emissions accounting standards.' }
+              ] : [
                 { name: 'Công ty Cổ phần ADT Quốc tế', field: 'Công nghệ & AI ERP', city: 'Hà Nội', desc: 'Đơn vị phát triển hệ thống điều hành doanh nghiệp thông minh, AI Agents và nền tảng số DoanhNghiepVN.today.' },
                 { name: 'Công ty TNHH Logistics Toàn Cầu', field: 'Vận tải & XNK', city: 'TP. Hồ Chí Minh', desc: 'Cung cấp dịch vụ vận chuyển container quốc tế, kho bãi thông minh và thủ tục thông quan hải quan trọn gói.' },
                 { name: 'Tập đoàn Tư vấn & Kiểm toán GreenAudit', field: 'Tài chính & ESG', city: 'Đà Nẵng', desc: 'Cố vấn tài chính doanh nghiệp, lập báo cáo phát triển bền vững và đánh giá tiêu chuẩn kiểm kê khí thải.' }
-              ].map((b, i) => (
+              ]).map((b, i) => (
                 <div key={i} style={{
                   backgroundColor: '#FFFFFF',
                   borderRadius: '16px',
@@ -1329,7 +1403,7 @@ export const Home = () => {
                         boxSizing: 'border-box'
                       }}
                     >
-                      Xem hồ sơ doanh nghiệp
+                      {currentLang === 'en' ? 'View Enterprise Profile' : 'Xem hồ sơ doanh nghiệp'}
                     </Link>
                   </div>
                 </div>
@@ -1367,13 +1441,15 @@ export const Home = () => {
 
             <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
               <span style={{ color: '#2DD4BF', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Đồng hành phát triển
+                {currentLang === 'en' ? 'Growth Partnership' : 'Đồng hành phát triển'}
               </span>
               <h2 style={{ fontSize: '2rem', fontWeight: 800, marginTop: '6px', color: '#FFFFFF' }}>
-                ĐĂNG KÝ NHẬN TƯ VẤN DOANH NGHIỆP
+                {currentLang === 'en' ? 'REGISTER FOR ENTERPRISE CONSULTING' : 'ĐĂNG KÝ NHẬN TƯ VẤN DOANH NGHIỆP'}
               </h2>
               <p style={{ color: '#94A3B8', fontSize: '0.95rem', marginTop: '6px' }}>
-                Để lại thông tin để Ban cố vấn Tạp chí Doanh Nghiệp Việt Nam kết nối và hỗ trợ trực tiếp.
+                {currentLang === 'en'
+                  ? 'Leave your contact info for direct advisory from Vietnam Enterprise Magazine experts.'
+                  : 'Để lại thông tin để Ban cố vấn Tạp chí Doanh Nghiệp Việt Nam kết nối và hỗ trợ trực tiếp.'}
               </p>
             </div>
 
@@ -1387,10 +1463,12 @@ export const Home = () => {
               }}>
                 <i className="fa-solid fa-circle-check" style={{ fontSize: '3rem', color: '#2DD4BF', marginBottom: '1rem' }} />
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.5rem' }}>
-                  Gửi yêu cầu thành công!
+                  {currentLang === 'en' ? 'Request Submitted Successfully!' : 'Gửi yêu cầu thành công!'}
                 </h3>
                 <p style={{ color: '#CBD5E1', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                  Cảm ơn Quý doanh nghiệp. Đội ngũ chuyên gia Tạp chí Doanh Nghiệp Việt Nam sẽ liên hệ lại trong vòng 24 giờ làm việc.
+                  {currentLang === 'en'
+                    ? 'Thank you! The advisory team at Vietnam Enterprise Magazine will contact you within 24 working hours.'
+                    : 'Cảm ơn Quý doanh nghiệp. Đội ngũ chuyên gia Tạp chí Doanh Nghiệp Việt Nam sẽ liên hệ lại trong vòng 24 giờ làm việc.'}
                 </p>
                 <button
                   onClick={() => setFormSubmitted(false)}
@@ -1404,7 +1482,7 @@ export const Home = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  Gửi thêm yêu cầu khác
+                  {currentLang === 'en' ? 'Submit another request' : 'Gửi thêm yêu cầu khác'}
                 </button>
               </div>
             ) : (
@@ -1412,12 +1490,12 @@ export const Home = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                      Họ và tên người liên hệ *
+                      {currentLang === 'en' ? 'Full Name *' : 'Họ và tên người liên hệ *'}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Nguyễn Văn A"
+                      placeholder={currentLang === 'en' ? 'John Doe' : 'Nguyễn Văn A'}
                       value={formData.fullName}
                       onChange={(e) => setFormData(p => ({ ...p, fullName: e.target.value }))}
                       style={{
@@ -1436,12 +1514,12 @@ export const Home = () => {
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                      Số điện thoại liên hệ *
+                      {currentLang === 'en' ? 'Phone Number *' : 'Số điện thoại liên hệ *'}
                     </label>
                     <input
                       type="tel"
                       required
-                      placeholder="0912 345 678"
+                      placeholder={currentLang === 'en' ? '+84 912 345 678' : '0912 345 678'}
                       value={formData.phone}
                       onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
                       style={{
@@ -1460,7 +1538,7 @@ export const Home = () => {
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                      Email liên hệ
+                      {currentLang === 'en' ? 'Email Address' : 'Email liên hệ'}
                     </label>
                     <input
                       type="email"
@@ -1483,12 +1561,12 @@ export const Home = () => {
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                      Tên doanh nghiệp / Đơn vị *
+                      {currentLang === 'en' ? 'Company / Organization Name *' : 'Tên doanh nghiệp / Đơn vị *'}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Công ty CP / TNHH..."
+                      placeholder={currentLang === 'en' ? 'ABC Corporation / Ltd...' : 'Công ty CP / TNHH...'}
                       value={formData.companyName}
                       onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
                       style={{
@@ -1507,11 +1585,11 @@ export const Home = () => {
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                      Tỉnh / Thành phố
+                      {currentLang === 'en' ? 'Province / City' : 'Tỉnh / Thành phố'}
                     </label>
                     <input
                       type="text"
-                      placeholder="Hà Nội, TP.HCM, Đà Nẵng..."
+                      placeholder={currentLang === 'en' ? 'Hanoi, HCMC, Da Nang...' : 'Hà Nội, TP.HCM, Đà Nẵng...'}
                       value={formData.city}
                       onChange={(e) => setFormData(p => ({ ...p, city: e.target.value }))}
                       style={{
@@ -1530,7 +1608,7 @@ export const Home = () => {
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                      Lĩnh vực cần tư vấn
+                      {currentLang === 'en' ? 'Consulting Field / Service Needed' : 'Lĩnh vực cần tư vấn'}
                     </label>
                     <select
                       value={formData.serviceNeed}
@@ -1547,24 +1625,24 @@ export const Home = () => {
                         boxSizing: 'border-box'
                       }}
                     >
-                      <option value="Tư vấn vốn & tiếp cận tín dụng">Tư vấn Vốn & Tín dụng</option>
-                      <option value="Truyền thông & Thương hiệu">Truyền thông & Thương hiệu</option>
-                      <option value="Marketing & Bán hàng">Marketing & Bán hàng</option>
-                      <option value="Ứng dụng AI & Chuyển đổi số">Ứng dụng AI & Chuyển đổi số</option>
-                      <option value="Thực hành ESG">Thực hành ESG & Báo cáo xanh</option>
-                      <option value="Kết nối Công nghệ & Đối tác B2B">Kết nối Công nghệ & Đối tác B2B</option>
-                      <option value="Hội viên & Trang riêng doanh nghiệp">Hội viên & Trang riêng doanh nghiệp</option>
+                      <option value="Tư vấn vốn & tiếp cận tín dụng">{currentLang === 'en' ? 'Capital & Credit Access Advisory' : 'Tư vấn Vốn & Tín dụng'}</option>
+                      <option value="Truyền thông & Thương hiệu">{currentLang === 'en' ? 'PR & Brand Communications' : 'Truyền thông & Thương hiệu'}</option>
+                      <option value="Marketing & Bán hàng">{currentLang === 'en' ? 'Marketing & Sales Growth' : 'Marketing & Bán hàng'}</option>
+                      <option value="Ứng dụng AI & Chuyển đổi số">{currentLang === 'en' ? 'AI Applications & Digital Transformation' : 'Ứng dụng AI & Chuyển đổi số'}</option>
+                      <option value="Thực hành ESG">{currentLang === 'en' ? 'ESG Practice & Green Reporting' : 'Thực hành ESG & Báo cáo xanh'}</option>
+                      <option value="Kết nối Công nghệ & Đối tác B2B">{currentLang === 'en' ? 'B2B Tech & Partner Matchmaking' : 'Kết nối Công nghệ & Đối tác B2B'}</option>
+                      <option value="Hội viên & Trang riêng doanh nghiệp">{currentLang === 'en' ? 'Enterprise Membership & Dedicated Profile' : 'Hội viên & Trang riêng doanh nghiệp'}</option>
                     </select>
                   </div>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '6px' }}>
-                    Nội dung cụ thể / Nhu cầu chi tiết
+                    {currentLang === 'en' ? 'Specific Requirement / Detailed Request' : 'Nội dung cụ thể / Nhu cầu chi tiết'}
                   </label>
                   <textarea
                     rows={3}
-                    placeholder="Mô tả nhu cầu, quy mô doanh nghiệp hoặc câu hỏi cần giải đáp..."
+                    placeholder={currentLang === 'en' ? 'Describe your company needs, enterprise size or specific inquiries...' : 'Mô tả nhu cầu, quy mô doanh nghiệp hoặc câu hỏi cần giải đáp...'}
                     value={formData.notes}
                     onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
                     style={{
@@ -1591,7 +1669,9 @@ export const Home = () => {
                     style={{ width: '16px', height: '16px', accentColor: '#0D9488' }}
                   />
                   <label htmlFor="agreeTerms" style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
-                    Tôi đồng ý để Tạp chí Doanh Nghiệp Việt Nam xử lý thông tin và liên hệ phục vụ công tác tư vấn.
+                    {currentLang === 'en'
+                      ? 'I agree to allow Vietnam Enterprise Magazine to process my information and contact me for advisory services.'
+                      : 'Tôi đồng ý để Tạp chí Doanh Nghiệp Việt Nam xử lý thông tin và liên hệ phục vụ công tác tư vấn.'}
                   </label>
                 </div>
 
@@ -1612,7 +1692,9 @@ export const Home = () => {
                     transition: 'background-color 0.2s'
                   }}
                 >
-                  {formLoading ? 'Đang gửi thông tin...' : 'GỬI YÊU CẦU TƯ VẤN NGAY'}
+                  {formLoading
+                    ? (currentLang === 'en' ? 'Submitting request...' : 'Đang gửi thông tin...')
+                    : (currentLang === 'en' ? 'SUBMIT CONSULTING REQUEST NOW' : 'GỬI YÊU CẦU TƯ VẤN NGAY')}
                 </button>
               </form>
             )}
@@ -1628,10 +1710,10 @@ export const Home = () => {
           
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Hỗ trợ giải đáp
+              {currentLang === 'en' ? 'Support & Advisory' : 'Hỗ trợ giải đáp'}
             </span>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
-              CÂU HỎI THƯỜNG GẶP
+              {currentLang === 'en' ? 'FREQUENTLY ASKED QUESTIONS' : 'CÂU HỎI THƯỜNG GẶP'}
             </h2>
           </div>
 

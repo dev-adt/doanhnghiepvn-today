@@ -77,7 +77,7 @@ export const Footer = () => {
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(13, 148, 136, 0.15)'; }}
               >
                 <i className="ti ti-device-mobile-down"></i>
-                <span>{isInstalled ? '✓ Ứng dụng PWA đã cài đặt' : 'Cài đặt ứng dụng PWA'}</span>
+                <span>{isInstalled ? (currentLang === 'en' ? '✓ PWA App Installed' : '✓ Ứng dụng PWA đã cài đặt') : (currentLang === 'en' ? 'Install PWA Application' : 'Cài đặt ứng dụng PWA')}</span>
               </button>
             </div>
           </div>
@@ -85,38 +85,42 @@ export const Footer = () => {
           {/* Column 2: Agency & Platform Information */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
             <div>
-              <span style={{ color: '#64748b' }}>Cơ quan / Đơn vị chủ quản:</span>{' '}
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Governing Body / Publisher:' : 'Cơ quan / Đơn vị chủ quản:'}</span>{' '}
               <strong style={{ color: '#f1f5f9' }}>{brandConfig.companyLegalName}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Nền tảng vận hành:</span>{' '}
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Operating Platform:' : 'Nền tảng vận hành:'}</span>{' '}
               <strong style={{ color: '#f1f5f9' }}>{brandConfig.platformName}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Định hướng phát triển:</span>{' '}
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Development Vision:' : 'Định hướng phát triển:'}</span>{' '}
               <span style={{ color: '#cbd5e1' }}>{brandConfig.slogan}</span>
             </div>
             <div style={{ marginTop: '4px', color: '#cbd5e1', lineHeight: '1.5' }}>
-              Giấy phép hoạt động số <strong style={{ color: '#f59e0b' }}>483/GP-BTTTT</strong> do Bộ Thông tin và Truyền thông cấp ngày <strong style={{ color: '#f1f5f9' }}>29/12/2023</strong>
+              {currentLang === 'en' ? (
+                <>Operating License No. <strong style={{ color: '#f59e0b' }}>483/GP-BTTTT</strong> issued by the Ministry of Information and Communications on <strong style={{ color: '#f1f5f9' }}>29/12/2023</strong></>
+              ) : (
+                <>Giấy phép hoạt động số <strong style={{ color: '#f59e0b' }}>483/GP-BTTTT</strong> do Bộ Thông tin và Truyền thông cấp ngày <strong style={{ color: '#f1f5f9' }}>29/12/2023</strong></>
+              )}
             </div>
           </div>
 
           {/* Column 3: Editorial Board & Contact */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', fontSize: '12px' }}>
             <div>
-              <span style={{ color: '#64748b' }}>Ban Quản trị Nền tảng:</span>{' '}
-              <strong style={{ color: '#f1f5f9' }}>Ban Biên Tập {brandConfig.brandShortName}</strong>
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Platform Management:' : 'Ban Quản trị Nền tảng:'}</span>{' '}
+              <strong style={{ color: '#f1f5f9' }}>{currentLang === 'en' ? `Editorial Board of ${brandConfig.brandShortName}` : `Ban Biên Tập ${brandConfig.brandShortName}`}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Giờ làm việc:</span>{' '}
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Working Hours:' : 'Giờ làm việc:'}</span>{' '}
               <span style={{ color: '#cbd5e1' }}>{brandConfig.contact.workingHours}</span>
             </div>
             <div style={{ marginTop: '2px' }}>
-              <span style={{ color: '#64748b' }}>Hotline hỗ trợ:</span>{' '}
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Support Hotline:' : 'Hotline hỗ trợ:'}</span>{' '}
               <span style={{ color: '#cbd5e1' }}>{brandConfig.contact.hotline}</span>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Di động / Zalo:</span>{' '}
+              <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Mobile / Zalo:' : 'Di động / Zalo:'}</span>{' '}
               <span style={{ color: '#cbd5e1' }}>{brandConfig.contact.phone}</span>
             </div>
             <div>
@@ -135,7 +139,7 @@ export const Footer = () => {
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
               <i className="ti ti-map-pin" style={{ color: '#eebd44', marginTop: '3px', flexShrink: 0 }}></i>
-              <span><strong>Địa chỉ:</strong> {brandConfig.contact.address}</span>
+              <span><strong>{currentLang === 'en' ? 'Address:' : 'Địa chỉ:'}</strong> {brandConfig.contact.address}</span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '2px' }}>
               <a href={`tel:${brandConfig.contact.phone.replace(/\s+/g, '')}`} style={{ color: '#f59e0b', textDecoration: 'none', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -202,7 +206,11 @@ export const Footer = () => {
           lineHeight: '1.6'
         }}>
           <div>
-            ® Cấm sao chép dưới mọi hình thức nếu không có sự chấp thuận bằng văn bản. Ghi rõ nguồn <strong>"{brandConfig.brandShortName}"</strong> hoặc <strong>"{brandConfig.domain}"</strong> khi phát hành lại thông tin từ website này.
+            {currentLang === 'en' ? (
+              <>® Reproduction in any form is prohibited without prior written consent. Please cite source <strong>"{brandConfig.brandShortName}"</strong> or <strong>"{brandConfig.domain}"</strong> when republishing content from this website.</>
+            ) : (
+              <>® Cấm sao chép dưới mọi hình thức nếu không có sự chấp thuận bằng văn bản. Ghi rõ nguồn <strong>"{brandConfig.brandShortName}"</strong> hoặc <strong>"{brandConfig.domain}"</strong> khi phát hành lại thông tin từ website này.</>
+            )}
           </div>
           <div style={{ marginTop: '2px', color: '#475569' }}>
             {brandConfig.contact.copyright}

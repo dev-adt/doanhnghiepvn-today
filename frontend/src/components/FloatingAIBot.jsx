@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../contexts/LanguageContext';
 
 export const FloatingAIBot = () => {
-  const { t } = useTranslation();
+  const { currentLang, t } = useTranslation();
 
   return (
     <Link
       to="/ai-chat"
       className="floating-ai-bot"
-      title={t('floating_ai_tooltip') || "Trợ lý AI DoanhNghiepVN.today"}
+      title={currentLang === 'en' ? 'Vietnam Enterprise AI Assistant' : 'Trợ lý AI DoanhNghiepVN.today'}
       style={{
         position: 'fixed',
         right: '20px',
@@ -86,7 +86,7 @@ export const FloatingAIBot = () => {
           whiteSpace: 'nowrap'
         }}
       >
-        {t('floating_ai_label') || "Trợ lý AI"}
+        {currentLang === 'en' ? 'AI Assistant' : 'Trợ lý AI'}
       </span>
     </Link>
   );

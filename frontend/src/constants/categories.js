@@ -105,7 +105,48 @@ export const CATEGORY_LABELS = {
   'Marketing & Bán hàng': { vi: 'Marketing & Bán hàng', en: 'Marketing & Sales' },
   'Ứng dụng AI & Công nghệ': { vi: 'Ứng dụng AI', en: 'AI & Tech' },
   'Thực hành ESG & Phát triển bền vững': { vi: 'Thực hành ESG', en: 'ESG Practice' },
-  'Hiệp hội & Giao thương': { vi: 'Hiệp hội & Đối tác', en: 'Associations' }
+  'Hiệp hội & Giao thương': { vi: 'Hiệp hội & Đối tác', en: 'Associations' },
+  'Tài chính - Ngân hàng': { vi: 'Tài chính - Ngân hàng', en: 'Finance & Banking' },
+  'Bất động sản & Xây dựng': { vi: 'Bất động sản & Xây dựng', en: 'Real Estate & Construction' },
+  'Công nghệ - Chuyển đổi số': { vi: 'Công nghệ - Chuyển đổi số', en: 'Tech & Digital Transformation' },
+  'Khởi nghiệp - Đổi mới sáng tạo': { vi: 'Khởi nghiệp - Đổi mới sáng tạo', en: 'Startups & Innovation' },
+  'Pháp luật - Chính sách': { vi: 'Pháp luật - Chính sách', en: 'Legal & Policy' },
+  'Doanh nghiệp & Xã hội': { vi: 'Doanh nghiệp & Xã hội', en: 'Business & Society' },
+  'Thị trường - Tiêu dùng': { vi: 'Thị trường - Tiêu dùng', en: 'Market & Consumer' },
+  'Nông nghiệp - Môi trường': { vi: 'Nông nghiệp - Môi trường', en: 'Agriculture & Environment' },
+  'Công nghiệp - Năng lượng': { vi: 'Công nghiệp - Năng lượng', en: 'Industry & Energy' },
+  'Du lịch - Dịch vụ': { vi: 'Du lịch - Dịch vụ', en: 'Tourism & Services' }
+};
+
+export const SUBCATEGORY_LABELS = {
+  'Hội thảo & Tọa đàm': { vi: 'Hội thảo & Tọa đàm', en: 'Conferences & Seminars' },
+  'Diễn đàn kinh tế': { vi: 'Diễn đàn kinh tế', en: 'Economic Forums' },
+  'Xúc tiến thương mại': { vi: 'Xúc tiến thương mại', en: 'Trade Promotion' },
+  'Giao thương B2B': { vi: 'Giao thương B2B', en: 'B2B Trade' },
+  'Tín dụng ngân hàng': { vi: 'Tín dụng ngân hàng', en: 'Bank Credit' },
+  'Quỹ hỗ trợ SME': { vi: 'Quỹ hỗ trợ SME', en: 'SME Support Funds' },
+  'Vốn đầu tư khởi nghiệp': { vi: 'Vốn đầu tư khởi nghiệp', en: 'Startup Capital' },
+  'Cơ cấu tài chính doanh nghiệp': { vi: 'Cơ cấu tài chính doanh nghiệp', en: 'Corporate Finance Restructuring' },
+  'Báo chí & Truyền thông': { vi: 'Báo chí & Truyền thông', en: 'Press & Media' },
+  'Nhận diện thương hiệu': { vi: 'Nhận diện thương hiệu', en: 'Brand Identity' },
+  'Chiến dịch PR': { vi: 'Chiến dịch PR', en: 'PR Campaigns' },
+  'Quản trị khủng hoảng truyền thông': { vi: 'Quản trị khủng hoảng truyền thông', en: 'Crisis Management' },
+  'Digital Marketing & SEO': { vi: 'Digital Marketing & SEO', en: 'Digital Marketing & SEO' },
+  'Thương mại điện tử': { vi: 'Thương mại điện tử', en: 'E-commerce' },
+  'Kênh phân phối & Chuỗi cung ứng': { vi: 'Kênh phân phối & Chuỗi cung ứng', en: 'Distribution & Supply Chain' },
+  'Tối ưu chuyển đổi': { vi: 'Tối ưu chuyển đổi', en: 'Conversion Optimization' },
+  'Trợ lý AI & Multi-Agent': { vi: 'Trợ lý AI & Multi-Agent', en: 'AI Assistant & Multi-Agent' },
+  'Tự động hóa doanh nghiệp': { vi: 'Tự động hóa doanh nghiệp', en: 'Enterprise Automation' },
+  'ERP & CRM thông minh': { vi: 'ERP & CRM thông minh', en: 'Smart ERP & CRM' },
+  'Chuyển đổi số doanh nghiệp': { vi: 'Chuyển đổi số doanh nghiệp', en: 'Digital Transformation' },
+  'Chuyển đổi xanh & Năng lượng sạch': { vi: 'Chuyển đổi xanh & Năng lượng sạch', en: 'Green Energy & Transition' },
+  'Tiêu chuẩn & Báo cáo ESG': { vi: 'Tiêu chuẩn & Báo cáo ESG', en: 'ESG Standards & Reporting' },
+  'Giảm phát thải Carbon': { vi: 'Giảm phát thải Carbon', en: 'Carbon Reduction' },
+  'Trách nhiệm xã hội CSR': { vi: 'Trách nhiệm xã hội CSR', en: 'CSR Responsibility' },
+  'Hiệp hội Doanh nghiệp': { vi: 'Hiệp hội Doanh nghiệp', en: 'Business Associations' },
+  'Danh bạ Hội viên': { vi: 'Danh bạ Hội viên', en: 'Member Directory' },
+  'Tìm kiếm đối tác': { vi: 'Tìm kiếm đối tác', en: 'Partner Matchmaking' },
+  'Cơ hội đầu tư & Hợp tác': { vi: 'Cơ hội đầu tư & Hợp tác', en: 'Investment Opportunities' }
 };
 
 export const getCategoryLabel = (cat, lang = 'vi') => {
@@ -133,8 +174,19 @@ export const getSubCategoryLabel = (sub, lang = 'vi') => {
   if (!sub) return '';
   if (typeof sub === 'object') {
     if (lang === 'en' && sub.name_en) return String(sub.name_en);
-    if (sub.name) return String(sub.name);
+    if (sub.name) {
+      if (lang === 'en' && SUBCATEGORY_LABELS[sub.name]?.en) {
+        return SUBCATEGORY_LABELS[sub.name].en;
+      }
+      return String(sub.name);
+    }
     return '';
+  }
+  if (typeof sub === 'string') {
+    if (lang === 'en' && SUBCATEGORY_LABELS[sub]?.en) {
+      return SUBCATEGORY_LABELS[sub].en;
+    }
+    return sub;
   }
   return String(sub);
 };

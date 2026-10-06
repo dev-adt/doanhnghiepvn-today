@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../contexts/LanguageContext';
 import { usePWA } from '../contexts/PWAContext';
 import brandConfig from '../brand.config';
+import { getCategoryLabel, getSubCategoryLabel } from '../constants/categories';
 
 export const Navbar = () => {
   const { role, user, logout } = useAuth();
@@ -87,22 +88,13 @@ export const Navbar = () => {
     return name.trim().split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
   };
 
-  // Tên hiển thị đầy đủ trực tiếp từ Admin thiết lập
+  // Tên hiển thị đầy đủ trực tiếp từ Admin thiết lập có hỗ trợ song ngữ tức thì
   const getCategoryName = (cat) => {
-    if (currentLang === 'en' && cat.name_en) {
-      return cat.name_en;
-    }
-    return cat.name;
+    return getCategoryLabel(cat, currentLang);
   };
 
   const getSubName = (sub) => {
-    if (typeof sub === 'object' && sub !== null) {
-      if (currentLang === 'en' && sub.name_en) {
-        return sub.name_en;
-      }
-      return sub.name;
-    }
-    return sub;
+    return getSubCategoryLabel(sub, currentLang);
   };
 
   // Lấy danh sách chuyên mục con an toàn từ dữ liệu động
@@ -510,7 +502,7 @@ export const Navbar = () => {
                 <span style={{ color: '#2DD4BF' }}>.today</span>
               </span>
               <span className="dnvn-brand-subtitle">
-                TẠP CHÍ DOANH NGHIỆP VIỆT NAM
+                {currentLang === 'en' ? 'VIETNAM ENTERPRISE MAGAZINE' : 'TẠP CHÍ DOANH NGHIỆP VIỆT NAM'}
               </span>
             </div>
           </Link>
@@ -579,7 +571,7 @@ export const Navbar = () => {
                           marginBottom: '4px'
                         }}
                       >
-                        <span>{catDisplayName} (Tất cả bài viết)</span>
+                        <span>{catDisplayName} {currentLang === 'en' ? '(All Articles)' : '(Tất cả bài viết)'}</span>
                         <i className="ti ti-arrow-right" style={{ fontSize: '11px' }}></i>
                       </Link>
 
@@ -635,10 +627,10 @@ export const Navbar = () => {
                 e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.5)';
                 e.currentTarget.style.transform = 'none';
               }}
-              title="Trợ lý AI Doanh Nghiệp Việt Nam"
+              title={currentLang === 'en' ? "Vietnam Enterprise AI Assistant" : "Trợ lý AI Doanh Nghiệp Việt Nam"}
             >
               <i className="ti ti-sparkles" style={{ color: '#F59E0B', fontSize: '13px' }} />
-              <span>Trợ lý AI</span>
+              <span>{currentLang === 'en' ? 'AI Assistant' : 'Trợ lý AI'}</span>
             </Link>
           </nav>
 
@@ -720,7 +712,7 @@ export const Navbar = () => {
                 }}
               >
                 <i className="ti ti-device-mobile-down" style={{ fontSize: '13.5px' }}></i>
-                <span>Cài App</span>
+                <span>{currentLang === 'en' ? 'Install App' : 'Cài App'}</span>
               </button>
             )}
 
@@ -854,7 +846,7 @@ export const Navbar = () => {
           }}>
             {/* Chuyển ngôn ngữ & Trạng thái trong Drawer */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ fontSize: '12px', color: '#94A3B8' }}>Ngôn ngữ / Language:</div>
+              <div style={{ fontSize: '12px', color: '#94A3B8' }}>{currentLang === 'en' ? 'Language / Ngôn ngữ:' : 'Ngôn ngữ / Language:'}</div>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -915,7 +907,7 @@ export const Navbar = () => {
               }}
             >
               <i className="ti ti-sparkles" style={{ color: '#F59E0B', fontSize: '16px' }} />
-              <span>Trợ lý AI Doanh Nghiệp</span>
+              <span>{currentLang === 'en' ? 'Vietnam Enterprise AI Assistant' : 'Trợ lý AI Doanh Nghiệp'}</span>
             </Link>
 
             {/* Danh mục cấp 1 & con động trên mobile */}
@@ -952,7 +944,7 @@ export const Navbar = () => {
                         onClick={() => setMobileMenuOpen(false)}
                         style={{ color: '#F59E0B', fontSize: '12px', textDecoration: 'none', fontWeight: '600' }}
                       >
-                        👉 {catDisplayName} ({currentLang === 'en' ? 'All' : 'Xem tất cả'})
+                        👉 {catDisplayName} ({currentLang === 'en' ? 'All Articles' : 'Xem tất cả'})
                       </Link>
                       {subs.map((sub, idx) => {
                         const subName = typeof sub === 'object' ? sub.name : sub;
@@ -997,7 +989,7 @@ export const Navbar = () => {
                   }}
                 >
                   <i className="ti ti-device-mobile-down" style={{ fontSize: '16px' }}></i>
-                  <span>Cài đặt Ứng dụng PWA</span>
+                  <span>{currentLang === 'en' ? 'Install PWA App' : 'Cài đặt Ứng dụng PWA'}</span>
                 </button>
               )}
 
@@ -1015,7 +1007,7 @@ export const Navbar = () => {
                   fontSize: '13px'
                 }}
               >
-                Gia nhập Hội Doanh Nghiệp
+                {currentLang === 'en' ? 'Join Vietnam Enterprise Network' : 'Gia nhập Hội Doanh Nghiệp'}
               </Link>
               {role === 'guest' ? (
                 <Link
@@ -1031,7 +1023,7 @@ export const Navbar = () => {
                     fontSize: '13px'
                   }}
                 >
-                  Đăng nhập Hội viên
+                  {currentLang === 'en' ? 'Member Login' : 'Đăng nhập Hội viên'}
                 </Link>
               ) : (
                 <button
@@ -1045,7 +1037,7 @@ export const Navbar = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  Đăng xuất
+                  {currentLang === 'en' ? 'Logout' : 'Đăng xuất'}
                 </button>
               )}
             </div>
