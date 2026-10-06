@@ -8,3 +8,5 @@ HUONG-DAN-DEPLOY.md
 HUONG-DAN-ENV.md
 HUONG-DAN-MYSQL.md
 test-api.js
+*.txt
+*.docx
