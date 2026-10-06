@@ -925,7 +925,35 @@ db.query(`
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
       ) ENGINE=InnoDB COMMENT='Thành viên quan tâm sự kiện'
     `);
-    console.log("✅ Bảng event_interests đã sẵn sàng");
+    // Chuẩn hóa và khắc phục các vé bị liên kết sai tài khoản do lỗi so khớp số điện thoại trước đây
+    try {
+      // 1. Chuyển vé về đúng hội viên nếu email của vé trùng khớp chính xác với email của hội viên đó
+      await db.query(`
+        UPDATE event_registrations r
+        JOIN members m ON LOWER(TRIM(r.email)) = LOWER(TRIM(m.email))
+        SET r.member_id = m.id
+        WHERE r.email IS NOT NULL AND r.email != '' AND r.member_id IS NOT NULL AND r.member_id != m.id
+      `);
+
+      // 2. Nếu vé bị gán cho 1 member nhưng email vé không khớp email và username của member đó,
+      // tách về đúng member có email trùng hoặc về NULL (nếu là khách vãng lai)
+      await db.query(`
+        UPDATE event_registrations r
+        JOIN members current_m ON r.member_id = current_m.id
+        SET r.member_id = (
+          SELECT m.id FROM members m 
+          WHERE LOWER(TRIM(m.email)) = LOWER(TRIM(r.email)) 
+             OR (m.username IS NOT NULL AND m.username != '' AND LOWER(TRIM(m.username)) = LOWER(TRIM(r.email)))
+          LIMIT 1
+        )
+        WHERE r.email IS NOT NULL AND r.email != ''
+          AND LOWER(TRIM(r.email)) != LOWER(TRIM(current_m.email))
+          AND (current_m.username IS NULL OR LOWER(TRIM(r.email)) != LOWER(TRIM(current_m.username)))
+      `);
+      console.log("✅ Đã chuẩn hóa liên kết vé sự kiện chính chủ");
+    } catch (e) {
+      console.warn("Lưu ý chuẩn hóa vé:", e.message);
+    }
   } catch (err) {
     console.error('❌ Lỗi khởi tạo DB hội viên:', err.message);
   }
@@ -3989,33 +4017,18 @@ app.post('/api/events/:id/register', async (req, res) => {
       }
     }
 
-    // 2. Kiểm tra nếu có truyền member_id trong body
+    // 2. Kiểm tra nếu có truyền member_id trong body (chỉ chấp nhận nếu tài khoản tồn tại và email/username trùng khớp)
     if (!createdMemberId && req.body.member_id) {
-      const [mCheck] = await db.query('SELECT id FROM members WHERE id = ?', [req.body.member_id]);
+      const [mCheck] = await db.query('SELECT id, email, username FROM members WHERE id = ?', [req.body.member_id]);
       if (mCheck.length > 0) {
-        createdMemberId = mCheck[0].id;
+        const memObj = mCheck[0];
+        if (cleanEmail && (cleanEmail.toLowerCase() === (memObj.email || '').toLowerCase() || cleanEmail.toLowerCase() === (memObj.username || '').toLowerCase())) {
+          createdMemberId = memObj.id;
+        }
       }
     }
 
-    // 3. Nếu chưa xác định, thử tìm theo phone, email, tên hội viên hoặc tên doanh nghiệp đã đăng ký
-    if (!createdMemberId) {
-      const candidateName = full_name.trim();
-      const candidateComp = company ? company.trim() : candidateName;
-      const [matchedMems] = await db.query(
-        `SELECT id FROM members 
-         WHERE (phone IS NOT NULL AND phone != "" AND phone = ?) 
-            OR (email IS NOT NULL AND email != "" AND email = ?)
-            OR (name IS NOT NULL AND name != "" AND (name = ? OR name = ?))
-            OR (contact_name IS NOT NULL AND contact_name != "" AND contact_name = ?)
-         LIMIT 1`,
-        [cleanPhone, cleanEmail || '', candidateName, candidateComp, candidateName]
-      );
-      if (matchedMems.length > 0) {
-        createdMemberId = matchedMems[0].id;
-      }
-    }
-
-    // 4. Nếu chưa có tài khoản và khách tích chọn tạo tài khoản mới:
+    // 3. Nếu chưa có tài khoản và khách tích chọn tạo tài khoản mới:
     const willCreateAccount = !createdMemberId && (create_account === true || create_account === 'true' || create_account === 1 || create_account === '1');
 
     if (willCreateAccount) {
@@ -4036,17 +4049,22 @@ app.post('/api/events/:id/register', async (req, res) => {
         return res.status(400).json({ success: false, error: 'Mật khẩu xác nhận không khớp.' });
       }
 
-      // Kiểm tra xem username/email/phone này đã tồn tại trong bảng members chưa
+      // Kiểm tra xem username/email này đã tồn tại trong bảng members chưa
       const [existingMem] = await db.query(
-        'SELECT id, username, email, phone FROM members WHERE username = ? OR (email IS NOT NULL AND email != "" AND email = ?) OR (phone IS NOT NULL AND phone != "" AND phone = ?)',
-        [loginUser, loginUser, loginUser]
+        'SELECT id, username, email, phone, password_hash FROM members WHERE username = ? OR (email IS NOT NULL AND email != "" AND email = ?)',
+        [loginUser, loginUser]
       );
 
       if (existingMem.length > 0) {
-        // Đã có tài khoản
-        createdMemberId = existingMem[0].id;
-        accountCreated = false;
-        accountMsg = 'Tài khoản đã tồn tại trên hệ thống, vé đã được liên kết với tài khoản này.';
+        // Đã có tài khoản: Chỉ liên kết nếu mật khẩu cung cấp khớp với tài khoản
+        const passMatch = await bcrypt.compare(pass, existingMem[0].password_hash);
+        if (passMatch) {
+          createdMemberId = existingMem[0].id;
+          accountCreated = false;
+          accountMsg = 'Tài khoản đã tồn tại trên hệ thống, vé đã được liên kết với tài khoản này.';
+        } else {
+          return res.status(400).json({ success: false, error: 'Tên đăng nhập hoặc Email này đã tồn tại trên hệ thống. Vui lòng nhập đúng mật khẩu hoặc đăng nhập trước khi mua vé.' });
+        }
       } else {
         // Tạo tài khoản mới
         const hash = await bcrypt.hash(pass, 10);
@@ -4158,48 +4176,12 @@ app.post('/api/events/:id/register', async (req, res) => {
   }
 });
 
-// Hội viên: Xem lịch sử đăng ký sự kiện & vé điện tử
+// Hội viên: Xem lịch sử đăng ký sự kiện & vé điện tử của chính mình
 app.get('/api/member/events', memberAuthMiddleware, async (req, res) => {
   try {
     const memberId = req.member.id;
-    const [mRows] = await db.query('SELECT id, name, email, phone, username, contact_name FROM members WHERE id = ?', [memberId]);
-    const mem = mRows[0] || req.member;
 
-    const memEmail = (mem.email || '').trim().toLowerCase();
-    const rawPhone = (mem.phone || '').trim().replace(/\D/g, '');
-    const memPhone9 = rawPhone.length >= 9 ? rawPhone.slice(-9) : rawPhone;
-    const memName = (mem.name || '').trim().toLowerCase();
-    const memContact = (mem.contact_name || '').trim().toLowerCase();
-    const memUser = (mem.username || '').trim().toLowerCase();
-
-    // 1. Tự động liên kết các vé trước đây chưa có member_id nhưng khớp SĐT, email, tên hoặc công ty
-    try {
-      if (memPhone9 || memEmail || memName) {
-        await db.query(
-          `UPDATE event_registrations 
-           SET member_id = ? 
-           WHERE member_id IS NULL AND (
-             (? != '' AND LOWER(TRIM(email)) = ?)
-             OR (? != '' AND (LOWER(TRIM(email)) = ? OR LOWER(TRIM(email)) = ?))
-             OR (? != '' AND RIGHT(REPLACE(REPLACE(phone, ' ', ''), '-', ''), 9) = ?)
-             OR (? != '' AND (LOWER(TRIM(full_name)) = ? OR LOWER(TRIM(full_name)) = ?))
-             OR (? != '' AND (LOWER(TRIM(company)) = ? OR LOWER(TRIM(company)) = ?))
-           )`,
-          [
-            memberId,
-            memEmail, memEmail,
-            memUser, memUser, `${memUser}@doanhnghiepvn.today`,
-            memPhone9, memPhone9,
-            memContact || memName, memContact || memName, memName,
-            memName, memName, memContact
-          ]
-        );
-      }
-    } catch (e) {
-      console.warn('Auto-link ticket to member error:', e.message);
-    }
-
-    // 2. Lấy danh sách vé đã đăng ký của hội viên (sử dụng đúng các cột có trong bảng events)
+    // Lấy danh sách vé đã đăng ký của chính hội viên này (không hiển thị vé của tài khoản khác)
     const [rows] = await db.query(
       `SELECT r.*, 
               e.title as event_title, 
@@ -4212,23 +4194,9 @@ app.get('/api/member/events', memberAuthMiddleware, async (req, res) => {
               e.price
        FROM event_registrations r
        JOIN events e ON r.event_id = e.id
-       WHERE (
-         r.member_id = ? 
-         OR (? != '' AND LOWER(TRIM(r.email)) = ?)
-         OR (? != '' AND (LOWER(TRIM(r.email)) = ? OR LOWER(TRIM(r.email)) = ?))
-         OR (? != '' AND RIGHT(REPLACE(REPLACE(r.phone, ' ', ''), '-', ''), 9) = ?)
-         OR (? != '' AND (LOWER(TRIM(r.full_name)) = ? OR LOWER(TRIM(r.full_name)) = ?))
-         OR (? != '' AND (LOWER(TRIM(r.company)) = ? OR LOWER(TRIM(r.company)) = ?))
-       )
+       WHERE r.member_id = ?
        ORDER BY r.created_at DESC`,
-      [
-        memberId,
-        memEmail, memEmail,
-        memUser, memUser, `${memUser}@doanhnghiepvn.today`,
-        memPhone9, memPhone9,
-        memContact || memName, memContact || memName, memName,
-        memName, memName, memContact
-      ]
+      [memberId]
     );
 
     const formatted = rows.map(item => {
