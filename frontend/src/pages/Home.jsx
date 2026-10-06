@@ -227,48 +227,66 @@ export const Home = () => {
       id: 'von',
       title: 'Tư vấn Vốn & Tín dụng',
       desc: 'Hỗ trợ chuẩn bị hồ sơ tài chính, báo cáo dòng tiền và kết nối tiếp cận các gói tín dụng ưu đãi từ các ngân hàng hàng đầu.',
-      icon: 'fa-solid fa-vault',
+      icon: 'ti ti-building-bank',
       color: '#0D9488',
+      bgGradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(20, 184, 166, 0.28) 100%)',
+      borderColor: 'rgba(13, 148, 136, 0.35)',
+      shadowColor: 'rgba(13, 148, 136, 0.25)',
       serviceKey: 'Tư vấn vốn & tiếp cận tín dụng'
     },
     {
       id: 'thuong-hieu',
       title: 'Truyền thông & Thương hiệu',
       desc: 'Xây dựng uy tín doanh nghiệp, bảo trợ truyền thông báo chí, xuất bản phóng sự trên Tạp chí Doanh Nghiệp Việt Nam.',
-      icon: 'fa-solid fa-bullhorn',
+      icon: 'ti ti-speakerphone',
       color: '#0284C7',
+      bgGradient: 'linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(56, 189, 248, 0.28) 100%)',
+      borderColor: 'rgba(2, 132, 199, 0.35)',
+      shadowColor: 'rgba(2, 132, 199, 0.25)',
       serviceKey: 'Truyền thông & Thương hiệu'
     },
     {
       id: 'marketing',
       title: 'Marketing & Bán hàng',
       desc: 'Chiến lược tiếp thị đa kênh, tối ưu phễu bán hàng B2B, phát triển kênh phân phối nội địa và xúc tiến xuất khẩu.',
-      icon: 'fa-solid fa-chart-line',
+      icon: 'ti ti-chart-arrows-vertical',
       color: '#E11D48',
+      bgGradient: 'linear-gradient(135deg, rgba(225, 29, 72, 0.15) 0%, rgba(251, 113, 133, 0.28) 100%)',
+      borderColor: 'rgba(225, 29, 72, 0.35)',
+      shadowColor: 'rgba(225, 29, 72, 0.25)',
       serviceKey: 'Marketing & Bán hàng'
     },
     {
       id: 'ai-tech',
       title: 'Ứng dụng AI & Chuyển đổi số',
       desc: 'Triển khai Trợ lý AI Agent, tự động hóa quy trình nghiệp vụ, số hóa điều hành doanh nghiệp với hệ thống Orion ERP thông minh.',
-      icon: 'fa-solid fa-microchip',
+      icon: 'ti ti-cpu',
       color: '#7C3AED',
+      bgGradient: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(167, 139, 250, 0.28) 100%)',
+      borderColor: 'rgba(124, 58, 237, 0.35)',
+      shadowColor: 'rgba(124, 58, 237, 0.25)',
       serviceKey: 'Ứng dụng AI & Chuyển đổi số'
     },
     {
       id: 'esg',
       title: 'Thực hành ESG & Chứng nhận Xanh',
       desc: 'Lộ trình chuyển đổi xanh, kiểm kê khí nhà kính, xây dựng báo cáo phát triển bền vững đạt chuẩn thâm nhập thị trường quốc tế.',
-      icon: 'fa-solid fa-leaf',
+      icon: 'ti ti-leaf',
       color: '#16A34A',
+      bgGradient: 'linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(74, 222, 128, 0.28) 100%)',
+      borderColor: 'rgba(22, 163, 74, 0.35)',
+      shadowColor: 'rgba(22, 163, 74, 0.25)',
       serviceKey: 'Thực hành ESG'
     },
     {
       id: 'b2b-networking',
       title: 'Kết nối Công nghệ & Đối tác B2B',
       desc: 'Giao thương 1-1, tìm kiếm nhà cung cấp, tham gia các đoàn xúc tiến thương mại và chuỗi cung ứng chiến lược trong và ngoài nước.',
-      icon: 'fa-solid fa-handshake',
+      icon: 'ti ti-users-group',
       color: '#D97706',
+      bgGradient: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(251, 191, 36, 0.28) 100%)',
+      borderColor: 'rgba(217, 119, 6, 0.35)',
+      shadowColor: 'rgba(217, 119, 6, 0.25)',
       serviceKey: 'Kết nối Công nghệ & Đối tác B2B'
     }
   ];
@@ -942,18 +960,20 @@ export const Home = () => {
               >
                 <div>
                   <div style={{
-                    width: '52px',
-                    height: '52px',
-                    borderRadius: '14px',
-                    backgroundColor: `${srv.color}15`,
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: srv.bgGradient || `${srv.color}15`,
                     color: srv.color,
+                    border: `1.5px solid ${srv.borderColor || `${srv.color}35`}`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.35rem',
-                    marginBottom: '1.25rem'
+                    marginBottom: '1.25rem',
+                    boxShadow: `0 8px 16px -4px ${srv.shadowColor || `${srv.color}25`}`,
+                    transition: 'transform 0.3s ease'
                   }}>
-                    <i className={srv.icon} />
+                    <i className={srv.icon} style={{ fontSize: '28px', lineHeight: 1, display: 'inline-block' }} />
                   </div>
 
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.75rem' }}>
@@ -1229,7 +1249,7 @@ export const Home = () => {
 
                 <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
                   <Link
-                    to={`/members/${m.id}`}
+                    to="/members"
                     style={{
                       display: 'block',
                       textAlign: 'center',
@@ -1293,9 +1313,10 @@ export const Home = () => {
                     </p>
                   </div>
                   <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
-                    <button
-                      onClick={() => scrollToConsult('Hội viên & Trang riêng doanh nghiệp')}
+                    <Link
+                      to="/members"
                       style={{
+                        display: 'block',
                         width: '100%',
                         textAlign: 'center',
                         padding: '8px',
@@ -1304,12 +1325,12 @@ export const Home = () => {
                         borderRadius: '8px',
                         fontSize: '0.8rem',
                         fontWeight: 700,
-                        border: 'none',
-                        cursor: 'pointer'
+                        textDecoration: 'none',
+                        boxSizing: 'border-box'
                       }}
                     >
-                      Kết nối giao thương
-                    </button>
+                      Xem hồ sơ doanh nghiệp
+                    </Link>
                   </div>
                 </div>
               ))
