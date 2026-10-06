@@ -177,7 +177,7 @@ export const Navbar = () => {
           overflow: visible !important;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
           .dnvn-navbar-container {
             justify-content: space-between !important;
             padding: 0 12px !important;
@@ -195,21 +195,52 @@ export const Navbar = () => {
           }
         }
 
-        @media (min-width: 1025px) {
+        @media (min-width: 1201px) {
           .dnvn-mobile-toggle {
             display: none !important;
           }
         }
 
-        /* Brand logo container & text scaling */
+        /* Compact scaling for 1366x768 laptops and narrow desktop viewports (1201px - 1400px) */
+        @media (min-width: 1201px) and (max-width: 1400px) {
+          .dnvn-brand-title {
+            font-size: 15.5px !important;
+          }
+          .dnvn-brand-subtitle {
+            font-size: 7px !important;
+          }
+          .dnvn-nav-item-btn {
+            font-size: 11px !important;
+            padding: 4px 5px !important;
+            max-width: 95px !important;
+            min-height: 36px !important;
+            gap: 2px !important;
+          }
+          .dnvn-nav-center {
+            gap: 2px !important;
+            margin: 0 2px !important;
+          }
+          .dnvn-nav-right {
+            gap: 4px !important;
+            margin-left: 4px !important;
+          }
+          .dnvn-btn-join-desktop {
+            padding: 6px 10px !important;
+            font-size: 11px !important;
+          }
+        }
+
+        /* Brand logo container & text scaling (Never shrink, never wrap vertically) */
         .dnvn-brand-link {
           display: flex !important;
           align-items: center !important;
           gap: 10px !important;
           text-decoration: none !important;
-          flex: 0 1 auto !important;
-          min-width: 0 !important;
-          margin-right: 6px !important;
+          flex: 0 0 auto !important;
+          flex-shrink: 0 !important;
+          min-width: max-content !important;
+          white-space: nowrap !important;
+          margin-right: 8px !important;
         }
 
         .dnvn-brand-icon {
@@ -238,8 +269,9 @@ export const Navbar = () => {
         .dnvn-brand-text-box {
           display: flex !important;
           flex-direction: column !important;
-          min-width: 0 !important;
           justify-content: center !important;
+          flex-shrink: 0 !important;
+          white-space: nowrap !important;
         }
 
         .dnvn-brand-title {
@@ -248,7 +280,8 @@ export const Navbar = () => {
           color: #ffffff !important;
           letter-spacing: -0.3px !important;
           line-height: 1.15 !important;
-          word-break: break-word !important;
+          white-space: nowrap !important;
+          word-break: keep-all !important;
         }
 
         .dnvn-brand-subtitle {
@@ -258,15 +291,17 @@ export const Navbar = () => {
           font-weight: 700 !important;
           text-transform: uppercase !important;
           margin-top: 2px !important;
-          word-break: break-word !important;
+          white-space: nowrap !important;
+          word-break: keep-all !important;
           line-height: 1.2 !important;
         }
 
-        /* Mobile specific fluid text scaling and wrapping */
+        /* Mobile specific fluid text scaling (Keep horizontal, never break into vertical letters) */
         @media (max-width: 768px) {
           .dnvn-brand-link {
             gap: 8px !important;
-            max-width: calc(100% - 90px) !important;
+            flex-shrink: 0 !important;
+            white-space: nowrap !important;
           }
           .dnvn-brand-icon {
             width: 32px !important;
@@ -275,14 +310,16 @@ export const Navbar = () => {
             border-radius: 8px !important;
           }
           .dnvn-brand-title {
-            font-size: clamp(12.5px, 3.8vw, 16px) !important;
+            font-size: clamp(13px, 3.8vw, 16px) !important;
             line-height: 1.2 !important;
-            white-space: normal !important;
+            white-space: nowrap !important;
+            word-break: keep-all !important;
           }
           .dnvn-brand-subtitle {
             font-size: clamp(6.5px, 1.8vw, 7.5px) !important;
             letter-spacing: 0.3px !important;
-            white-space: normal !important;
+            white-space: nowrap !important;
+            word-break: keep-all !important;
           }
           .dnvn-btn-join-desktop {
             display: none !important;
@@ -294,15 +331,14 @@ export const Navbar = () => {
         }
 
         @media (max-width: 420px) {
-          .dnvn-brand-link {
-            max-width: calc(100% - 80px) !important;
-          }
           .dnvn-brand-title {
             font-size: 13px !important;
+            white-space: nowrap !important;
           }
           .dnvn-brand-subtitle {
             font-size: 6.5px !important;
             letter-spacing: 0.2px !important;
+            white-space: nowrap !important;
           }
           .dnvn-lang-switcher {
             display: none !important;
