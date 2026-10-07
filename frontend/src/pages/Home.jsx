@@ -1542,57 +1542,39 @@ export const Home = () => {
               </a>
             </div>
 
-            {/* Right Column: VIB Logo Frame */}
+            {/* Right Column: VIB Business Card Image */}
             <a
               href="https://www.vib.com.vn/vn/the-tin-dung/vib-business-card"
               target="_blank"
               rel="noopener noreferrer"
+              title={currentLang === 'en' ? 'Open VIB Business Card details' : 'Xem chi tiết thẻ tín dụng doanh nghiệp VIB Business Card'}
               style={{
-                backgroundColor: 'rgba(9, 18, 38, 0.72)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '18px',
-                padding: '2.5rem 3.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '240px',
-                textAlign: 'center',
+                display: 'inline-block',
                 textDecoration: 'none',
-                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.1)',
-                transition: 'all 0.25s ease',
-                margin: '0 auto'
+                margin: '0 auto',
+                transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(147, 197, 253, 0.4)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.backgroundColor = 'rgba(14, 28, 58, 0.85)';
+                e.currentTarget.style.transform = 'translateY(-6px) scale(1.03)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.backgroundColor = 'rgba(9, 18, 38, 0.72)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
               }}
             >
-              <span style={{
-                color: '#FFFFFF',
-                fontSize: '2.5rem',
-                fontWeight: 900,
-                letterSpacing: '2px',
-                lineHeight: 1
-              }}>
-                VIB
-              </span>
-              <span style={{
-                color: '#94A3B8',
-                fontSize: '0.725rem',
-                fontWeight: 700,
-                letterSpacing: '1.8px',
-                marginTop: '10px',
-                textTransform: 'uppercase'
-              }}>
-                {currentLang === 'en' ? 'INTERNATIONAL BANK' : 'NGÂN HÀNG QUỐC TẾ'}
-              </span>
+              <img
+                src="/images/vib-business-card.webp"
+                alt="VIB Platinum Business Card"
+                style={{
+                  width: '100%',
+                  maxWidth: '340px',
+                  height: 'auto',
+                  borderRadius: '16px',
+                  boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.65), 0 0 25px rgba(56, 189, 248, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.18)',
+                  display: 'block'
+                }}
+              />
             </a>
           </div>
         </div>
