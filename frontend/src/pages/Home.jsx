@@ -1414,6 +1414,190 @@ export const Home = () => {
         </div>
       </section>
 
+      {/* STRATEGIC PARTNER: VIB PARTNERSHIP */}
+      <section style={{
+        padding: '5rem 1.5rem',
+        backgroundColor: '#F8FAFC',
+        borderTop: '1px solid #E2E8F0',
+        borderBottom: '1px solid #E2E8F0'
+      }}>
+        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
+          {/* Section Header */}
+          <div style={{ textAlign: 'center', marginBottom: '2.75rem' }}>
+            <span style={{
+              color: '#0D9488',
+              fontSize: '0.825rem',
+              fontWeight: 800,
+              letterSpacing: '1.2px',
+              textTransform: 'uppercase',
+              display: 'inline-block',
+              marginBottom: '0.5rem'
+            }}>
+              {currentLang === 'en' ? 'STRATEGIC NETWORK' : 'MẠNG LƯỚI CHIẾN LƯỢC'}
+            </span>
+            <h2 style={{
+              fontSize: '2.25rem',
+              fontWeight: 800,
+              color: '#0F172A',
+              letterSpacing: '-0.02em',
+              margin: '0 0 0.75rem 0'
+            }}>
+              {currentLang === 'en' ? 'Empowering & Supporting Enterprises' : 'Đồng hành cùng doanh nghiệp'}
+            </h2>
+            <p style={{
+              color: '#64748B',
+              fontSize: '1rem',
+              lineHeight: 1.6,
+              maxWidth: '680px',
+              margin: '0 auto'
+            }}>
+              {currentLang === 'en'
+                ? 'Close collaboration with banks, financial institutions, leading industry experts, and major media organizations.'
+                : 'Hợp tác chặt chẽ cùng các ngân hàng, định chế tài chính, chuyên gia đầu ngành và các đơn vị truyền thông lớn.'}
+            </p>
+          </div>
+
+          {/* VIB Card */}
+          <div style={{
+            background: 'linear-gradient(135deg, #162B55 0%, #0F1E3D 55%, #0A152C 100%)',
+            borderRadius: '24px',
+            padding: '3rem',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 20px 45px -12px rgba(10, 25, 60, 0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '2.5rem'
+          }}>
+            {/* Left Column */}
+            <div style={{ flex: '1 1 520px', minWidth: '280px' }}>
+              <span style={{
+                display: 'inline-block',
+                backgroundColor: 'rgba(59, 130, 246, 0.18)',
+                border: '1px solid rgba(147, 197, 253, 0.3)',
+                color: '#93C5FD',
+                padding: '5px 14px',
+                borderRadius: '9999px',
+                fontSize: '0.725rem',
+                fontWeight: 700,
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+                marginBottom: '1rem'
+              }}>
+                {currentLang === 'en' ? 'STRATEGIC FINANCIAL PARTNER' : 'ĐỐI TÁC CHIẾN LƯỢC TÀI CHÍNH'}
+              </span>
+
+              <h3 style={{
+                color: '#FFFFFF',
+                fontSize: '1.85rem',
+                fontWeight: 800,
+                lineHeight: 1.3,
+                margin: '0 0 1rem 0'
+              }}>
+                {currentLang === 'en' ? 'Special Partnership Program with VIB' : 'Chương trình hợp tác đặc biệt VIB'}
+              </h3>
+
+              <p style={{
+                color: '#CBD5E1',
+                fontSize: '0.975rem',
+                lineHeight: 1.65,
+                margin: '0 0 1.75rem 0',
+                maxWidth: '600px'
+              }}>
+                {currentLang === 'en'
+                  ? 'Providing flexible financial solutions, preferential credit limits, and expedited appraisal processes exclusively for Enterprise Association members.'
+                  : 'Cung cấp giải pháp tài chính linh hoạt, hạn mức tín dụng ưu đãi và quy trình thẩm định nhanh chóng dành riêng cho hội viên Hội Doanh Nghiệp.'}
+              </p>
+
+              <a
+                href="https://www.vib.com.vn/vn/the-tin-dung/vib-business-card"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  backgroundColor: '#2563EB',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  padding: '12px 24px',
+                  borderRadius: '10px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1D4ED8';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563EB';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <span>{currentLang === 'en' ? 'Explore VIB Program' : 'Khám phá chương trình VIB'}</span>
+                <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>→</span>
+              </a>
+            </div>
+
+            {/* Right Column: VIB Logo Frame */}
+            <a
+              href="https://www.vib.com.vn/vn/the-tin-dung/vib-business-card"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                backgroundColor: 'rgba(9, 18, 38, 0.72)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '18px',
+                padding: '2.5rem 3.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '240px',
+                textAlign: 'center',
+                textDecoration: 'none',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.25s ease',
+                margin: '0 auto'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(147, 197, 253, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.backgroundColor = 'rgba(14, 28, 58, 0.85)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = 'rgba(9, 18, 38, 0.72)';
+              }}
+            >
+              <span style={{
+                color: '#FFFFFF',
+                fontSize: '2.5rem',
+                fontWeight: 900,
+                letterSpacing: '2px',
+                lineHeight: 1
+              }}>
+                VIB
+              </span>
+              <span style={{
+                color: '#94A3B8',
+                fontSize: '0.725rem',
+                fontWeight: 700,
+                letterSpacing: '1.8px',
+                marginTop: '10px',
+                textTransform: 'uppercase'
+              }}>
+                {currentLang === 'en' ? 'INTERNATIONAL BANK' : 'NGÂN HÀNG QUỐC TẾ'}
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* 6. FORM ĐĂNG KÝ TƯ VẤN & HỢP TÁC DOANH NGHIỆP */}
       <section id="tu-van" style={{ padding: '5rem 1.5rem', backgroundColor: '#FFFFFF' }}>
         <div style={{ maxWidth: '960px', margin: '0 auto' }}>

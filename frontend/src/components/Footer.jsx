@@ -55,7 +55,7 @@ export const Footer = () => {
             <div style={{ fontSize: '11px', color: '#14b8a6', fontWeight: '600', marginTop: '4px', letterSpacing: '0.4px' }}>
               {currentLang === 'en' ? `DIGITAL ECOSYSTEM — ${brandConfig.domain.toUpperCase()}` : `KẾT NỐI DOANH NGHIỆP — ${brandConfig.domain.toUpperCase()}`}
             </div>
-            <div style={{ marginTop: '12px' }}>
+            <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
               <button
                 onClick={installApp}
                 title="Cài đặt ứng dụng DoanhNghiepVN.today (PWA)"
@@ -79,6 +79,30 @@ export const Footer = () => {
                 <i className="ti ti-device-mobile-down"></i>
                 <span>{isInstalled ? (currentLang === 'en' ? '✓ PWA App Installed' : '✓ Ứng dụng PWA đã cài đặt') : (currentLang === 'en' ? 'Install PWA Application' : 'Cài đặt ứng dụng PWA')}</span>
               </button>
+
+              <Link
+                to="/guide"
+                title={currentLang === 'en' ? 'System User Guide' : 'Hướng dẫn sử dụng hệ thống'}
+                style={{
+                  background: 'rgba(56, 189, 248, 0.15)',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  color: '#38bdf8',
+                  padding: '6px 14px',
+                  borderRadius: '6px',
+                  fontSize: '11.5px',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.18s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.3)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.15)'; }}
+              >
+                <i className="ti ti-book"></i>
+                <span>{currentLang === 'en' ? 'User Guide' : 'Hướng dẫn sử dụng'}</span>
+              </Link>
             </div>
           </div>
 
@@ -196,24 +220,52 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Legal Disclaimer & Copyright Sub-bar */}
+        {/* Footer Bottom Bar */}
         <div style={{
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          paddingTop: '1.4rem',
-          textAlign: 'center',
-          fontSize: '11.5px',
-          color: '#64748b',
-          lineHeight: '1.6'
+          paddingTop: '1.25rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          fontSize: '12px',
+          color: '#64748b'
         }}>
           <div>
-            {currentLang === 'en' ? (
-              <>® Reproduction in any form is prohibited without prior written consent. Please cite source <strong>"{brandConfig.brandShortName}"</strong> or <strong>"{brandConfig.domain}"</strong> when republishing content from this website.</>
-            ) : (
-              <>® Cấm sao chép dưới mọi hình thức nếu không có sự chấp thuận bằng văn bản. Ghi rõ nguồn <strong>"{brandConfig.brandShortName}"</strong> hoặc <strong>"{brandConfig.domain}"</strong> khi phát hành lại thông tin từ website này.</>
-            )}
-          </div>
-          <div style={{ marginTop: '2px', color: '#475569' }}>
             {brandConfig.contact.copyright}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+            <Link
+              to="/guide"
+              style={{
+                color: '#38bdf8',
+                textDecoration: 'none',
+                fontWeight: '600',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 12px',
+                borderRadius: '6px',
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.25)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.12)'; }}
+            >
+              <i className="ti ti-book" style={{ fontSize: '14px' }}></i>
+              <span>{currentLang === 'en' ? 'User Guide' : 'Hướng dẫn sử dụng'}</span>
+            </Link>
+            <Link to="/posts" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+              {currentLang === 'en' ? 'Opportunities' : 'Bảng tin cơ hội'}
+            </Link>
+            <Link to="/members" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+              {currentLang === 'en' ? 'Members' : 'Hội viên'}
+            </Link>
+            <Link to="/events" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+              {currentLang === 'en' ? 'Events' : 'Sự kiện'}
+            </Link>
           </div>
         </div>
       </div>
