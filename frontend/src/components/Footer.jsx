@@ -120,13 +120,6 @@ export const Footer = () => {
               <span style={{ color: '#64748b' }}>{currentLang === 'en' ? 'Development Vision:' : 'Định hướng phát triển:'}</span>{' '}
               <span style={{ color: '#cbd5e1' }}>{brandConfig.slogan}</span>
             </div>
-            <div style={{ marginTop: '4px', color: '#cbd5e1', lineHeight: '1.5' }}>
-              {currentLang === 'en' ? (
-                <>Operating License No. <strong style={{ color: '#f59e0b' }}>483/GP-BTTTT</strong> issued by the Ministry of Information and Communications on <strong style={{ color: '#f1f5f9' }}>29/12/2023</strong></>
-              ) : (
-                <>Giấy phép hoạt động số <strong style={{ color: '#f59e0b' }}>483/GP-BTTTT</strong> do Bộ Thông tin và Truyền thông cấp ngày <strong style={{ color: '#f1f5f9' }}>29/12/2023</strong></>
-              )}
-            </div>
           </div>
 
           {/* Column 3: Editorial Board & Contact */}
