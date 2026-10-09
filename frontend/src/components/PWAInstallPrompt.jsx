@@ -113,9 +113,9 @@ export const PWAInstallPrompt = () => {
         }
 
         .dnvn-pwa-btn-install {
-          background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
+          background: linear-gradient(135deg, #1E63E9 0%, #154EC2 100%);
           color: #FFFFFF;
-          border: 1px solid rgba(45, 212, 191, 0.6);
+          border: 1px solid rgba(147, 197, 253, 0.6);
           padding: 8px 14px;
           border-radius: 9px;
           font-size: 12px;
@@ -125,14 +125,14 @@ export const PWAInstallPrompt = () => {
           align-items: center;
           gap: 6px;
           transition: all 0.2s ease;
-          box-shadow: 0 2px 8px rgba(13, 148, 136, 0.4);
+          box-shadow: 0 2px 8px rgba(30, 99, 233, 0.4);
           white-space: nowrap;
         }
 
         .dnvn-pwa-btn-install:hover {
-          background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+          background: linear-gradient(135deg, #3B82F6 0%, #1E63E9 100%);
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(45, 212, 191, 0.45);
+          box-shadow: 0 4px 12px rgba(30, 99, 233, 0.55);
         }
 
         .dnvn-pwa-btn-close {
@@ -202,7 +202,7 @@ export const PWAInstallPrompt = () => {
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          background: #0D9488;
+          background: #1E63E9;
           color: #FFFFFF;
           display: flex;
           align-items: center;
@@ -260,8 +260,8 @@ export const PWAInstallPrompt = () => {
               borderRadius: '14px',
               overflow: 'hidden',
               margin: '0 auto 16px',
-              border: '1.5px solid rgba(45, 212, 191, 0.4)',
-              boxShadow: '0 4px 16px rgba(13, 148, 136, 0.4)'
+              border: '1.5px solid rgba(147, 197, 253, 0.4)',
+              boxShadow: '0 4px 16px rgba(30, 99, 233, 0.4)'
             }}>
               <img src="/logo_icon.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
@@ -301,11 +301,12 @@ export const PWAInstallPrompt = () => {
                 width: '100%',
                 padding: '11px',
                 borderRadius: '10px',
-                background: 'linear-gradient(135deg, #0D9488 0%, #0F766E 100%)',
+                background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                 color: '#FFFFFF',
                 fontWeight: 700,
                 fontSize: '13.5px',
-                border: '1px solid rgba(45, 212, 191, 0.5)',
+                border: '1px solid rgba(147, 197, 253, 0.5)',
+                boxShadow: '0 4px 12px rgba(30, 99, 233, 0.35)',
                 cursor: 'pointer'
               }}
             >

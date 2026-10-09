@@ -16,10 +16,10 @@ export const SpotlightBanner = ({
     <div style={{
       width: '100%',
       position: 'relative',
-      background: 'linear-gradient(135deg, #051336 0%, #0A2568 45%, #0F52BA 100%)',
+      background: 'linear-gradient(135deg, #0B2F7E 0%, #1449BA 50%, #1E63E9 100%)',
       color: '#FFFFFF',
-      borderBottom: '2px solid rgba(0, 229, 255, 0.4)',
-      boxShadow: '0 8px 30px rgba(5, 19, 54, 0.5), inset 0 1px 0 rgba(0, 229, 255, 0.25)',
+      borderBottom: '2px solid rgba(147, 197, 253, 0.4)',
+      boxShadow: '0 8px 30px rgba(11, 47, 126, 0.35), inset 0 1px 0 rgba(147, 197, 253, 0.25)',
       overflow: 'hidden',
       zIndex: 10
     }}>

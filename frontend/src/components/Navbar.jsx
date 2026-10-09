@@ -125,13 +125,12 @@ export const Navbar = () => {
           position: sticky !important;
           top: 0 !important;
           z-index: 9999 !important;
-          background: #051336 !important;
-          background-image: linear-gradient(135deg, #051336 0%, #0A2568 50%, #051336 100%) !important;
-          border-bottom: 1px solid rgba(0, 229, 255, 0.2) !important;
-          box-shadow: 0 4px 24px rgba(5, 19, 54, 0.6), 0 1px 0 rgba(0, 229, 255, 0.15) !important;
+          background: #0B2E7C !important;
+          background-image: linear-gradient(90deg, #092569 0%, #1243B5 50%, #092569 100%) !important;
+          border-bottom: 1px solid rgba(147, 197, 253, 0.22) !important;
+          box-shadow: 0 4px 20px rgba(9, 37, 105, 0.45), 0 1px 0 rgba(0, 210, 255, 0.18) !important;
           width: 100% !important;
           max-width: 100vw !important;
-          overflow-x: clip !important;
           box-sizing: border-box !important;
         }
 
@@ -139,11 +138,11 @@ export const Navbar = () => {
           width: 100% !important;
           max-width: 1600px !important;
           margin: 0 auto !important;
-          padding: 0 1rem !important;
-          min-height: 68px !important;
+          padding: 0 14px !important;
+          min-height: 64px !important;
           display: flex !important;
           align-items: center !important;
-          justify-content: flex-start !important;
+          justify-content: space-between !important;
           position: relative !important;
           box-sizing: border-box !important;
           overflow: visible !important;
@@ -162,18 +161,19 @@ export const Navbar = () => {
           margin: 0 4px !important;
           display: flex !important;
           align-items: center !important;
-          justify-content: flex-start !important;
-          gap: 4px !important;
-          flex: 0 0 auto !important;
+          justify-content: center !important;
+          gap: 3px !important;
+          flex: 1 1 auto !important;
           min-width: 0 !important;
           overflow: visible !important;
         }
 
-        @media (max-width: 1200px) {
+        /* Responsive Breakpoints: Switches cleanly to mobile drawer under 1080px */
+        @media (max-width: 1080px) {
           .dnvn-navbar-container {
             justify-content: space-between !important;
             padding: 0 12px !important;
-            min-height: 60px !important;
+            min-height: 58px !important;
           }
           .dnvn-nav-center {
             display: none !important;
@@ -187,38 +187,98 @@ export const Navbar = () => {
           }
         }
 
-        @media (min-width: 1201px) {
+        @media (min-width: 1081px) {
           .dnvn-mobile-toggle {
             display: none !important;
           }
         }
 
-        /* Compact scaling for 1366x768 laptops and narrow desktop viewports (1201px - 1400px) */
-        @media (min-width: 1201px) and (max-width: 1400px) {
+        /* Fluid Scaling for Laptops (1081px - 1440px) so "Đăng nhập" is NEVER clipped */
+        @media (min-width: 1081px) and (max-width: 1440px) {
+          .dnvn-navbar-container {
+            padding: 0 8px !important;
+          }
+          .dnvn-brand-link {
+            gap: 6px !important;
+            margin-right: 4px !important;
+          }
+          .dnvn-brand-icon {
+            width: 32px !important;
+            height: 32px !important;
+          }
           .dnvn-brand-title {
-            font-size: 15.5px !important;
+            font-size: 14.5px !important;
           }
           .dnvn-brand-subtitle {
-            font-size: 7px !important;
-          }
-          .dnvn-nav-item-btn {
-            font-size: 11px !important;
-            padding: 4px 5px !important;
-            max-width: 95px !important;
-            min-height: 36px !important;
-            gap: 2px !important;
+            font-size: 6.5px !important;
+            letter-spacing: 0.3px !important;
           }
           .dnvn-nav-center {
             gap: 2px !important;
             margin: 0 2px !important;
           }
+          .dnvn-nav-item-btn {
+            font-size: 10px !important;
+            padding: 3px 3px !important;
+            max-width: 78px !important;
+            min-height: 32px !important;
+            line-height: 1.15 !important;
+            gap: 2px !important;
+          }
+          .dnvn-nav-item-btn i {
+            font-size: 8px !important;
+          }
+          .dnvn-ai-nav-btn {
+            padding: 3px 6px !important;
+            font-size: 10px !important;
+            gap: 3px !important;
+            min-height: 32px !important;
+          }
           .dnvn-nav-right {
             gap: 4px !important;
-            margin-left: 4px !important;
+          }
+          .dnvn-lang-switcher button {
+            padding: 2px 5px !important;
+            font-size: 9.5px !important;
+          }
+          .dnvn-btn-pwa-install {
+            padding: 4px 6px !important;
+            font-size: 10px !important;
+            gap: 3px !important;
           }
           .dnvn-btn-join-desktop {
-            padding: 6px 10px !important;
+            padding: 5px 8px !important;
+            font-size: 10.5px !important;
+            gap: 3px !important;
+          }
+          .dnvn-login-btn {
+            padding: 4px 6px !important;
             font-size: 11px !important;
+          }
+        }
+
+        /* Extra compact scaling for narrow laptops (1081px - 1240px) */
+        @media (min-width: 1081px) and (max-width: 1240px) {
+          .dnvn-navbar-container {
+            padding: 0 4px !important;
+          }
+          .dnvn-nav-item-btn {
+            font-size: 9.2px !important;
+            max-width: 68px !important;
+            padding: 2px 2px !important;
+          }
+          .dnvn-brand-subtitle {
+            display: none !important;
+          }
+          .dnvn-btn-pwa-install span {
+            display: none !important;
+          }
+          .dnvn-btn-pwa-install {
+            padding: 4px 5px !important;
+          }
+          .dnvn-btn-join-desktop {
+            padding: 4px 6px !important;
+            font-size: 10px !important;
           }
         }
 
@@ -279,7 +339,7 @@ export const Navbar = () => {
         .dnvn-brand-subtitle {
           font-size: 8px !important;
           letter-spacing: 0.6px !important;
-          color: #2DD4BF !important;
+          color: #93C5FD !important;
           font-weight: 700 !important;
           text-transform: uppercase !important;
           margin-top: 2px !important;
@@ -377,7 +437,7 @@ export const Navbar = () => {
           font-size: 11.5px !important;
           line-height: 1.25 !important;
           font-weight: 600 !important;
-          padding: 6px 7px !important;
+          padding: 5px 6px !important;
           border-radius: 8px !important;
           display: inline-flex !important;
           align-items: center !important;
@@ -385,25 +445,25 @@ export const Navbar = () => {
           gap: 3px !important;
           text-decoration: none !important;
           text-align: center !important;
-          max-width: 115px !important;
+          max-width: 100px !important;
           white-space: normal !important;
           word-break: break-word !important;
           transition: all 0.18s ease !important;
-          flex-shrink: 0 !important;
-          min-height: 40px !important;
+          flex-shrink: 1 !important;
+          min-height: 38px !important;
           border: 1px solid transparent !important;
         }
 
         .dnvn-nav-item-btn:hover {
-          color: #00E5FF !important;
-          background-color: rgba(0, 229, 255, 0.08) !important;
-          border-color: rgba(0, 229, 255, 0.3) !important;
+          color: #93C5FD !important;
+          background-color: rgba(30, 99, 233, 0.18) !important;
+          border-color: rgba(147, 197, 253, 0.4) !important;
         }
 
         .dnvn-nav-item-btn.active {
-          color: #00E5FF !important;
-          background-color: rgba(15, 82, 186, 0.35) !important;
-          border-bottom: 2px solid #00E5FF !important;
+          color: #FFFFFF !important;
+          background-color: rgba(30, 99, 233, 0.45) !important;
+          border-bottom: 2px solid #60A5FA !important;
         }
 
         .dnvn-nav-text {
@@ -419,12 +479,12 @@ export const Navbar = () => {
           top: calc(100% + 4px) !important;
           left: 0 !important;
           min-width: 250px !important;
-          background-color: #051336 !important;
-          background-image: linear-gradient(180deg, #0A2568 0%, #051336 100%) !important;
-          border: 1px solid rgba(0, 229, 255, 0.35) !important;
+          background-color: #0A2E78 !important;
+          background-image: linear-gradient(180deg, #103B99 0%, #0A2E78 100%) !important;
+          border: 1px solid rgba(147, 197, 253, 0.35) !important;
           border-radius: 10px !important;
           padding: 8px 0 !important;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 229, 255, 0.2) !important;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(30, 99, 233, 0.25) !important;
           z-index: 999999 !important;
           animation: dnvnFadeIn 0.15s ease-out !important;
         }
@@ -457,8 +517,8 @@ export const Navbar = () => {
         }
 
         .dnvn-dropdown-item:hover {
-          background-color: rgba(13, 148, 136, 0.28) !important;
-          color: #2DD4BF !important;
+          background-color: rgba(30, 99, 233, 0.3) !important;
+          color: #93C5FD !important;
           padding-left: 20px !important;
         }
 
@@ -466,8 +526,8 @@ export const Navbar = () => {
         .dnvn-nav-right {
           display: flex !important;
           align-items: center !important;
-          gap: 8px !important;
-          margin-left: 8px !important;
+          gap: 6px !important;
+          margin-left: auto !important;
           flex-shrink: 0 !important;
           overflow: visible !important;
         }
@@ -539,7 +599,7 @@ export const Navbar = () => {
                           className="ti ti-chevron-down" 
                           style={{
                             fontSize: '10px',
-                            color: isOpen ? '#2DD4BF' : '#94A3B8',
+                            color: isOpen ? '#60A5FA' : '#94A3B8',
                             transform: isOpen ? 'rotate(180deg)' : 'none',
                             transition: 'transform 0.18s ease',
                             flexShrink: 0
@@ -598,33 +658,35 @@ export const Navbar = () => {
             {/* Nút Trợ lý AI: Đặt sát ngay sau danh mục cuối cùng theo yêu cầu của user */}
             <Link
               to="/ai-chat"
-              className="dnvn-nav-item-btn"
+              className="dnvn-nav-item-btn dnvn-ai-nav-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                backgroundColor: 'rgba(13, 148, 136, 0.22)',
-                border: '1px solid rgba(45, 212, 191, 0.5)',
-                color: '#2DD4BF',
-                padding: '6px 12px',
+                backgroundColor: 'rgba(30, 99, 233, 0.22)',
+                border: '1px solid rgba(147, 197, 253, 0.5)',
+                color: '#93C5FD',
+                padding: '5px 11px',
                 borderRadius: '8px',
-                fontSize: '12px',
+                fontSize: '11.5px',
                 fontWeight: '700',
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.18s ease',
                 flexShrink: 0,
-                minHeight: '38px',
-                marginLeft: '4px'
+                minHeight: '36px',
+                marginLeft: '3px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.38)';
-                e.currentTarget.style.borderColor = '#2DD4BF';
+                e.currentTarget.style.backgroundColor = 'rgba(30, 99, 233, 0.38)';
+                e.currentTarget.style.borderColor = '#60A5FA';
+                e.currentTarget.style.color = '#FFFFFF';
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.22)';
-                e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.5)';
+                e.currentTarget.style.backgroundColor = 'rgba(30, 99, 233, 0.22)';
+                e.currentTarget.style.borderColor = 'rgba(147, 197, 253, 0.5)';
+                e.currentTarget.style.color = '#93C5FD';
                 e.currentTarget.style.transform = 'none';
               }}
               title={currentLang === 'en' ? "Vietnam Enterprise AI Assistant" : "Trợ lý AI Doanh Nghiệp Việt Nam"}
@@ -643,20 +705,21 @@ export const Navbar = () => {
               backgroundColor: 'rgba(255, 255, 255, 0.08)',
               borderRadius: '14px',
               padding: '2px',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(147, 197, 253, 0.25)',
               flexShrink: 0
             }}>
               <button
                 onClick={() => changeLang('vi')}
                 style={{
-                  background: currentLang === 'vi' ? '#0D9488' : 'transparent',
+                  background: currentLang === 'vi' ? 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)' : 'transparent',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '12px',
                   padding: '3px 8px',
                   fontSize: '11px',
                   fontWeight: currentLang === 'vi' ? '700' : '500',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: currentLang === 'vi' ? '0 2px 6px rgba(30, 99, 233, 0.5)' : 'none'
                 }}
               >
                 VI
@@ -664,14 +727,15 @@ export const Navbar = () => {
               <button
                 onClick={() => changeLang('en')}
                 style={{
-                  background: currentLang === 'en' ? '#0D9488' : 'transparent',
+                  background: currentLang === 'en' ? 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)' : 'transparent',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '12px',
                   padding: '3px 8px',
                   fontSize: '11px',
                   fontWeight: currentLang === 'en' ? '700' : '500',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: currentLang === 'en' ? '0 2px 6px rgba(30, 99, 233, 0.5)' : 'none'
                 }}
               >
                 EN
@@ -685,12 +749,12 @@ export const Navbar = () => {
                 className="dnvn-btn-pwa-install"
                 title="Cài đặt ứng dụng DoanhNghiepVN.today (PWA)"
                 style={{
-                  backgroundColor: 'rgba(13, 148, 136, 0.15)',
-                  border: '1px solid rgba(45, 212, 191, 0.5)',
-                  color: '#2DD4BF',
+                  backgroundColor: 'rgba(30, 99, 233, 0.16)',
+                  border: '1px solid rgba(147, 197, 253, 0.45)',
+                  color: '#93C5FD',
                   fontSize: '11.5px',
                   fontWeight: '700',
-                  padding: '6px 11px',
+                  padding: '6px 10px',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   display: 'inline-flex',
@@ -701,17 +765,19 @@ export const Navbar = () => {
                   flexShrink: 0
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.3)';
+                  e.currentTarget.style.backgroundColor = 'rgba(30, 99, 233, 0.32)';
+                  e.currentTarget.style.color = '#FFFFFF';
                   e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(45, 212, 191, 0.3)';
+                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(30, 99, 233, 0.35)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.15)';
+                  e.currentTarget.style.backgroundColor = 'rgba(30, 99, 233, 0.16)';
+                  e.currentTarget.style.color = '#93C5FD';
                   e.currentTarget.style.transform = 'none';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <i className="ti ti-device-mobile-down" style={{ fontSize: '13.5px' }}></i>
+                <i className="ti ti-device-mobile-down" style={{ fontSize: '13px' }}></i>
                 <span>{currentLang === 'en' ? 'Install App' : 'Cài App'}</span>
               </button>
             )}
@@ -722,15 +788,16 @@ export const Navbar = () => {
                 to="/register"
                 className="dnvn-btn-join-desktop"
                 style={{
-                  backgroundColor: '#0D9488',
-                  backgroundImage: 'linear-gradient(135deg, #0D9488 0%, #0F766E 100%)',
+                  backgroundColor: '#1E63E9',
+                  backgroundImage: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                   color: '#ffffff',
-                  fontSize: '12px',
+                  fontSize: '11.5px',
                   fontWeight: '700',
-                  padding: '7px 14px',
+                  padding: '6px 12px',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  boxShadow: '0 2px 8px rgba(13, 148, 136, 0.4)',
+                  boxShadow: '0 2px 10px rgba(30, 99, 233, 0.45)',
+                  border: '1px solid rgba(147, 197, 253, 0.35)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '5px',
@@ -740,14 +807,16 @@ export const Navbar = () => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.6)';
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(30, 99, 233, 0.6)';
+                  e.currentTarget.style.backgroundImage = 'linear-gradient(135deg, #3B82F6 0%, #1E63E9 100%)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(13, 148, 136, 0.4)';
+                  e.currentTarget.style.boxShadow = '0 2px 10px rgba(30, 99, 233, 0.45)';
+                  e.currentTarget.style.backgroundImage = 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)';
                 }}
               >
-                <i className="ti ti-user-plus" style={{ fontSize: '13px' }}></i>
+                <i className="ti ti-user-plus" style={{ fontSize: '12px' }}></i>
                 <span>{currentLang === 'en' ? 'Join' : 'Gia nhập Hội'}</span>
               </Link>
             )}
@@ -756,18 +825,19 @@ export const Navbar = () => {
             {role === 'guest' ? (
               <Link
                 to="/login"
+                className="dnvn-login-btn"
                 style={{
                   color: '#E2E8F0',
-                  fontSize: '12.5px',
+                  fontSize: '12px',
                   textDecoration: 'none',
                   fontWeight: '600',
-                  padding: '6px 10px',
+                  padding: '6px 9px',
                   borderRadius: '6px',
                   whiteSpace: 'nowrap',
                   transition: 'color 0.18s',
                   flexShrink: 0
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#2DD4BF'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#60A5FA'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = '#E2E8F0'; }}
               >
                 {currentLang === 'en' ? 'Login' : 'Đăng nhập'}
@@ -780,7 +850,7 @@ export const Navbar = () => {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    backgroundColor: '#0D9488',
+                    backgroundColor: '#1E63E9',
                     color: '#ffffff',
                     fontWeight: '700',
                     fontSize: '11px',
@@ -788,7 +858,8 @@ export const Navbar = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     textDecoration: 'none',
-                    border: '1.5px solid #ffffff'
+                    border: '1.5px solid #ffffff',
+                    boxShadow: '0 2px 8px rgba(30, 99, 233, 0.5)'
                   }}
                   title={user?.name || 'Dashboard'}
                 >
@@ -811,7 +882,7 @@ export const Navbar = () => {
               </div>
             )}
 
-            {/* Nút Toggle Mobile Drawer (chỉ hiện trên màn hình < 1024px) */}
+            {/* Nút Toggle Mobile Drawer (chỉ hiện trên màn hình <= 1080px) */}
             <button
               className="dnvn-mobile-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -835,8 +906,8 @@ export const Navbar = () => {
         {/* MOBILE DRAWER: DÙNG CHUNG CÙNG NGUỒN DỮ LIỆU ĐỘNG TỪ ADMIN */}
         {mobileMenuOpen && (
           <div style={{
-            backgroundColor: '#071524',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: '#092257',
+            borderTop: '1px solid rgba(147, 197, 253, 0.2)',
             padding: '1rem 1.25rem',
             display: 'flex',
             flexDirection: 'column',
@@ -853,12 +924,12 @@ export const Navbar = () => {
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 borderRadius: '14px',
                 padding: '2px',
-                border: '1px solid rgba(255, 255, 255, 0.15)'
+                border: '1px solid rgba(147, 197, 253, 0.25)'
               }}>
                 <button
                   onClick={() => changeLang('vi')}
                   style={{
-                    background: currentLang === 'vi' ? '#0D9488' : 'transparent',
+                    background: currentLang === 'vi' ? '#1E63E9' : 'transparent',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '12px',
@@ -873,7 +944,7 @@ export const Navbar = () => {
                 <button
                   onClick={() => changeLang('en')}
                   style={{
-                    background: currentLang === 'en' ? '#0D9488' : 'transparent',
+                    background: currentLang === 'en' ? '#1E63E9' : 'transparent',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '12px',
@@ -892,9 +963,9 @@ export const Navbar = () => {
               to="/ai-chat"
               onClick={() => setMobileMenuOpen(false)}
               style={{
-                backgroundColor: 'rgba(13, 148, 136, 0.25)',
-                border: '1px solid #2DD4BF',
-                color: '#2DD4BF',
+                backgroundColor: 'rgba(30, 99, 233, 0.25)',
+                border: '1px solid #60A5FA',
+                color: '#93C5FD',
                 padding: '10px 14px',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -973,9 +1044,9 @@ export const Navbar = () => {
                 <button
                   onClick={() => { installApp(); setMobileMenuOpen(false); }}
                   style={{
-                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
-                    border: '1px solid #2DD4BF',
-                    color: '#2DD4BF',
+                    backgroundColor: 'rgba(30, 99, 233, 0.2)',
+                    border: '1px solid #60A5FA',
+                    color: '#93C5FD',
                     textAlign: 'center',
                     padding: '9px',
                     borderRadius: '8px',
@@ -997,14 +1068,16 @@ export const Navbar = () => {
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
                 style={{
-                  backgroundColor: '#0D9488',
+                  backgroundColor: '#1E63E9',
+                  backgroundImage: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                   color: '#ffffff',
                   textAlign: 'center',
                   padding: '9px',
                   borderRadius: '8px',
                   textDecoration: 'none',
                   fontWeight: '700',
-                  fontSize: '13px'
+                  fontSize: '13px',
+                  boxShadow: '0 2px 8px rgba(30, 99, 233, 0.4)'
                 }}
               >
                 {currentLang === 'en' ? 'Join Vietnam Enterprise Network' : 'Gia nhập Hội Doanh Nghiệp'}

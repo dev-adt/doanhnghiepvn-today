@@ -242,10 +242,10 @@ export const Home = () => {
         ? 'Assisting in preparing financial files, cash flow reports, and securing preferential credit lines from leading commercial banks.'
         : 'Hỗ trợ chuẩn bị hồ sơ tài chính, báo cáo dòng tiền và kết nối tiếp cận các gói tín dụng ưu đãi từ các ngân hàng hàng đầu.',
       icon: 'ti ti-building-bank',
-      color: '#0D9488',
-      bgGradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(20, 184, 166, 0.28) 100%)',
-      borderColor: 'rgba(13, 148, 136, 0.35)',
-      shadowColor: 'rgba(13, 148, 136, 0.25)',
+      color: '#1E63E9',
+      bgGradient: 'linear-gradient(135deg, rgba(30, 99, 233, 0.12) 0%, rgba(59, 130, 246, 0.22) 100%)',
+      borderColor: 'rgba(30, 99, 233, 0.35)',
+      shadowColor: 'rgba(30, 99, 233, 0.25)',
       serviceKey: 'Tư vấn vốn & tiếp cận tín dụng'
     },
     {
@@ -381,44 +381,45 @@ export const Home = () => {
       {/* Header with dynamic categories */}
       <Navbar />
 
-      {/* Top Strategic Mission Banner */}
-      <SpotlightBanner
-        badgeText={currentLang === 'en' ? 'STRATEGIC MISSION • VIETNAM ENTERPRISE MAGAZINE' : 'SỨ MỆNH CHIẾN LƯỢC • TẠP CHÍ DOANH NGHIỆP VIỆT NAM'}
-        title={currentLang === 'en' ? 'Vietnam Enterprise Magazine — Mission: Accompanying Enterprises' : 'Tạp chí Doanh nghiệp Việt Nam — Sứ mệnh: Đồng hành cùng doanh nghiệp'}
-        subtitle={currentLang === 'en' ? 'Promoting connections, building credit access capacity for SMEs and business households in the digital era.' : 'Thúc đẩy kết nối, xây dựng năng lực tiếp cận vốn tín dụng cho SME và hộ kinh doanh trong kỷ nguyên số.'}
-        buttonText={currentLang === 'en' ? 'Read Special Report →' : 'Khám phá bài viết ngay →'}
-        link="https://doanhnghiepvn.vn/doanh-nghiep/thuc-day-ket-noi-xay-dung-nang-luc-tiep-can-von-tin-dung-cho-sme-va-ho-kinh-doanh/20260721095902983"
-      />
-
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION (Luminous Bamboo Tech Blue - Trắng Xanh Linh Hoạt) */}
       <section style={{
         position: 'relative',
-        background: 'linear-gradient(135deg, #051336 0%, #08215E 50%, #0A2E7A 100%)',
+        background: 'linear-gradient(172deg, #0C3386 0%, #144CB8 35%, #1E63E9 70%, #EFF6FF 100%)',
         color: '#FFFFFF',
-        padding: '4.5rem 1.5rem 6rem',
+        padding: '4.5rem 1.5rem 6.5rem',
         overflow: 'hidden',
-        borderBottom: '1px solid rgba(0, 229, 255, 0.15)'
+        borderBottom: '1px solid rgba(147, 197, 253, 0.3)'
       }}>
-        {/* Pattern backdrop */}
+        {/* Bamboo cyber grid & matrix dots backdrop */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.15,
-          backgroundImage: 'radial-gradient(#00E5FF 1.2px, transparent 1.2px)',
+          opacity: 0.18,
+          backgroundImage: 'radial-gradient(rgba(147, 197, 253, 0.6) 1.2px, transparent 1.2px)',
           backgroundSize: '24px 24px',
           pointerEvents: 'none'
         }} />
 
-        {/* Ambient glow accent */}
+        {/* Ambient bamboo light streaks & cyan glow */}
         <div style={{
           position: 'absolute',
           top: '-20%',
-          right: '10%',
+          right: '8%',
           width: '650px',
           height: '650px',
-          background: 'radial-gradient(circle, rgba(0, 229, 255, 0.22) 0%, rgba(5, 19, 54, 0) 70%)',
+          background: 'radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, rgba(30, 99, 233, 0.08) 50%, transparent 70%)',
           pointerEvents: 'none',
           filter: 'blur(40px)'
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '0%',
+          left: '10%',
+          width: '500px',
+          height: '300px',
+          background: 'radial-gradient(ellipse, rgba(255, 255, 255, 0.35) 0%, transparent 70%)',
+          pointerEvents: 'none',
+          filter: 'blur(50px)'
         }} />
 
         <div style={{ maxWidth: '1240px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
@@ -432,16 +433,17 @@ export const Home = () => {
                 gap: '8px',
                 padding: '6px 14px',
                 borderRadius: '9999px',
-                backgroundColor: 'rgba(0, 229, 255, 0.12)',
-                border: '1px solid rgba(0, 229, 255, 0.4)',
-                color: '#00E5FF',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(147, 197, 253, 0.45)',
+                color: '#BAE6FD',
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                marginBottom: '1.25rem'
+                marginBottom: '1.25rem',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
               }}>
-                <i className="fa-solid fa-shield-halved" />
+                <i className="fa-solid fa-shield-halved" style={{ color: '#00D2FF' }} />
                 <span>{currentLang === 'en' ? 'Official Business Network • Vietnam Enterprise Magazine' : 'Cộng đồng kết nối chính thống • Tạp chí Doanh Nghiệp Việt Nam'}</span>
               </div>
 
@@ -456,7 +458,7 @@ export const Home = () => {
                 {currentLang === 'en' ? (
                   <>Empowering Enterprises <br />
                     <span style={{
-                      background: 'linear-gradient(90deg, #00E5FF 0%, #38BDF8 60%, #FBBF24 100%)',
+                      background: 'linear-gradient(90deg, #BAE6FD 0%, #60A5FA 50%, #FBBF24 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent'
                     }}>
@@ -466,7 +468,7 @@ export const Home = () => {
                 ) : (
                   <>Đồng Hành Doanh Nghiệp <br />
                     <span style={{
-                      background: 'linear-gradient(90deg, #00E5FF 0%, #38BDF8 60%, #FBBF24 100%)',
+                      background: 'linear-gradient(90deg, #BAE6FD 0%, #60A5FA 50%, #FBBF24 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent'
                     }}>
@@ -479,7 +481,7 @@ export const Home = () => {
               <p style={{
                 fontSize: '1.05rem',
                 lineHeight: 1.6,
-                color: '#94A3B8',
+                color: '#E0EDFD',
                 marginBottom: '2rem',
                 maxWidth: '560px'
               }}>
@@ -492,16 +494,16 @@ export const Home = () => {
               <form onSubmit={handleSearchSubmit} style={{
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
                 backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(147, 197, 253, 0.35)',
                 borderRadius: '14px',
                 padding: '6px',
                 maxWidth: '560px',
                 marginBottom: '1.75rem',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)'
+                boxShadow: '0 8px 24px rgba(11, 45, 121, 0.2)'
               }}>
-                <i className="fa-solid fa-magnifying-glass" style={{ marginLeft: '14px', color: '#94A3B8', fontSize: '1rem' }} />
+                <i className="fa-solid fa-magnifying-glass" style={{ marginLeft: '14px', color: '#BAE6FD', fontSize: '1rem' }} />
                 <input
                   type="text"
                   placeholder={currentLang === 'en' ? 'Search news, events, enterprises, topics...' : 'Tìm tin tức, sự kiện, doanh nghiệp, chuyên mục...'}
@@ -524,20 +526,29 @@ export const Home = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    backgroundColor: '#0D9488',
+                    background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                     color: '#FFFFFF',
-                    border: 'none',
+                    border: '1px solid rgba(147, 197, 253, 0.4)',
                     borderRadius: '10px',
                     padding: '9px 18px',
                     fontSize: '0.85rem',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 3px 12px rgba(30, 99, 233, 0.45)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #3B82F6 0%, #1E63E9 100%)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)';
+                    e.currentTarget.style.transform = 'none';
                   }}
                   title={currentLang === 'en' ? "Smart AI Search" : "Tra cứu thông minh bằng AI Doanh Nghiệp VN"}
                 >
-                  <i className="fa-solid fa-wand-magic-sparkles" />
+                  <i className="fa-solid fa-wand-magic-sparkles" style={{ color: '#FBBF24' }} />
                   <span>{currentLang === 'en' ? 'Ask AI' : 'Hỏi AI'}</span>
                 </button>
               </form>
@@ -550,18 +561,27 @@ export const Home = () => {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: '#0D9488',
+                    background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                     color: '#FFFFFF',
                     padding: '12px 24px',
                     borderRadius: '12px',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontSize: '0.95rem',
                     textDecoration: 'none',
-                    boxShadow: '0 4px 14px rgba(13, 148, 136, 0.4)',
-                    transition: 'transform 0.2s, background-color 0.2s'
+                    border: '1px solid rgba(147, 197, 253, 0.35)',
+                    boxShadow: '0 4px 16px rgba(30, 99, 233, 0.45)',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0F766E'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9488'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #3B82F6 0%, #1E63E9 100%)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(30, 99, 233, 0.6)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)';
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(30, 99, 233, 0.45)';
+                  }}
                 >
                   <span>{currentLang === 'en' ? 'Explore Upcoming Events' : 'Xem sự kiện sắp diễn ra'}</span>
                   <i className="fa-solid fa-arrow-down" style={{ fontSize: '0.8rem' }} />
@@ -573,21 +593,27 @@ export const Home = () => {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.12)',
                     color: '#FFFFFF',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(147, 197, 253, 0.4)',
                     padding: '12px 24px',
                     borderRadius: '12px',
                     fontWeight: 600,
                     fontSize: '0.95rem',
                     cursor: 'pointer',
                     backdropFilter: 'blur(8px)',
-                    transition: 'background-color 0.2s'
+                    transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.18)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.22)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.transform = 'none';
+                  }}
                 >
-                  <i className="fa-solid fa-handshake-angle" />
+                  <i className="fa-solid fa-handshake-angle" style={{ color: '#BAE6FD' }} />
                   <span>{currentLang === 'en' ? 'Enterprise Consulting' : 'Đăng ký tư vấn doanh nghiệp'}</span>
                 </button>
               </div>
@@ -599,9 +625,9 @@ export const Home = () => {
                 position: 'relative',
                 borderRadius: '24px',
                 overflow: 'hidden',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                backgroundColor: '#1E293B'
+                boxShadow: '0 25px 50px -12px rgba(11, 45, 121, 0.45)',
+                border: '1px solid rgba(147, 197, 253, 0.3)',
+                backgroundColor: '#0F2C68'
               }}>
                 <img
                   src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=900"
@@ -613,7 +639,7 @@ export const Home = () => {
                 <div style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.3) 50%, transparent 100%)',
+                  background: 'linear-gradient(to top, rgba(12, 45, 120, 0.95) 0%, rgba(12, 45, 120, 0.3) 50%, transparent 100%)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'flex-end',
@@ -621,17 +647,19 @@ export const Home = () => {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{
-                      backgroundColor: '#0D9488',
+                      background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                       color: '#FFFFFF',
                       fontSize: '0.75rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       padding: '4px 10px',
-                      borderRadius: '6px'
+                      borderRadius: '6px',
+                      border: '1px solid rgba(147, 197, 253, 0.4)',
+                      boxShadow: '0 2px 8px rgba(30, 99, 233, 0.4)'
                     }}>
                       {currentLang === 'en' ? 'Featured Activity' : 'Hoạt động tiêu biểu'}
                     </span>
-                    <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>
+                    <span style={{ color: '#BAE6FD', fontSize: '0.8rem' }}>
                       <i className="fa-regular fa-calendar-days" style={{ marginRight: '4px' }} />
                       {currentLang === 'en' ? 'Periodic' : 'Diễn ra định kỳ'}
                     </span>
@@ -639,7 +667,7 @@ export const Home = () => {
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '6px' }}>
                     {currentLang === 'en' ? 'Trade Promotion & Capital Forum 2026' : 'Diễn đàn Xúc tiến Thương mại & Tiếp cận Vốn Doanh nghiệp 2026'}
                   </h3>
-                  <p style={{ color: '#CBD5E1', fontSize: '0.85rem', margin: 0 }}>
+                  <p style={{ color: '#E0EDFD', fontSize: '0.85rem', margin: 0 }}>
                     {currentLang === 'en' ? 'Convening 300+ CEOs, economists, and banking leaders.' : 'Quy tụ hơn 300 CEO, chuyên gia kinh tế và đại diện tổ chức tín dụng.'}
                   </p>
                 </div>
@@ -659,15 +687,16 @@ export const Home = () => {
                   { num: '98%', label: currentLang === 'en' ? 'Satisfaction' : 'Hài lòng' }
                 ].map((s, idx) => (
                   <div key={idx} style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(147, 197, 253, 0.25)',
                     borderRadius: '12px',
                     padding: '12px 8px',
                     textAlign: 'center',
-                    backdropFilter: 'blur(6px)'
+                    backdropFilter: 'blur(8px)',
+                    boxShadow: '0 4px 14px rgba(11, 45, 121, 0.15)'
                   }}>
-                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#2DD4BF' }}>{s.num}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '2px' }}>{s.label}</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF' }}>{s.num}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#BAE6FD', marginTop: '2px' }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -683,7 +712,7 @@ export const Home = () => {
           
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', gap: '1rem' }}>
             <div>
-              <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ color: '#1E63E9', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {currentLang === 'en' ? 'Key Programs' : 'Hoạt động trọng điểm'}
               </span>
               <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px', letterSpacing: '-0.02em' }}>
@@ -701,8 +730,8 @@ export const Home = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                color: '#0D9488',
-                fontWeight: 600,
+                color: '#1E63E9',
+                fontWeight: 700,
                 fontSize: '0.95rem',
                 textDecoration: 'none'
               }}
@@ -728,12 +757,13 @@ export const Home = () => {
               {topEvent && (
                 <div style={{
                   gridColumn: '1 / -1',
-                  backgroundColor: '#0F172A',
+                  backgroundColor: '#0A2562',
+                  backgroundImage: 'linear-gradient(135deg, #09215A 0%, #103B99 60%, #0A2562 100%)',
                   color: '#FFFFFF',
                   borderRadius: '24px',
                   overflow: 'hidden',
-                  border: '1px solid #1E293B',
-                  boxShadow: '0 20px 30px -10px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid rgba(147, 197, 253, 0.25)',
+                  boxShadow: '0 20px 40px -10px rgba(9, 33, 90, 0.4)',
                   display: 'flex',
                   flexDirection: 'row',
                   flexWrap: 'wrap'
@@ -751,21 +781,22 @@ export const Home = () => {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
                         <span style={{
-                          backgroundColor: '#0D9488',
+                          background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                           color: '#FFFFFF',
                           fontSize: '0.75rem',
                           fontWeight: 700,
                           textTransform: 'uppercase',
                           padding: '4px 12px',
                           borderRadius: '9999px',
-                          letterSpacing: '0.04em'
+                          letterSpacing: '0.04em',
+                          boxShadow: '0 2px 8px rgba(30, 99, 233, 0.4)'
                         }}>
                           {currentLang === 'en' ? 'Featured Event' : 'Sự kiện nổi bật'}
                         </span>
                         <span style={{
-                          backgroundColor: topEvent.is_paid ? 'rgba(239, 68, 68, 0.2)' : 'rgba(13, 148, 136, 0.2)',
-                          color: topEvent.is_paid ? '#FCA5A5' : '#2DD4BF',
-                          border: `1px solid ${topEvent.is_paid ? 'rgba(239, 68, 68, 0.4)' : 'rgba(13, 148, 136, 0.4)'}`,
+                          backgroundColor: topEvent.is_paid ? 'rgba(239, 68, 68, 0.2)' : 'rgba(30, 99, 233, 0.2)',
+                          color: topEvent.is_paid ? '#FCA5A5' : '#93C5FD',
+                          border: `1px solid ${topEvent.is_paid ? 'rgba(239, 68, 68, 0.4)' : 'rgba(147, 197, 253, 0.4)'}`,
                           fontSize: '0.75rem',
                           fontWeight: 700,
                           padding: '4px 10px',
@@ -776,7 +807,7 @@ export const Home = () => {
                             : (currentLang === 'en' ? 'Free Admission' : 'Miễn phí')}
                         </span>
                         <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
-                          <i className="fa-regular fa-clock" style={{ marginRight: '6px', color: '#2DD4BF' }} />
+                          <i className="fa-regular fa-clock" style={{ marginRight: '6px', color: '#60A5FA' }} />
                           {formatEventDateTime(topEvent.event_date || topEvent.start_time || topEvent.date)}
                         </span>
                       </div>
@@ -785,13 +816,13 @@ export const Home = () => {
                         {topEvent.title}
                       </h3>
 
-                      <p style={{ color: '#CBD5E1', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+                      <p style={{ color: '#E0EDFD', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
                         {topEvent.short_desc || topEvent.description || (currentLang === 'en' ? 'Join to gain practical values and connect with the business network.' : 'Tham gia để nhận nhiều giá trị thực tiễn và kết nối mạng lưới doanh nghiệp.')}
                       </p>
 
                       {/* Live Realtime Countdown Boxes */}
                       <div style={{ marginBottom: '1.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2DD4BF', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#93C5FD', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <i className="fa-solid fa-hourglass-half" />
                           <span>{timeLeft.label || (currentLang === 'en' ? 'Event starts in' : 'Sự kiện bắt đầu sau')}</span>
                         </div>
@@ -803,8 +834,8 @@ export const Home = () => {
                             { val: timeLeft.seconds, label: currentLang === 'en' ? 'SECS' : 'GIÂY' }
                           ].map((t, idx) => (
                             <div key={idx} style={{
-                              backgroundColor: '#1E293B',
-                              border: '1px solid #334155',
+                              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                              border: '1px solid rgba(147, 197, 253, 0.25)',
                               borderRadius: '10px',
                               minWidth: '65px',
                               padding: '10px 12px',
@@ -813,7 +844,7 @@ export const Home = () => {
                               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1, fontFamily: 'monospace' }}>
                                 {String(t.val || 0).padStart(2, '0')}
                               </div>
-                              <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: '4px', fontWeight: 600 }}>
+                              <div style={{ fontSize: '0.65rem', color: '#BAE6FD', marginTop: '4px', fontWeight: 600 }}>
                                 {t.label}
                               </div>
                             </div>
@@ -825,16 +856,16 @@ export const Home = () => {
                     {/* Bottom: Venue, Ticket count & Action Button */}
                     <div style={{
                       paddingTop: '1.5rem',
-                      borderTop: '1px solid rgba(51, 65, 85, 0.6)',
+                      borderTop: '1px solid rgba(147, 197, 253, 0.2)',
                       display: 'flex',
                       flexWrap: 'wrap',
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       gap: '1rem'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#CBD5E1', fontSize: '0.9rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#E0EDFD', fontSize: '0.9rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <i className="fa-solid fa-location-dot" style={{ color: '#2DD4BF' }} />
+                          <i className="fa-solid fa-location-dot" style={{ color: '#60A5FA' }} />
                           <span>{topEvent.location || (currentLang === 'en' ? 'Online / Association HQ' : 'Trực tuyến / Văn phòng Hội')}</span>
                         </div>
                         {topEvent.capacity > 0 && (
@@ -851,17 +882,24 @@ export const Home = () => {
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '8px',
-                          backgroundColor: '#0D9488',
+                          background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                           color: '#FFFFFF',
                           fontWeight: 700,
                           padding: '11px 24px',
                           borderRadius: '10px',
                           textDecoration: 'none',
-                          boxShadow: '0 4px 14px rgba(13, 148, 136, 0.45)',
+                          border: '1px solid rgba(147, 197, 253, 0.35)',
+                          boxShadow: '0 4px 14px rgba(30, 99, 233, 0.45)',
                           transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0F766E'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9488'}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #3B82F6 0%, #1E63E9 100%)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)';
+                          e.currentTarget.style.transform = 'none';
+                        }}
                       >
                         <span>{currentLang === 'en' ? 'View Details & Register' : 'Xem chi tiết & Đăng ký'}</span>
                         <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.8rem' }} />
@@ -936,7 +974,7 @@ export const Home = () => {
                         left: '12px',
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                         backdropFilter: 'blur(4px)',
-                        color: evt.is_paid ? '#B91C1C' : '#0F766E',
+                        color: evt.is_paid ? '#B91C1C' : '#1E63E9',
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         padding: '4px 10px',
@@ -951,7 +989,7 @@ export const Home = () => {
 
                     <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between' }}>
                       <div>
-                        <p style={{ color: '#0D9488', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
+                        <p style={{ color: '#1E63E9', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
                           <i className="fa-regular fa-calendar" style={{ marginRight: '6px' }} />
                           {formatEventDateTime(evt.event_date || evt.start_time || evt.date)}
                         </p>
@@ -965,7 +1003,7 @@ export const Home = () => {
 
                       <div style={{ paddingTop: '1rem', borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
-                          <i className="fa-solid fa-location-dot" style={{ marginRight: '4px', color: '#0D9488' }} />
+                          <i className="fa-solid fa-location-dot" style={{ marginRight: '4px', color: '#1E63E9' }} />
                           {evt.location || (currentLang === 'en' ? 'Association HQ' : 'Văn phòng Hội')}
                         </span>
                         <Link
@@ -973,7 +1011,7 @@ export const Home = () => {
                           style={{
                             fontSize: '0.85rem',
                             fontWeight: 700,
-                            color: '#0D9488',
+                            color: '#1E63E9',
                             textDecoration: 'none',
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -995,12 +1033,229 @@ export const Home = () => {
         </div>
       </section>
 
+      {/* STRATEGIC MISSION BLOCK: TẠP CHÍ DOANH NGHIỆP VIỆT NAM (BLOCK PHONG CÁCH VIB CARD XUẤT HIỆN DƯỚI BLOCK SỰ KIỆN) */}
+      <section style={{
+        padding: '3rem 1.5rem 5rem',
+        backgroundColor: '#FFFFFF',
+        borderTop: '1px solid rgba(226, 232, 240, 0.8)'
+      }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0A2666 0%, #1142B2 45%, #1E63E9 85%, #2563EB 100%)',
+            borderRadius: '24px',
+            padding: '3.25rem 2.75rem',
+            border: '1px solid rgba(147, 197, 253, 0.35)',
+            boxShadow: '0 20px 45px -10px rgba(10, 38, 102, 0.38), 0 0 30px rgba(0, 210, 255, 0.12)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '2.5rem',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Subtle bamboo cyber matrix pattern */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'radial-gradient(rgba(147, 197, 253, 0.25) 1.2px, transparent 1.2px)',
+              backgroundSize: '22px 22px',
+              opacity: 0.5,
+              pointerEvents: 'none'
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '-30%',
+              right: '25%',
+              width: '400px',
+              height: '240px',
+              background: 'radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, transparent 70%)',
+              pointerEvents: 'none',
+              filter: 'blur(35px)'
+            }} />
+
+            {/* Left Column: Sứ mệnh & Chi tiết */}
+            <div style={{ flex: '1 1 540px', minWidth: '280px', position: 'relative', zIndex: 2 }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(147, 197, 253, 0.45)',
+                borderRadius: '9999px',
+                padding: '4px 14px',
+                marginBottom: '1rem',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)'
+              }}>
+                <span style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00D2FF',
+                  boxShadow: '0 0 8px #00D2FF',
+                  display: 'inline-block'
+                }} />
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  color: '#BAE6FD',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase'
+                }}>
+                  {currentLang === 'en' ? 'STRATEGIC MISSION • VIETNAM ENTERPRISE MAGAZINE' : 'SỨ MỆNH CHIẾN LƯỢC • TẠP CHÍ DOANH NGHIỆP VIỆT NAM'}
+                </span>
+              </div>
+
+              <h3 style={{
+                color: '#FFFFFF',
+                fontSize: 'clamp(1.5rem, 2.8vw, 2.1rem)',
+                fontWeight: 800,
+                lineHeight: 1.25,
+                letterSpacing: '-0.02em',
+                margin: '0 0 1rem 0'
+              }}>
+                {currentLang === 'en'
+                  ? 'Vietnam Enterprise Magazine — Mission: Accompanying Enterprises'
+                  : 'Tạp chí Doanh nghiệp Việt Nam — Sứ mệnh: Đồng hành cùng doanh nghiệp'}
+              </h3>
+
+              <p style={{
+                color: '#E0EDFD',
+                fontSize: '0.98rem',
+                lineHeight: 1.65,
+                margin: '0 0 1.75rem 0',
+                maxWidth: '620px'
+              }}>
+                {currentLang === 'en'
+                  ? 'Promoting connections, building credit access capacity for SMEs and business households in the digital era. Fostering cooperation between state agencies, commercial banks, and businesses to optimize sustainable capital mobilization.'
+                  : 'Thúc đẩy kết nối, xây dựng năng lực tiếp cận vốn tín dụng cho SME và hộ kinh doanh trong kỷ nguyên số. Kiến tạo cầu nối vững chắc giữa cộng đồng doanh nghiệp với các định chế tài chính, giải pháp chuyển đổi số và phát triển bền vững.'}
+              </p>
+
+              <a
+                href="https://doanhnghiepvn.vn/doanh-nghiep/thuc-day-ket-noi-xay-dung-nang-luc-tiep-can-von-tin-dung-cho-sme-va-ho-kinh-doanh/20260721095902983"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #F59E0B 100%)',
+                  color: '#092569',
+                  fontWeight: 800,
+                  fontSize: '0.95rem',
+                  padding: '12px 26px',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 6px 20px rgba(245, 158, 11, 0.45)',
+                  transition: 'all 0.22s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(245, 158, 11, 0.45)';
+                }}
+              >
+                <span>{currentLang === 'en' ? 'Read Special Report' : 'Xem chuyên đề & Khám phá ngay'}</span>
+                <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '13px' }} />
+              </a>
+            </div>
+
+            {/* Right Column: Visual Feature Showcase (Tương tự Card bên phải VIB) */}
+            <div style={{
+              flex: '0 1 360px',
+              width: '100%',
+              maxWidth: '360px',
+              margin: '0 auto',
+              position: 'relative',
+              zIndex: 2
+            }}>
+              <a
+                href="https://doanhnghiepvn.vn/doanh-nghiep/thuc-day-ket-noi-xay-dung-nang-luc-tiep-can-von-tin-dung-cho-sme-va-ho-kinh-doanh/20260721095902983"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'block',
+                  textDecoration: 'none',
+                  borderRadius: '20px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  padding: '24px',
+                  boxShadow: '0 16px 36px rgba(0, 0, 0, 0.35)',
+                  transition: 'all 0.25s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                  e.currentTarget.style.borderColor = 'rgba(147, 197, 253, 0.6)';
+                  e.currentTarget.style.boxShadow = '0 20px 42px rgba(0, 0, 0, 0.45), 0 0 25px rgba(0, 210, 255, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.boxShadow = '0 16px 36px rgba(0, 0, 0, 0.35)';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FBBF24',
+                    fontSize: '22px'
+                  }}>
+                    <i className="fa-solid fa-newspaper" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#BAE6FD', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {currentLang === 'en' ? 'OFFICIAL MAGAZINE' : 'CƠ QUAN NGÔN LUẬN'}
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>
+                      DoanhNghiepVN.vn
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{
+                  background: 'rgba(10, 38, 102, 0.6)',
+                  borderRadius: '12px',
+                  padding: '14px',
+                  border: '1px solid rgba(147, 197, 253, 0.2)',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ fontSize: '12.5px', color: '#FFFFFF', fontWeight: 700, lineHeight: 1.4, marginBottom: '6px' }}>
+                    Thúc đẩy kết nối, xây dựng năng lực tiếp cận vốn tín dụng cho SME
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#93C5FD' }}>
+                    Chuyên đề chiến lược Tạp chí Doanh nghiệp Việt Nam
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.12)' }}>
+                  <span style={{ fontSize: '12px', color: '#BAE6FD', fontWeight: 600 }}>
+                    {currentLang === 'en' ? 'Tap to read full article' : 'Xem toàn văn bài viết'}
+                  </span>
+                  <span style={{ color: '#FBBF24', fontSize: '14px', fontWeight: 800 }}>→</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3. 6 TRỤ CỘT TƯ VẤN HỖ TRỢ DOANH NGHIỆP (CONTRACT & PBR SPEC) */}
       <section id="tu-van-linh-vuc" style={{ padding: '5rem 1.5rem', backgroundColor: '#F8FAFC', borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0' }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
           
           <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 3.5rem' }}>
-            <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span style={{ color: '#1E63E9', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {currentLang === 'en' ? 'Expert Services' : 'Dịch vụ chuyên gia'}
             </span>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
@@ -1031,7 +1286,7 @@ export const Home = () => {
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';
                   e.currentTarget.style.boxShadow = '0 14px 20px -4px rgba(0, 0, 0, 0.08)';
-                  e.currentTarget.style.borderColor = '#0D9488';
+                  e.currentTarget.style.borderColor = '#1E63E9';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'none';
@@ -1071,8 +1326,8 @@ export const Home = () => {
                   style={{
                     width: '100%',
                     backgroundColor: '#FFFFFF',
-                    color: '#0D9488',
-                    border: '1px solid #0D9488',
+                    color: '#1E63E9',
+                    border: '1px solid #1E63E9',
                     borderRadius: '10px',
                     padding: '10px 16px',
                     fontWeight: 700,
@@ -1085,12 +1340,12 @@ export const Home = () => {
                     gap: '6px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0D9488';
+                    e.currentTarget.style.backgroundColor = '#1E63E9';
                     e.currentTarget.style.color = '#FFFFFF';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = '#FFFFFF';
-                    e.currentTarget.style.color = '#0D9488';
+                    e.currentTarget.style.color = '#1E63E9';
                   }}
                 >
                   <span>{currentLang === 'en' ? 'Request Consulting' : 'Đăng ký tư vấn'}</span>
@@ -1109,7 +1364,7 @@ export const Home = () => {
           
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', gap: '1rem' }}>
             <div>
-              <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ color: '#1E63E9', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {currentLang === 'en' ? 'News & Special Reports' : 'Tin tức & Phóng sự'}
               </span>
               <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
@@ -1127,8 +1382,8 @@ export const Home = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                color: '#0D9488',
-                fontWeight: 600,
+                color: '#1E63E9',
+                fontWeight: 700,
                 fontSize: '0.95rem',
                 textDecoration: 'none'
               }}
@@ -1199,8 +1454,8 @@ export const Home = () => {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                         <span style={{
-                          backgroundColor: 'rgba(13, 148, 136, 0.1)',
-                          color: '#0D9488',
+                          backgroundColor: 'rgba(30, 99, 233, 0.1)',
+                          color: '#1E63E9',
                           fontSize: '0.75rem',
                           fontWeight: 700,
                           padding: '3px 8px',
@@ -1230,7 +1485,7 @@ export const Home = () => {
                         style={{
                           fontSize: '0.85rem',
                           fontWeight: 700,
-                          color: '#0D9488',
+                          color: '#1E63E9',
                           textDecoration: 'none',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -1256,7 +1511,7 @@ export const Home = () => {
           
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', gap: '1rem' }}>
             <div>
-              <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ color: '#1E63E9', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {currentLang === 'en' ? 'Ecosystem Network' : 'Hệ sinh thái kết nối'}
               </span>
               <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>
@@ -1272,7 +1527,7 @@ export const Home = () => {
             <button
               onClick={() => scrollToConsult(currentLang === 'en' ? 'Enterprise Membership & Profile' : 'Hội viên & Trang riêng doanh nghiệp')}
               style={{
-                backgroundColor: '#0D9488',
+                background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                 color: '#FFFFFF',
                 fontWeight: 700,
                 fontSize: '0.9rem',
@@ -1282,7 +1537,8 @@ export const Home = () => {
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                boxShadow: '0 4px 14px rgba(30, 99, 233, 0.4)'
               }}
             >
               <i className="fa-solid fa-user-plus" />
@@ -1339,8 +1595,8 @@ export const Home = () => {
                       display: 'block',
                       textAlign: 'center',
                       padding: '8px',
-                      backgroundColor: 'rgba(13, 148, 136, 0.08)',
-                      color: '#0D9488',
+                      backgroundColor: 'rgba(30, 99, 233, 0.08)',
+                      color: '#1E63E9',
                       borderRadius: '8px',
                       fontSize: '0.8rem',
                       fontWeight: 700,
@@ -1383,7 +1639,7 @@ export const Home = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: 800,
-                        color: '#0D9488',
+                        color: '#1E63E9',
                         border: '1px solid #E2E8F0'
                       }}>
                         {b.name.substring(0, 2).toUpperCase()}
@@ -1409,8 +1665,8 @@ export const Home = () => {
                         width: '100%',
                         textAlign: 'center',
                         padding: '8px',
-                        backgroundColor: 'rgba(13, 148, 136, 0.08)',
-                        color: '#0D9488',
+                        backgroundColor: 'rgba(30, 99, 233, 0.08)',
+                        color: '#1E63E9',
                         borderRadius: '8px',
                         fontSize: '0.8rem',
                         fontWeight: 700,
@@ -1440,7 +1696,7 @@ export const Home = () => {
           {/* Section Header */}
           <div style={{ textAlign: 'center', marginBottom: '2.75rem' }}>
             <span style={{
-              color: '#0D9488',
+              color: '#1E63E9',
               fontSize: '0.825rem',
               fontWeight: 800,
               letterSpacing: '1.2px',
@@ -1616,12 +1872,12 @@ export const Home = () => {
               right: '-10%',
               width: '400px',
               height: '400px',
-              background: 'radial-gradient(circle, rgba(13, 148, 136, 0.3) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(30, 99, 233, 0.3) 0%, transparent 70%)',
               pointerEvents: 'none'
             }} />
 
             <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-              <span style={{ color: '#2DD4BF', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ color: '#93C5FD', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {currentLang === 'en' ? 'Growth Partnership' : 'Đồng hành phát triển'}
               </span>
               <h2 style={{ fontSize: '2rem', fontWeight: 800, marginTop: '6px', color: '#FFFFFF' }}>
@@ -1638,11 +1894,11 @@ export const Home = () => {
               <div style={{
                 textAlign: 'center',
                 padding: '3rem 2rem',
-                backgroundColor: 'rgba(13, 148, 136, 0.15)',
+                backgroundColor: 'rgba(30, 99, 233, 0.15)',
                 borderRadius: '16px',
-                border: '1px solid #0D9488'
+                border: '1px solid #1E63E9'
               }}>
-                <i className="fa-solid fa-circle-check" style={{ fontSize: '3rem', color: '#2DD4BF', marginBottom: '1rem' }} />
+                <i className="fa-solid fa-circle-check" style={{ fontSize: '3rem', color: '#60A5FA', marginBottom: '1rem' }} />
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.5rem' }}>
                   {currentLang === 'en' ? 'Request Submitted Successfully!' : 'Gửi yêu cầu thành công!'}
                 </h3>
@@ -1654,13 +1910,14 @@ export const Home = () => {
                 <button
                   onClick={() => setFormSubmitted(false)}
                   style={{
-                    backgroundColor: '#0D9488',
+                    backgroundColor: '#1E63E9',
                     color: '#FFFFFF',
                     border: 'none',
                     padding: '10px 24px',
                     borderRadius: '8px',
                     fontWeight: 600,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(30, 99, 233, 0.4)'
                   }}
                 >
                   {currentLang === 'en' ? 'Submit another request' : 'Gửi thêm yêu cầu khác'}
@@ -1847,7 +2104,7 @@ export const Home = () => {
                     id="agreeTerms"
                     checked={formData.agreeTerms}
                     onChange={(e) => setFormData(p => ({ ...p, agreeTerms: e.target.checked }))}
-                    style={{ width: '16px', height: '16px', accentColor: '#0D9488' }}
+                    style={{ width: '16px', height: '16px', accentColor: '#1E63E9' }}
                   />
                   <label htmlFor="agreeTerms" style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
                     {currentLang === 'en'
@@ -1861,7 +2118,7 @@ export const Home = () => {
                   disabled={formLoading}
                   style={{
                     width: '100%',
-                    backgroundColor: '#0D9488',
+                    background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                     color: '#FFFFFF',
                     border: 'none',
                     borderRadius: '12px',
@@ -1869,8 +2126,8 @@ export const Home = () => {
                     fontWeight: 700,
                     fontSize: '1rem',
                     cursor: formLoading ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 14px rgba(13, 148, 136, 0.4)',
-                    transition: 'background-color 0.2s'
+                    boxShadow: '0 4px 14px rgba(30, 99, 233, 0.4)',
+                    transition: 'opacity 0.2s'
                   }}
                 >
                   {formLoading
@@ -1890,7 +2147,7 @@ export const Home = () => {
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span style={{ color: '#0D9488', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span style={{ color: '#1E63E9', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {currentLang === 'en' ? 'Support & Advisory' : 'Hỗ trợ giải đáp'}
             </span>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#0F172A', marginTop: '6px' }}>

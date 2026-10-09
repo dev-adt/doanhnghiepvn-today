@@ -324,7 +324,7 @@ export const Events = () => {
         <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
           <Navbar />
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem' }}>
-            <div style={{ textAlign: 'center', color: '#0D9488' }}>
+            <div style={{ textAlign: 'center', color: '#1E63E9' }}>
               <i className="ti ti-loader animate-spin" style={{ fontSize: '36px', display: 'block', margin: '0 auto 12px' }}></i>
               <span style={{ fontSize: '15px', fontWeight: '600', color: '#334155' }}>Đang tải thông tin sự kiện...</span>
             </div>
@@ -343,7 +343,7 @@ export const Events = () => {
               <i className="ti ti-alert-circle" style={{ fontSize: '48px', color: '#EF4444', marginBottom: '12px', display: 'block' }}></i>
               <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0F172A', marginBottom: '8px' }}>Không tìm thấy sự kiện</h2>
               <p style={{ fontSize: '14px', color: '#64748B', marginBottom: '1.5rem' }}>{detailError || 'Sự kiện này không tồn tại hoặc đã bị gỡ bỏ.'}</p>
-              <Link to="/events" style={{ display: 'inline-block', padding: '10px 20px', backgroundColor: '#0D9488', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
+              <Link to="/events" style={{ display: 'inline-block', padding: '10px 20px', backgroundColor: '#1E63E9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
                 Quay lại danh sách sự kiện
               </Link>
             </div>
@@ -1047,17 +1047,17 @@ export const Events = () => {
 
                       {/* KHỐI BẮT BUỘC TẢI ẢNH CHUYỂN KHOẢN (BILL) */}
                       <div style={{
-                        border: '2px dashed #0D9488',
-                        backgroundColor: '#F0FDFA',
+                        border: '2px dashed #1E63E9',
+                        backgroundColor: '#EFF6FF',
                         borderRadius: '12px',
                         padding: '1.25rem',
                         textAlign: 'center'
                       }}>
-                        <div style={{ fontSize: '13px', fontWeight: '800', color: '#0F766E', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: '800', color: '#1E40AF', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                           <i className="ti ti-upload"></i>
                           <span>Tải ảnh chuyển khoản thành công (Bắt buộc) *</span>
                         </div>
-                        <p style={{ fontSize: '11.5px', color: '#115E59', margin: '0 0 12px', lineHeight: 1.4 }}>
+                        <p style={{ fontSize: '11.5px', color: '#1E3A8A', margin: '0 0 12px', lineHeight: 1.4 }}>
                           Sau khi chuyển khoản qua ứng dụng ngân hàng, quý khách vui lòng tải ảnh biên lai giao dịch thành công lên đây để Ban tổ chức kiểm duyệt và kích hoạt vé.
                         </p>
 
@@ -1068,7 +1068,7 @@ export const Events = () => {
                               width: '100%',
                               borderRadius: '8px',
                               overflow: 'hidden',
-                              border: '1px solid #99F6E4',
+                              border: '1px solid #BFDBFE',
                               backgroundColor: '#ffffff'
                             }}>
                               <img
@@ -1078,7 +1078,7 @@ export const Events = () => {
                               />
                             </div>
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                              <span style={{ fontSize: '11px', color: '#0F766E', fontWeight: '600' }}>
+                              <span style={{ fontSize: '11px', color: '#1E40AF', fontWeight: '600' }}>
                                 ✓ Đã chọn ảnh: {proofFile?.name}
                               </span>
                               <label
@@ -1107,14 +1107,14 @@ export const Events = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '1.5rem',
-                            border: '1px dashed #14B8A6',
+                            border: '1px dashed #3B82F6',
                             borderRadius: '8px',
                             backgroundColor: '#ffffff',
                             cursor: 'pointer',
                             gap: '6px'
                           }}>
-                            <i className="ti ti-photo-plus" style={{ fontSize: '30px', color: '#0D9488' }}></i>
-                            <span style={{ fontSize: '12.5px', fontWeight: '700', color: '#0F766E' }}>
+                            <i className="ti ti-photo-plus" style={{ fontSize: '30px', color: '#1E63E9' }}></i>
+                            <span style={{ fontSize: '12.5px', fontWeight: '700', color: '#1E40AF' }}>
                               Nhấn vào đây để tải ảnh bill chuyển khoản
                             </span>
                             <span style={{ fontSize: '11px', color: '#64748B' }}>
@@ -1300,7 +1300,7 @@ export const Events = () => {
                             alignItems: 'center',
                             gap: '6px',
                             padding: '8px 16px',
-                            backgroundColor: '#0D9488',
+                            backgroundColor: '#1E63E9',
                             color: '#ffffff',
                             borderRadius: '8px',
                             fontSize: '12.5px',
@@ -1318,7 +1318,7 @@ export const Events = () => {
                             alignItems: 'center',
                             gap: '6px',
                             padding: '8px 16px',
-                            backgroundColor: '#0D9488',
+                            backgroundColor: '#1E63E9',
                             color: '#ffffff',
                             borderRadius: '8px',
                             fontSize: '12.5px',
@@ -1337,7 +1337,7 @@ export const Events = () => {
                           padding: '8px 24px',
                           borderRadius: '8px',
                           border: 'none',
-                          backgroundColor: '#064E3B',
+                          backgroundColor: '#0D3894',
                           color: '#ffffff',
                           fontSize: '12.5px',
                           fontWeight: '700',
@@ -1380,13 +1380,13 @@ export const Events = () => {
                     
                     {/* Thẻ Vé Điện Tử */}
                     <div style={{
-                      border: '2px dashed #0D9488',
+                      border: '2px dashed #1E63E9',
                       borderRadius: '12px',
                       padding: '1.25rem',
-                      backgroundColor: '#F0FDFA',
+                      backgroundColor: '#EFF6FF',
                       textAlign: 'center'
                     }}>
-                      <div style={{ fontSize: '11px', textTransform: 'uppercase', color: '#0F766E', fontWeight: '700', letterSpacing: '0.6px' }}>
+                      <div style={{ fontSize: '11px', textTransform: 'uppercase', color: '#1E40AF', fontWeight: '700', letterSpacing: '0.6px' }}>
                         MÃ VÉ THAM DỰ CHÍNH THỨC
                       </div>
                       <div style={{ fontSize: '22px', fontWeight: '900', color: '#0F172A', letterSpacing: '1px', margin: '4px 0 10px' }}>
@@ -1483,7 +1483,7 @@ export const Events = () => {
                             alignItems: 'center',
                             gap: '6px',
                             padding: '8px 16px',
-                            backgroundColor: '#0D9488',
+                            backgroundColor: '#1E63E9',
                             color: '#ffffff',
                             borderRadius: '8px',
                             fontSize: '12.5px',
@@ -1560,7 +1560,7 @@ export const Events = () => {
           paddingBottom: '1.25rem'
         }}>
           <div>
-            <span style={{ fontSize: '12px', fontWeight: '700', color: '#0D9488', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E63E9', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               HỆ SINH THÁI DOANHNGHIEPVN.TODAY
             </span>
             <h1 style={{ fontSize: '26px', fontWeight: '900', color: '#0F172A', margin: '4px 0 0' }}>
@@ -1590,7 +1590,7 @@ export const Events = () => {
 
         {/* Grid Sự Kiện */}
         {loadingList ? (
-          <div style={{ padding: '5rem', textAlign: 'center', color: '#0D9488' }}>
+          <div style={{ padding: '5rem', textAlign: 'center', color: '#1E63E9' }}>
             <i className="ti ti-loader animate-spin" style={{ fontSize: '32px', display: 'block', margin: '0 auto 10px' }}></i>
             Đang tải danh sách sự kiện...
           </div>
@@ -1644,7 +1644,7 @@ export const Events = () => {
                       position: 'absolute',
                       top: '12px',
                       left: '12px',
-                      backgroundColor: isPaid ? '#F59E0B' : '#0D9488',
+                      backgroundColor: isPaid ? '#F59E0B' : '#1E63E9',
                       color: '#ffffff',
                       padding: '4px 10px',
                       borderRadius: '12px',
@@ -1684,7 +1684,7 @@ export const Events = () => {
                     </div>
 
                     <div style={{ marginTop: '1.25rem', paddingTop: '10px', borderTop: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '11.5px', color: '#0D9488', fontWeight: '600' }}>
+                      <span style={{ fontSize: '11.5px', color: '#1E63E9', fontWeight: '600' }}>
                         Còn: <strong>{remaining}</strong> {capacity > 0 ? 'vé' : ''}
                       </span>
 
@@ -1692,7 +1692,7 @@ export const Events = () => {
                         to={`/events/${evt.slug || evt.id}`}
                         style={{
                           padding: '6px 14px',
-                          backgroundColor: '#064E3B',
+                          backgroundColor: '#1E63E9',
                           color: '#ffffff',
                           borderRadius: '6px',
                           textDecoration: 'none',

@@ -9,18 +9,18 @@
   --font-title: 'Outfit', system-ui, -apple-system, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
-  /* Color Tokens (Tech Royal Blue & Cyber Phù Đổng Palette) */
-  --primary: #0F52BA;
-  --primary-glow: rgba(15, 82, 186, 0.28);
-  --primary-dark: #0A2568;
-  --primary-light: #1E6BFF;
+  /* Color Tokens (Luminous Royal Blue & Bamboo Cyber Palette) */
+  --primary: #1E63E9;
+  --primary-glow: rgba(30, 99, 233, 0.35);
+  --primary-dark: #0D3894;
+  --primary-light: #3B82F6;
   
-  --neon-cyan: #00E5FF;
-  --neon-glow: rgba(0, 229, 255, 0.35);
+  --neon-cyan: #00D2FF;
+  --neon-glow: rgba(0, 210, 255, 0.4);
 
-  --emerald: #10B981;
-  --emerald-bg: rgba(16, 185, 129, 0.1);
-  --emerald-dark: #059669;
+  --emerald: #0284C7;
+  --emerald-bg: rgba(2, 132, 199, 0.12);
+  --emerald-dark: #0369A1;
 
   --amber: #F59E0B;
   --amber-bg: rgba(245, 158, 11, 0.12);

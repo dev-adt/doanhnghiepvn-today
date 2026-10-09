@@ -38,21 +38,21 @@ export const brandConfig = {
     fallbackCompanyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'
   },
 
-  // Hệ màu chủ đạo (CSS Theme Variables - Đồng bộ theo phong cách TECHFEST & Chuyển đổi số)
+  // Hệ màu chủ đạo (CSS Theme Variables - Đồng bộ theo phong cách Tre Việt Luminous Tech Blue)
   colors: {
-    primary: '#0F52BA',       // Tech Royal Blue chuẩn Techfest/Doanh nghiệp VN
-    primaryHover: '#0A3E9C',  // Deep Royal Blue hover
-    primaryDark: '#051336',   // Deep Cosmic Tech Navy
-    primaryLight: '#EBF2FF',  // Ice Blue nền phụ thanh lịch
-    secondary: '#0A2568',     // Cosmic Navy
-    accent: '#00E5FF',        // Electric Neon Cyan điểm nhấn công nghệ & Phù Đổng
-    accentGlow: 'rgba(0, 229, 255, 0.35)',
+    primary: '#1E63E9',       // Luminous Royal Blue sáng, hiện đại
+    primaryHover: '#1850C7',  // Vibrant Blue hover
+    primaryDark: '#0D3894',   // Royal Navy lịch lãm
+    primaryLight: '#EFF6FF',  // Ice Blue nền phụ thanh lịch phối trắng
+    secondary: '#1248BE',     // Vibrant Tech Blue
+    accent: '#00D2FF',        // Electric Ice Cyan lấy cảm hứng từ cây tre công nghệ
+    accentGlow: 'rgba(0, 210, 255, 0.4)',
     gold: '#F59E0B',          // Vàng hổ phách rực rỡ "Khởi nghiệp"
     goldLight: '#FBBF24',     // Vàng sáng
     goldGlow: 'rgba(245, 158, 11, 0.35)',
-    emerald: '#10B981',       // Xanh chuyển đổi số ESG & Tre Việt Nam
-    darkBg: '#051336',
-    darkCard: '#0A2568'
+    emerald: '#0284C7',       // Xanh dương tươi thay thế màu xanh lá cũ
+    darkBg: '#0D348A',
+    darkCard: '#1244B8'
   },
 
   // Trợ lý Trí tuệ Nhân tạo (AI Assistant)
