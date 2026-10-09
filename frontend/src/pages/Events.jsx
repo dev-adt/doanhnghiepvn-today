@@ -48,6 +48,8 @@ export const Events = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [accountNotice, setAccountNotice] = useState('');
+  const [accountWarning, setAccountWarning] = useState('');
+  const [checkingAccount, setCheckingAccount] = useState(false);
   const [submittingReg, setSubmittingReg] = useState(false);
   const [regSuccessData, setRegSuccessData] = useState(null);
   const [paidFlowStep, setPaidFlowStep] = useState('transfer'); // 'transfer' | 'pending_approval'
@@ -56,6 +58,65 @@ export const Events = () => {
   const [uploadingProof, setUploadingProof] = useState(false);
   const [copiedNote, setCopiedNote] = useState(false);
   const [copiedBank, setCopiedBank] = useState(false);
+
+  // Kiểm tra tài khoản đã tồn tại hay chưa khi chưa đăng nhập
+  const verifyAccountNotExists = async (phoneToCheck, emailToCheck, loginToCheck) => {
+    if (isActuallyLoggedIn) {
+      setAccountWarning('');
+      return true;
+    }
+    const p = (phoneToCheck !== undefined ? phoneToCheck : regForm.phone).trim();
+    const e = (emailToCheck !== undefined ? emailToCheck : regForm.email).trim();
+    const u = (loginToCheck !== undefined ? loginToCheck : regForm.accountLogin).trim();
+
+    if (!p && !e && !u) {
+      setAccountWarning('');
+      return true;
+    }
+
+    try {
+      setCheckingAccount(true);
+      const res = await fetch('/api/events/check-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: p, email: e, username: u })
+      });
+      const data = await res.json();
+      if (data.exists) {
+        setAccountWarning(data.message || 'Email hoặc Số điện thoại này đã được đăng ký tài khoản trong hệ thống. Vui lòng kiểm tra lại hoặc đăng nhập trước khi mua vé.');
+        return false;
+      } else {
+        setAccountWarning('');
+        return true;
+      }
+    } catch {
+      return true;
+    } finally {
+      setCheckingAccount(false);
+    }
+  };
+
+  // Hoàn tất đăng ký: Xóa hết thông tin cũ và reload lại trang
+  const handleFinishRegistration = () => {
+    setRegForm({
+      fullName: '',
+      phone: '',
+      email: '',
+      company: '',
+      quantity: 1,
+      createAccount: false,
+      accountLogin: '',
+      accountPassword: '',
+      accountConfirmPassword: ''
+    });
+    setProofFile(null);
+    setProofPreview('');
+    setRegSuccessData(null);
+    setPaidFlowStep('transfer');
+    setAccountNotice('');
+    setAccountWarning('');
+    window.location.reload();
+  };
 
   const handleProofChange = (e) => {
     const file = e.target.files?.[0];
@@ -209,6 +270,15 @@ export const Events = () => {
     if (!regForm.fullName.trim() || !regForm.phone.trim()) {
       alert('Vui lòng điền Họ và tên và Số điện thoại liên hệ.');
       return;
+    }
+
+    // Nếu chưa đăng nhập: Kiểm tra ngay xem SĐT hoặc Email đã có tài khoản hay chưa
+    if (!isActuallyLoggedIn) {
+      const isAvailable = await verifyAccountNotExists(regForm.phone, regForm.email, regForm.createAccount ? regForm.accountLogin : '');
+      if (!isAvailable) {
+        alert(accountWarning || 'Email hoặc Số điện thoại này đã được đăng ký tài khoản trong hệ thống. Vui lòng kiểm tra lại thông tin, đăng nhập tài khoản trước khi mua vé, hoặc sử dụng Email/Số điện thoại khác hợp lệ.');
+        return;
+      }
     }
 
     if (!isActuallyLoggedIn && regForm.createAccount) {
@@ -415,8 +485,8 @@ export const Events = () => {
                   borderRadius: '20px',
                   fontSize: '12px',
                   fontWeight: '700',
-                  backgroundColor: isPaid ? 'rgba(245, 158, 11, 0.15)' : '#D1FAE5',
-                  color: isPaid ? '#D97706' : '#065F46'
+                  backgroundColor: isPaid ? 'rgba(245, 158, 11, 0.15)' : '#EFF6FF',
+                  color: isPaid ? '#D97706' : '#1E63E9'
                 }}>
                   {isPaid ? `${Number(currentEvent.price).toLocaleString('vi-VN')} đ / vé` : 'Miễn phí'}
                 </span>
@@ -426,7 +496,7 @@ export const Events = () => {
               <h1 style={{
                 fontSize: 'clamp(24px, 3vw, 32px)',
                 fontWeight: '900',
-                color: '#0D382A',
+                color: '#0F172A',
                 lineHeight: 1.25,
                 margin: 0
               }}>
@@ -555,14 +625,14 @@ export const Events = () => {
                         <div
                           key={i}
                           style={{
-                            backgroundColor: '#064E3B', // Màu xanh đậm chuẩn ảnh 1
+                            background: 'linear-gradient(135deg, #092569 0%, #144CB8 100%)',
                             color: '#ffffff',
                             borderRadius: '8px',
                             padding: '8px 4px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            boxShadow: '0 2px 6px rgba(6, 78, 59, 0.3)'
+                            boxShadow: '0 2px 6px rgba(30, 99, 233, 0.3)'
                           }}
                         >
                           <span style={{ fontSize: '20px', fontWeight: '900', fontFamily: 'monospace', lineHeight: 1.1 }}>
@@ -649,7 +719,15 @@ export const Events = () => {
                         required
                         placeholder="Số điện thoại *"
                         value={regForm.phone}
-                        onChange={(e) => setRegForm(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) => {
+                          setRegForm(prev => ({ ...prev, phone: e.target.value }));
+                          if (accountWarning) setAccountWarning('');
+                        }}
+                        onBlur={() => {
+                          if (!isActuallyLoggedIn) {
+                            verifyAccountNotExists(regForm.phone, regForm.email, regForm.createAccount ? regForm.accountLogin : '');
+                          }
+                        }}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -668,7 +746,15 @@ export const Events = () => {
                         type="email"
                         placeholder="Email (không bắt buộc)"
                         value={regForm.email}
-                        onChange={(e) => setRegForm(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) => {
+                          setRegForm(prev => ({ ...prev, email: e.target.value }));
+                          if (accountWarning) setAccountWarning('');
+                        }}
+                        onBlur={() => {
+                          if (!isActuallyLoggedIn) {
+                            verifyAccountNotExists(regForm.phone, regForm.email, regForm.createAccount ? regForm.accountLogin : '');
+                          }
+                        }}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -727,8 +813,8 @@ export const Events = () => {
                     {isActuallyLoggedIn ? (
                       <div style={{
                         padding: '10px 14px',
-                        backgroundColor: '#F0FDF4',
-                        border: '1px solid #BBF7D0',
+                        backgroundColor: '#EFF6FF',
+                        border: '1px solid #BFDBFE',
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
@@ -739,18 +825,18 @@ export const Events = () => {
                           width: '28px',
                           height: '28px',
                           borderRadius: '50%',
-                          backgroundColor: '#DCFCE7',
+                          backgroundColor: '#DBEAFE',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#166534',
+                          color: '#1E40AF',
                           flexShrink: 0
                         }}>
                           <i className="ti ti-user-check" style={{ fontSize: '16px' }}></i>
                         </div>
-                        <div style={{ fontSize: '12px', color: '#166534', lineHeight: 1.4 }}>
+                        <div style={{ fontSize: '12px', color: '#1E40AF', lineHeight: 1.4 }}>
                           Tài khoản: <strong>{effectiveUser?.name || effectiveUser?.username || effectiveUser?.email}</strong>
-                          <div style={{ fontSize: '11px', color: '#15803D' }}>Vé đăng ký sẽ tự động gán vào tài khoản này để theo dõi.</div>
+                          <div style={{ fontSize: '11px', color: '#1E3A8A' }}>Vé đăng ký sẽ tự động gán vào tài khoản này để theo dõi.</div>
                         </div>
                       </div>
                     ) : (
@@ -768,8 +854,11 @@ export const Events = () => {
                                 createAccount: checked,
                                 accountLogin: checked && !prev.accountLogin ? (prev.email || prev.phone) : prev.accountLogin
                               }));
+                              if (checked) {
+                                verifyAccountNotExists(regForm.phone, regForm.email, regForm.email || regForm.phone);
+                              }
                             }}
-                            style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#064E3B' }}
+                            style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#1E63E9' }}
                           />
                           <label htmlFor="chkCreateAcc" style={{ fontSize: '12.5px', fontWeight: '600', color: '#334155', cursor: 'pointer' }}>
                             Tạo tài khoản để theo dõi vé
@@ -783,12 +872,12 @@ export const Events = () => {
                             flexDirection: 'column',
                             gap: '8px',
                             padding: '10px 12px',
-                            backgroundColor: '#F0FDF4',
-                            border: '1px solid #BBF7D0',
+                            backgroundColor: '#EFF6FF',
+                            border: '1px solid #BFDBFE',
                             borderRadius: '8px',
                             marginTop: '2px'
                           }}>
-                            <div style={{ fontSize: '11px', color: '#166534', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ fontSize: '11px', color: '#1E40AF', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <i className="ti ti-user-plus"></i>
                               <span>Thiết lập tài khoản thành viên:</span>
                             </div>
@@ -800,12 +889,20 @@ export const Events = () => {
                                 required={regForm.createAccount}
                                 placeholder="Tài khoản (Email hoặc Số điện thoại) *"
                                 value={regForm.accountLogin}
-                                onChange={(e) => setRegForm(prev => ({ ...prev, accountLogin: e.target.value }))}
+                                onChange={(e) => {
+                                  setRegForm(prev => ({ ...prev, accountLogin: e.target.value }));
+                                  if (accountWarning) setAccountWarning('');
+                                }}
+                                onBlur={() => {
+                                  if (!isActuallyLoggedIn) {
+                                    verifyAccountNotExists(regForm.phone, regForm.email, regForm.accountLogin);
+                                  }
+                                }}
                                 style={{
                                   width: '100%',
                                   padding: '8px 10px',
                                   borderRadius: '6px',
-                                  border: '1px solid #86EFAC',
+                                  border: '1px solid #93C5FD',
                                   fontSize: '12.5px',
                                   outline: 'none',
                                   backgroundColor: '#ffffff'
@@ -825,7 +922,7 @@ export const Events = () => {
                                   width: '100%',
                                   padding: '8px 32px 8px 10px',
                                   borderRadius: '6px',
-                                  border: '1px solid #86EFAC',
+                                  border: '1px solid #93C5FD',
                                   fontSize: '12.5px',
                                   outline: 'none',
                                   backgroundColor: '#ffffff'
@@ -864,7 +961,7 @@ export const Events = () => {
                                   width: '100%',
                                   padding: '8px 10px',
                                   borderRadius: '6px',
-                                  border: '1px solid #86EFAC',
+                                  border: '1px solid #93C5FD',
                                   fontSize: '12.5px',
                                   outline: 'none',
                                   backgroundColor: '#ffffff'
@@ -872,7 +969,7 @@ export const Events = () => {
                               />
                             </div>
 
-                            <div style={{ fontSize: '10.5px', color: '#15803D', lineHeight: 1.35 }}>
+                            <div style={{ fontSize: '10.5px', color: '#1E40AF', lineHeight: 1.35 }}>
                               * Hệ thống sẽ tự động tạo tài khoản như đăng ký thành viên (các trường bắt buộc khác sẽ để mặc định là "Cần bổ sung"). Sau khi admin duyệt, bạn có thể đăng nhập vào để cập nhật thông tin.
                             </div>
                           </div>
@@ -880,28 +977,51 @@ export const Events = () => {
                       </>
                     )}
 
+                    {/* Cảnh báo nếu Email hoặc SĐT đã có tài khoản trên hệ thống */}
+                    {accountWarning && (
+                      <div style={{
+                        backgroundColor: '#FEF2F2',
+                        border: '1px solid #FECACA',
+                        color: '#991B1B',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        lineHeight: 1.45,
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px',
+                        marginTop: '6px'
+                      }}>
+                        <i className="ti ti-alert-triangle" style={{ fontSize: '16px', color: '#DC2626', flexShrink: 0, marginTop: '2px' }}></i>
+                        <div>
+                          <div style={{ fontWeight: '600' }}>{accountWarning}</div>
+                          <div style={{ marginTop: '4px', fontSize: '11.5px', color: '#B91C1C' }}>
+                            👉 <Link to="/login" style={{ color: '#DC2626', fontWeight: '700', textDecoration: 'underline' }}>Đăng nhập tài khoản tại đây</Link> hoặc nhập Email / SĐT khác hợp lệ.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Nút Đăng ký ngay */}
                     <button
                       type="submit"
-                      disabled={submittingReg || (capacity > 0 && remaining === 0)}
+                      disabled={submittingReg || checkingAccount || (capacity > 0 && remaining === 0)}
                       style={{
                         width: '100%',
                         padding: '12px',
-                        backgroundColor: '#064E3B', // Màu xanh đậm chuẩn ảnh 1
+                        background: (capacity > 0 && remaining === 0) ? '#94A3B8' : 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: '8px',
                         fontSize: '14px',
                         fontWeight: '700',
-                        cursor: submittingReg || (capacity > 0 && remaining === 0) ? 'not-allowed' : 'pointer',
+                        cursor: submittingReg || checkingAccount || (capacity > 0 && remaining === 0) ? 'not-allowed' : 'pointer',
                         marginTop: '8px',
-                        boxShadow: '0 4px 12px rgba(6, 78, 59, 0.35)',
-                        transition: 'transform 0.15s ease, background-color 0.15s'
+                        boxShadow: (capacity > 0 && remaining === 0) ? 'none' : '0 4px 12px rgba(30, 99, 233, 0.4)',
+                        transition: 'transform 0.15s ease, opacity 0.15s'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#04382A'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#064E3B'; }}
                     >
-                      {submittingReg ? 'Đang xử lý...' : (capacity > 0 && remaining === 0) ? 'Đã hết vé' : 'Đăng ký ngay'}
+                      {submittingReg ? 'Đang xử lý...' : checkingAccount ? 'Đang kiểm tra tài khoản...' : (capacity > 0 && remaining === 0) ? 'Đã hết vé' : 'Đăng ký ngay'}
                     </button>
 
                     {/* Subtext chú thích */}
@@ -961,7 +1081,7 @@ export const Events = () => {
                 paidFlowStep === 'transfer' ? (
                   // BƯỚC 1 CỦA SỰ KIỆN CÓ PHÍ: THÔNG TIN CHUYỂN KHOẢN & BẮT BUỘC TẢI ẢNH BILL
                   <>
-                    <div style={{ backgroundColor: '#064E3B', color: '#ffffff', padding: '1.25rem', textAlign: 'center' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #092569 0%, #144CB8 100%)', color: '#ffffff', padding: '1.25rem', textAlign: 'center' }}>
                       <div style={{
                         width: '46px',
                         height: '46px',
@@ -1143,7 +1263,7 @@ export const Events = () => {
                     }}>
                       <button
                         type="button"
-                        onClick={() => setRegSuccessData(null)}
+                        onClick={handleFinishRegistration}
                         style={{
                           padding: '8px 16px',
                           borderRadius: '8px',
@@ -1166,7 +1286,7 @@ export const Events = () => {
                           padding: '9px 22px',
                           borderRadius: '8px',
                           border: 'none',
-                          backgroundColor: proofFile ? '#064E3B' : '#94A3B8',
+                          background: proofFile ? 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)' : '#94A3B8',
                           color: '#ffffff',
                           fontSize: '13px',
                           fontWeight: '700',
@@ -1174,7 +1294,7 @@ export const Events = () => {
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '6px',
-                          boxShadow: proofFile ? '0 2px 6px rgba(6, 78, 59, 0.3)' : 'none'
+                          boxShadow: proofFile ? '0 2px 6px rgba(30, 99, 233, 0.3)' : 'none'
                         }}
                       >
                         {uploadingProof ? (
@@ -1194,7 +1314,7 @@ export const Events = () => {
                 ) : (
                   // BƯỚC 2 CỦA SỰ KIỆN CÓ PHÍ: THÔNG BÁO CHỜ DUYỆT THANH TOÁN
                   <>
-                    <div style={{ backgroundColor: '#065F46', color: '#ffffff', padding: '1.5rem 1.25rem', textAlign: 'center' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #092569 0%, #144CB8 100%)', color: '#ffffff', padding: '1.5rem 1.25rem', textAlign: 'center' }}>
                       <div style={{
                         width: '52px',
                         height: '52px',
@@ -1271,9 +1391,9 @@ export const Events = () => {
 
                       {accountNotice && (
                         <div style={{
-                          backgroundColor: '#ECFDF5',
-                          border: '1px solid #A7F3D0',
-                          color: '#065F46',
+                          backgroundColor: '#EFF6FF',
+                          border: '1px solid #BFDBFE',
+                          color: '#1E40AF',
                           padding: '10px 14px',
                           borderRadius: '8px',
                           fontSize: '12px',
@@ -1332,16 +1452,17 @@ export const Events = () => {
 
                       <button
                         type="button"
-                        onClick={() => setRegSuccessData(null)}
+                        onClick={handleFinishRegistration}
                         style={{
                           padding: '8px 24px',
                           borderRadius: '8px',
                           border: 'none',
-                          backgroundColor: '#0D3894',
+                          background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                           color: '#ffffff',
                           fontSize: '12.5px',
                           fontWeight: '700',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(30, 99, 233, 0.4)'
                         }}
                       >
                         Hoàn tất
@@ -1354,7 +1475,7 @@ export const Events = () => {
                 // TRƯỜNG HỢP 2: SỰ KIỆN MIỄN PHÍ (CÓ VÉ LIỀN)
                 // ─────────────────────────────────────────────────────────────
                 <>
-                  <div style={{ backgroundColor: '#064E3B', color: '#ffffff', padding: '1.25rem', textAlign: 'center' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #092569 0%, #144CB8 100%)', color: '#ffffff', padding: '1.25rem', textAlign: 'center' }}>
                     <div style={{
                       width: '46px',
                       height: '46px',
@@ -1427,9 +1548,9 @@ export const Events = () => {
                     {/* Thông báo tạo tài khoản nếu có */}
                     {accountNotice && (
                       <div style={{
-                        backgroundColor: '#ECFDF5',
-                        border: '1px solid #A7F3D0',
-                        color: '#065F46',
+                        backgroundColor: '#EFF6FF',
+                        border: '1px solid #BFDBFE',
+                        color: '#1E40AF',
                         padding: '10px 14px',
                         borderRadius: '8px',
                         fontSize: '12px',
@@ -1438,7 +1559,7 @@ export const Events = () => {
                         alignItems: 'flex-start',
                         gap: '8px'
                       }}>
-                        <i className="ti ti-check-circle" style={{ fontSize: '18px', color: '#059669', flexShrink: 0, marginTop: '2px' }}></i>
+                        <i className="ti ti-check-circle" style={{ fontSize: '18px', color: '#1E63E9', flexShrink: 0, marginTop: '2px' }}></i>
                         <div>
                           <strong>Tài khoản theo dõi vé:</strong> {accountNotice} Sau khi Ban quản trị phê duyệt hồ sơ, bạn có thể đăng nhập bằng tài khoản này để xem và quản lý vé trong Dashboard thành viên.
                         </div>
@@ -1497,16 +1618,17 @@ export const Events = () => {
 
                       <button
                         type="button"
-                        onClick={() => setRegSuccessData(null)}
+                        onClick={handleFinishRegistration}
                         style={{
                           padding: '8px 24px',
                           borderRadius: '8px',
                           border: 'none',
-                          backgroundColor: '#064E3B',
+                          background: 'linear-gradient(135deg, #1E63E9 0%, #154EC2 100%)',
                           color: '#ffffff',
                           fontSize: '12.5px',
                           fontWeight: '700',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(30, 99, 233, 0.4)'
                         }}
                       >
                         Hoàn tất

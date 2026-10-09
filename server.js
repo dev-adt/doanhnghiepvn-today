@@ -3937,6 +3937,64 @@ app.get('/api/events/:id', async (req, res) => {
   }
 });
 
+// Kiểm tra nhanh email / sđt đã có tài khoản hay chưa (Dùng cho form đăng ký sự kiện)
+app.post('/api/events/check-account', async (req, res) => {
+  try {
+    const { phone, email, username } = req.body;
+    const cleanPhone = phone ? phone.trim().replace(/\s+/g, '') : null;
+    const cleanEmail = email ? email.trim().toLowerCase() : null;
+    const cleanUser = username ? username.trim().toLowerCase() : null;
+
+    if (!cleanPhone && !cleanEmail && !cleanUser) {
+      return res.json({ success: true, exists: false });
+    }
+
+    const [dupMembers] = await db.query(
+      `SELECT id, username, email, phone FROM members 
+       WHERE (? IS NOT NULL AND phone IS NOT NULL AND phone != '' AND (REPLACE(phone, ' ', '') = ? OR phone = ?))
+          OR (? IS NOT NULL AND email IS NOT NULL AND email != '' AND LOWER(email) = ?)
+          OR (? IS NOT NULL AND username IS NOT NULL AND username != '' AND (LOWER(username) = ? OR LOWER(username) = ?)) LIMIT 1`,
+      [cleanPhone, cleanPhone, cleanPhone, cleanEmail, cleanEmail, cleanUser, cleanUser, cleanEmail]
+    );
+
+    const [dupAdmins] = await db.query(
+      `SELECT id, username, email FROM admins 
+       WHERE (? IS NOT NULL AND email IS NOT NULL AND email != '' AND LOWER(email) = ?)
+          OR (? IS NOT NULL AND username IS NOT NULL AND username != '' AND LOWER(username) = ?) LIMIT 1`,
+      [cleanEmail, cleanEmail, cleanUser, cleanUser]
+    );
+
+    const [dupOrganizers] = await db.query(
+      `SELECT id, username, email, phone FROM event_organizers 
+       WHERE (? IS NOT NULL AND phone IS NOT NULL AND phone != '' AND (REPLACE(phone, ' ', '') = ? OR phone = ?))
+          OR (? IS NOT NULL AND email IS NOT NULL AND email != '' AND LOWER(email) = ?)
+          OR (? IS NOT NULL AND username IS NOT NULL AND username != '' AND LOWER(username) = ?) LIMIT 1`,
+      [cleanPhone, cleanPhone, cleanPhone, cleanEmail, cleanEmail, cleanUser, cleanUser]
+    );
+
+    const foundDup = dupMembers[0] || dupAdmins[0] || dupOrganizers[0];
+    if (foundDup) {
+      let fieldName = 'Email hoặc Số điện thoại';
+      if (cleanPhone && foundDup.phone && foundDup.phone.replace(/\s+/g, '') === cleanPhone) {
+        fieldName = `Số điện thoại "${cleanPhone}"`;
+      } else if (cleanEmail && foundDup.email && foundDup.email.toLowerCase() === cleanEmail) {
+        fieldName = `Email "${cleanEmail}"`;
+      } else if (cleanUser && foundDup.username && foundDup.username.toLowerCase() === cleanUser) {
+        fieldName = `Tài khoản "${cleanUser}"`;
+      }
+      return res.json({
+        success: true,
+        exists: true,
+        message: `${fieldName} đã được đăng ký tài khoản trong hệ thống. Vui lòng kiểm tra lại hoặc đăng nhập trước khi mua vé.`
+      });
+    }
+
+    res.json({ success: true, exists: false });
+  } catch (err) {
+    res.json({ success: true, exists: false });
+  }
+});
+
 // Đăng ký tham gia sự kiện & Cấp mã vé QR
 app.post('/api/events/:id/register', async (req, res) => {
   try {
@@ -4035,7 +4093,56 @@ app.post('/api/events/:id/register', async (req, res) => {
       }
     }
 
-    // 3. Nếu chưa có tài khoản và khách tích chọn tạo tài khoản mới:
+    // 3. Nếu chưa đăng nhập: Kiểm tra xem Email hoặc Số điện thoại đã được đăng ký tài khoản trong hệ thống chưa
+    if (!createdMemberId) {
+      const checkPhone = cleanPhone;
+      const checkEmail = cleanEmail ? cleanEmail.toLowerCase() : null;
+      const checkLogin = (account_login && account_login.trim()) ? account_login.trim().toLowerCase() : null;
+
+      // Tìm trong bảng members
+      const [dupMembers] = await db.query(
+        `SELECT id, username, email, phone FROM members 
+         WHERE (phone IS NOT NULL AND phone != '' AND (REPLACE(phone, ' ', '') = ? OR phone = ?))
+            OR (? IS NOT NULL AND email IS NOT NULL AND email != '' AND LOWER(email) = ?)
+            OR (? IS NOT NULL AND username IS NOT NULL AND username != '' AND (LOWER(username) = ? OR LOWER(username) = ?)) LIMIT 1`,
+        [checkPhone, checkPhone, checkEmail, checkEmail, checkLogin, checkLogin, checkEmail]
+      );
+
+      // Tìm trong bảng admins
+      const [dupAdmins] = await db.query(
+        `SELECT id, username, email FROM admins 
+         WHERE (? IS NOT NULL AND email IS NOT NULL AND email != '' AND LOWER(email) = ?)
+            OR (? IS NOT NULL AND username IS NOT NULL AND username != '' AND LOWER(username) = ?) LIMIT 1`,
+        [checkEmail, checkEmail, checkLogin, checkLogin]
+      );
+
+      // Tìm trong bảng event_organizers
+      const [dupOrganizers] = await db.query(
+        `SELECT id, username, email, phone FROM event_organizers 
+         WHERE (phone IS NOT NULL AND phone != '' AND (REPLACE(phone, ' ', '') = ? OR phone = ?))
+            OR (? IS NOT NULL AND email IS NOT NULL AND email != '' AND LOWER(email) = ?)
+            OR (? IS NOT NULL AND username IS NOT NULL AND username != '' AND LOWER(username) = ?) LIMIT 1`,
+        [checkPhone, checkPhone, checkEmail, checkEmail, checkLogin, checkLogin]
+      );
+
+      const foundDup = dupMembers[0] || dupAdmins[0] || dupOrganizers[0];
+      if (foundDup) {
+        let fieldName = 'Email hoặc Số điện thoại';
+        if (checkPhone && foundDup.phone && foundDup.phone.replace(/\s+/g, '') === checkPhone) {
+          fieldName = `Số điện thoại "${checkPhone}"`;
+        } else if (checkEmail && foundDup.email && foundDup.email.toLowerCase() === checkEmail) {
+          fieldName = `Email "${checkEmail}"`;
+        } else if (checkLogin && foundDup.username && foundDup.username.toLowerCase() === checkLogin) {
+          fieldName = `Tài khoản "${checkLogin}"`;
+        }
+        return res.status(400).json({
+          success: false,
+          error: `${fieldName} đã được đăng ký tài khoản trong hệ thống. Vui lòng kiểm tra lại thông tin, đăng nhập tài khoản trước khi mua vé, hoặc nhập Email/Số điện thoại khác hợp lệ.`
+        });
+      }
+    }
+
+    // 4. Nếu chưa có tài khoản và khách tích chọn tạo tài khoản mới:
     const willCreateAccount = !createdMemberId && (create_account === true || create_account === 'true' || create_account === 1 || create_account === '1');
 
     if (willCreateAccount) {
