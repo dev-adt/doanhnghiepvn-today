@@ -38,17 +38,21 @@ export const brandConfig = {
     fallbackCompanyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'
   },
 
-  // Hệ màu chủ đạo (CSS Theme Variables)
+  // Hệ màu chủ đạo (CSS Theme Variables - Đồng bộ theo phong cách TECHFEST & Chuyển đổi số)
   colors: {
-    primary: '#0D9488',       // Teal chủ đạo hiện đại
-    primaryHover: '#0F766E',  // Teal đậm khi hover
-    primaryDark: '#0B132B',   // Navy đậm
-    primaryLight: '#CCFBF1',  // Teal nhạt nền
-    secondary: '#0F172A',     // Slate/Navy
-    accent: '#1E88E5',        // Blue điểm nhấn
-    gold: '#F59E0B',          // Vàng hổ phách
-    darkBg: '#090d16',
-    darkCard: '#0f172a'
+    primary: '#0F52BA',       // Tech Royal Blue chuẩn Techfest/Doanh nghiệp VN
+    primaryHover: '#0A3E9C',  // Deep Royal Blue hover
+    primaryDark: '#051336',   // Deep Cosmic Tech Navy
+    primaryLight: '#EBF2FF',  // Ice Blue nền phụ thanh lịch
+    secondary: '#0A2568',     // Cosmic Navy
+    accent: '#00E5FF',        // Electric Neon Cyan điểm nhấn công nghệ & Phù Đổng
+    accentGlow: 'rgba(0, 229, 255, 0.35)',
+    gold: '#F59E0B',          // Vàng hổ phách rực rỡ "Khởi nghiệp"
+    goldLight: '#FBBF24',     // Vàng sáng
+    goldGlow: 'rgba(245, 158, 11, 0.35)',
+    emerald: '#10B981',       // Xanh chuyển đổi số ESG & Tre Việt Nam
+    darkBg: '#051336',
+    darkCard: '#0A2568'
   },
 
   // Trợ lý Trí tuệ Nhân tạo (AI Assistant)

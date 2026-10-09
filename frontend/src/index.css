@@ -1,5 +1,6 @@
-/* Đồ Sơn — Redesigned Premium & Modern Design System */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+/* DoanhNghiepVN.today — High-End Tech & Enterprise Design System */
+/* Inspired by TECHFEST Vietnam 2025: Tech Royal Blue, Electric Cyan & Radiant Enterprise Gold */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0}
 
@@ -8,52 +9,55 @@
   --font-title: 'Outfit', system-ui, -apple-system, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
-  /* Color Tokens (Shared Brand Palette) */
-  --primary: #0284C7;
-  --primary-glow: rgba(2, 132, 199, 0.25);
-  --primary-dark: #0369A1;
-  --primary-light: #38BDF8;
+  /* Color Tokens (Tech Royal Blue & Cyber Phù Đổng Palette) */
+  --primary: #0F52BA;
+  --primary-glow: rgba(15, 82, 186, 0.28);
+  --primary-dark: #0A2568;
+  --primary-light: #1E6BFF;
   
-  --neon-cyan: #0EA5E9;
-  --neon-glow: rgba(14, 165, 233, 0.2);
+  --neon-cyan: #00E5FF;
+  --neon-glow: rgba(0, 229, 255, 0.35);
 
   --emerald: #10B981;
   --emerald-bg: rgba(16, 185, 129, 0.1);
   --emerald-dark: #059669;
 
   --amber: #F59E0B;
-  --amber-bg: rgba(245, 158, 11, 0.1);
+  --amber-bg: rgba(245, 158, 11, 0.12);
   --amber-dark: #D97706;
+  --gold: #F59E0B;
+  --gold-light: #FBBF24;
+  --gold-glow: rgba(245, 158, 11, 0.3);
 
   --rose: #EF4444;
   --rose-bg: rgba(239, 68, 68, 0.1);
   --rose-dark: #DC2626;
 
-  /* Default Theme: Premium Ocean/Sky Blue (Light, Fresh) */
-  --bg-base: #EBF4FC;
+  /* Default Theme: Premium Tech Slate Canvas (Crisp, High-Contrast, Clean) */
+  --bg-base: #F4F7FC;
   --surface-2: #FFFFFF;
-  --surface-0: #D8ECFD;
-  --surface-1: #C2E0FC;
+  --surface-0: #EBF1FA;
+  --surface-1: #DFE9F6;
   
-  --text-primary: #0C2340;
-  --text-secondary: #2C4A6F;
-  --text-muted: #5C7B9E;
+  --text-primary: #0A1C3E;
+  --text-secondary: #243A69;
+  --text-muted: #64748B;
   
-  --border: rgba(12, 35, 64, 0.08);
-  --border-strong: rgba(12, 35, 64, 0.16);
+  --border: rgba(15, 82, 186, 0.08);
+  --border-strong: rgba(15, 82, 186, 0.18);
 
   /* Glassmorphism Parameters */
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(12, 35, 64, 0.08);
-  --glass-glow: rgba(2, 132, 199, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 82, 186, 0.1);
+  --glass-glow: rgba(0, 229, 255, 0.12);
 
   /* Shared parameters */
   --radius: 12px;
   --radius-lg: 20px;
   --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  --shadow: 0 10px 30px -10px rgba(12, 35, 64, 0.08);
-  --shadow-lg: 0 20px 40px -15px rgba(12, 35, 64, 0.12);
-  --shadow-light: 0 8px 24px -8px rgba(12, 35, 64, 0.04);
+  --shadow: 0 10px 30px -10px rgba(10, 28, 62, 0.08);
+  --shadow-lg: 0 20px 40px -15px rgba(10, 28, 62, 0.14);
+  --shadow-light: 0 8px 24px -8px rgba(10, 28, 62, 0.04);
 }
 
 /* Card Hover Micro-animations */
@@ -62,40 +66,40 @@
 }
 .card-hover-effect:hover {
   transform: translateY(-5px) scale(1.01) !important;
-  box-shadow: 0 14px 30px rgba(12, 35, 64, 0.08) !important;
-  border-color: #bae6fd !important;
+  box-shadow: 0 16px 36px rgba(10, 37, 104, 0.12) !important;
+  border-color: rgba(0, 229, 255, 0.45) !important;
 }
 
 /* Light Theme Variables (Applied to admin panel & light-theme elements) */
 .light-theme, body.light-theme, body:not(.dark-theme):not(.public-body) {
-  --bg-base: #F0F7FF;
+  --bg-base: #F4F7FC;
   --surface-2: #FFFFFF;
-  --surface-0: #E6F1FC;
-  --surface-1: #D8EBFD;
+  --surface-0: #EBF1FA;
+  --surface-1: #DFE9F6;
   
-  --text-primary: #0C2340;
-  --text-secondary: #2C4A6F;
-  --text-muted: #5C7B9E;
+  --text-primary: #0A1C3E;
+  --text-secondary: #243A69;
+  --text-muted: #64748B;
   
-  --border: #D8EBFD;
-  --border-strong: #C2DFFB;
+  --border: rgba(15, 82, 186, 0.1);
+  --border-strong: rgba(15, 82, 186, 0.2);
   --shadow: var(--shadow-light);
 }
 
 /* Specific Dark theme overrides for explicit wrappers */
 .dark-theme, body.dark-theme, body.public-body {
-  --bg-base: #EBF4FC;
+  --bg-base: #F4F7FC;
   --surface-2: #FFFFFF;
-  --surface-0: #D8ECFD;
-  --surface-1: #C2E0FC;
+  --surface-0: #EBF1FA;
+  --surface-1: #DFE9F6;
   
-  --text-primary: #0C2340;
-  --text-secondary: #2C4A6F;
-  --text-muted: #5C7B9E;
+  --text-primary: #0A1C3E;
+  --text-secondary: #243A69;
+  --text-muted: #64748B;
   
-  --border: rgba(12, 35, 64, 0.08);
-  --border-strong: rgba(12, 35, 64, 0.16);
-  --shadow: 0 10px 30px -10px rgba(12, 35, 64, 0.08);
+  --border: rgba(15, 82, 186, 0.08);
+  --border-strong: rgba(15, 82, 186, 0.18);
+  --shadow: 0 10px 30px -10px rgba(10, 28, 62, 0.08);
 }
 
 /* BASE STYLING */

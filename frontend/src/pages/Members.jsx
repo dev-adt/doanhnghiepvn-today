@@ -5,6 +5,7 @@ import { useTranslation } from '../contexts/LanguageContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
+import { fetchJsonWithTimeout, FALLBACK_MEMBERS } from '../utils/api';
 
 export const Members = () => {
   const { token } = useAuth();
@@ -78,14 +79,14 @@ export const Members = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
     const loadMembers = async () => {
       try {
         const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-        const res = await fetch('/api/members?status=approved', { headers });
-        if (!res.ok) throw new Error('Không thể tải danh sách hội viên');
-        const data = await res.json();
+        const data = await fetchJsonWithTimeout('/api/members?status=approved', { headers }, 4500);
         
-        const mappedMembers = (data.data || []).map(m => {
+        const rawList = (data && Array.isArray(data.data) && data.data.length > 0) ? data.data : FALLBACK_MEMBERS;
+        const mappedMembers = rawList.map(m => {
           const colors = getInitialsColors(m.name);
           return {
             id: m.id,
@@ -105,16 +106,36 @@ export const Members = () => {
           };
         });
 
-        setMembers(mappedMembers);
+        if (isMounted) setMembers(mappedMembers);
       } catch (err) {
-        console.error(err);
-        setError(err.message);
+        console.warn('Lỗi tải danh sách hội viên, dùng fallback:', err.message);
+        const mappedMembers = FALLBACK_MEMBERS.map(m => {
+          const colors = getInitialsColors(m.name);
+          return {
+            id: m.id,
+            name: m.name,
+            initials: m.name.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+            bg: colors.bg,
+            fg: colors.fg,
+            tier: m.tier,
+            industry: m.industry || 'Chưa phân loại',
+            email: m.email || 'Chưa cập nhật',
+            desc: m.description || 'Chưa có mô tả chi tiết hoạt động kinh doanh.',
+            date: new Date().toLocaleDateString('vi-VN'),
+            is_featured: 1,
+            city: 'Việt Nam',
+            phone: 'Chưa cập nhật',
+            contact_name: 'Đại diện hội viên'
+          };
+        });
+        if (isMounted) setMembers(mappedMembers);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadMembers();
+    return () => { isMounted = false; };
   }, [token]);
 
   // Extract unique industries for select dropdown

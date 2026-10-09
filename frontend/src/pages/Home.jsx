@@ -6,12 +6,12 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FloatingAIBot from '../components/FloatingAIBot';
 import SEOHead from '../components/SEOHead';
-import { BRAND_CONFIG } from '../brand.config';
+import SpotlightBanner from '../components/SpotlightBanner';
 import { getCategoryLabel } from '../constants/categories';
+import { fetchJsonWithTimeout, FALLBACK_POSTS, FALLBACK_EVENTS, FALLBACK_MEMBERS } from '../utils/api';
 
 export const Home = () => {
-  const { role } = useAuth();
-  const { currentLang, t } = useTranslation();
+  const { currentLang } = useTranslation();
   const navigate = useNavigate();
 
   // Search & AI State
@@ -51,34 +51,39 @@ export const Home = () => {
     let isMounted = true;
     const fetchHomeData = async () => {
       try {
-        // 1. Fetch posts
-        const resPosts = await fetch('/api/posts?limit=6');
-        if (resPosts.ok) {
-          const dataPosts = await resPosts.json();
-          if (dataPosts.success && Array.isArray(dataPosts.data) && isMounted) {
-            setLatestPosts(dataPosts.data);
-          }
-        }
+        // Tải dữ liệu song song (Promise.allSettled) với timeout 4s để chống nghẽn loading
+        const [postsRes, eventsRes, membersRes] = await Promise.allSettled([
+          fetchJsonWithTimeout('/api/posts?limit=6', {}, 4000),
+          fetchJsonWithTimeout('/api/events?limit=4', {}, 4000),
+          fetchJsonWithTimeout('/api/members?limit=3', {}, 4000)
+        ]);
 
-        // 2. Fetch events
-        const resEvents = await fetch('/api/events?limit=4');
-        if (resEvents.ok) {
-          const dataEvents = await resEvents.json();
-          if (dataEvents.success && Array.isArray(dataEvents.data) && isMounted) {
-            setEventsList(dataEvents.data);
+        if (isMounted) {
+          if (postsRes.status === 'fulfilled' && postsRes.value?.success && Array.isArray(postsRes.value.data) && postsRes.value.data.length > 0) {
+            setLatestPosts(postsRes.value.data);
+          } else {
+            setLatestPosts(FALLBACK_POSTS);
           }
-        }
 
-        // 3. Fetch top members
-        const resMembers = await fetch('/api/members?limit=3');
-        if (resMembers.ok) {
-          const dataMembers = await resMembers.json();
-          if (dataMembers.success && Array.isArray(dataMembers.data) && isMounted) {
-            setFeaturedMembers(dataMembers.data);
+          if (eventsRes.status === 'fulfilled' && eventsRes.value?.success && Array.isArray(eventsRes.value.data) && eventsRes.value.data.length > 0) {
+            setEventsList(eventsRes.value.data);
+          } else {
+            setEventsList(FALLBACK_EVENTS);
+          }
+
+          if (membersRes.status === 'fulfilled' && membersRes.value?.success && Array.isArray(membersRes.value.data) && membersRes.value.data.length > 0) {
+            setFeaturedMembers(membersRes.value.data);
+          } else {
+            setFeaturedMembers(FALLBACK_MEMBERS);
           }
         }
       } catch (e) {
-        console.warn('Could not fetch homepage data:', e);
+        console.warn('Could not fetch homepage data, using resilient fallbacks:', e);
+        if (isMounted) {
+          setLatestPosts(FALLBACK_POSTS);
+          setEventsList(FALLBACK_EVENTS);
+          setFeaturedMembers(FALLBACK_MEMBERS);
+        }
       } finally {
         if (isMounted) {
           setLoadingPosts(false);
@@ -376,21 +381,30 @@ export const Home = () => {
       {/* Header with dynamic categories */}
       <Navbar />
 
+      {/* Top Strategic Mission Banner */}
+      <SpotlightBanner
+        badgeText={currentLang === 'en' ? 'STRATEGIC MISSION • VIETNAM ENTERPRISE MAGAZINE' : 'SỨ MỆNH CHIẾN LƯỢC • TẠP CHÍ DOANH NGHIỆP VIỆT NAM'}
+        title={currentLang === 'en' ? 'Vietnam Enterprise Magazine — Mission: Accompanying Enterprises' : 'Tạp chí Doanh nghiệp Việt Nam — Sứ mệnh: Đồng hành cùng doanh nghiệp'}
+        subtitle={currentLang === 'en' ? 'Promoting connections, building credit access capacity for SMEs and business households in the digital era.' : 'Thúc đẩy kết nối, xây dựng năng lực tiếp cận vốn tín dụng cho SME và hộ kinh doanh trong kỷ nguyên số.'}
+        buttonText={currentLang === 'en' ? 'Read Special Report →' : 'Khám phá bài viết ngay →'}
+        link="https://doanhnghiepvn.vn/doanh-nghiep/thuc-day-ket-noi-xay-dung-nang-luc-tiep-can-von-tin-dung-cho-sme-va-ho-kinh-doanh/20260721095902983"
+      />
+
       {/* 1. HERO SECTION */}
       <section style={{
         position: 'relative',
-        background: 'linear-gradient(135deg, #0F172A 0%, #0B132B 50%, #0F2D37 100%)',
+        background: 'linear-gradient(135deg, #051336 0%, #08215E 50%, #0A2E7A 100%)',
         color: '#FFFFFF',
-        padding: '5rem 1.5rem 6.5rem',
+        padding: '4.5rem 1.5rem 6rem',
         overflow: 'hidden',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+        borderBottom: '1px solid rgba(0, 229, 255, 0.15)'
       }}>
         {/* Pattern backdrop */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.12,
-          backgroundImage: 'radial-gradient(#38BDF8 1px, transparent 1px)',
+          opacity: 0.15,
+          backgroundImage: 'radial-gradient(#00E5FF 1.2px, transparent 1.2px)',
           backgroundSize: '24px 24px',
           pointerEvents: 'none'
         }} />
@@ -400,10 +414,11 @@ export const Home = () => {
           position: 'absolute',
           top: '-20%',
           right: '10%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(13, 148, 136, 0.25) 0%, rgba(15, 23, 42, 0) 70%)',
-          pointerEvents: 'none'
+          width: '650px',
+          height: '650px',
+          background: 'radial-gradient(circle, rgba(0, 229, 255, 0.22) 0%, rgba(5, 19, 54, 0) 70%)',
+          pointerEvents: 'none',
+          filter: 'blur(40px)'
         }} />
 
         <div style={{ maxWidth: '1240px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
@@ -417,9 +432,9 @@ export const Home = () => {
                 gap: '8px',
                 padding: '6px 14px',
                 borderRadius: '9999px',
-                backgroundColor: 'rgba(13, 148, 136, 0.2)',
-                border: '1px solid rgba(20, 184, 166, 0.35)',
-                color: '#2DD4BF',
+                backgroundColor: 'rgba(0, 229, 255, 0.12)',
+                border: '1px solid rgba(0, 229, 255, 0.4)',
+                color: '#00E5FF',
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 textTransform: 'uppercase',
@@ -441,7 +456,7 @@ export const Home = () => {
                 {currentLang === 'en' ? (
                   <>Empowering Enterprises <br />
                     <span style={{
-                      background: 'linear-gradient(90deg, #2DD4BF 0%, #38BDF8 100%)',
+                      background: 'linear-gradient(90deg, #00E5FF 0%, #38BDF8 60%, #FBBF24 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent'
                     }}>
@@ -449,13 +464,13 @@ export const Home = () => {
                     </span>
                   </>
                 ) : (
-                  <>Kết nối doanh nghiệp <br />
+                  <>Đồng Hành Doanh Nghiệp <br />
                     <span style={{
-                      background: 'linear-gradient(90deg, #2DD4BF 0%, #38BDF8 100%)',
+                      background: 'linear-gradient(90deg, #00E5FF 0%, #38BDF8 60%, #FBBF24 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent'
                     }}>
-                      Đồng hành cùng sự phát triển
+                      Bứt Phá Tăng Trưởng Bền Vững
                     </span>
                   </>
                 )}

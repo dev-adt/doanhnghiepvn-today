@@ -125,10 +125,10 @@ export const Navbar = () => {
           position: sticky !important;
           top: 0 !important;
           z-index: 9999 !important;
-          background: #08101E !important;
-          background-image: linear-gradient(135deg, #070D18 0%, #0D1B2A 50%, #070D18 100%) !important;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
+          background: #051336 !important;
+          background-image: linear-gradient(135deg, #051336 0%, #0A2568 50%, #051336 100%) !important;
+          border-bottom: 1px solid rgba(0, 229, 255, 0.2) !important;
+          box-shadow: 0 4px 24px rgba(5, 19, 54, 0.6), 0 1px 0 rgba(0, 229, 255, 0.15) !important;
           width: 100% !important;
           max-width: 100vw !important;
           overflow-x: clip !important;
@@ -245,10 +245,10 @@ export const Navbar = () => {
           justify-content: center !important;
           color: #ffffff !important;
           font-weight: 900 !important;
-          box-shadow: 0 2px 12px rgba(13, 148, 136, 0.45) !important;
-          border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+          box-shadow: 0 2px 14px rgba(0, 229, 255, 0.4) !important;
+          border: 1.5px solid rgba(0, 229, 255, 0.5) !important;
           flex-shrink: 0 !important;
-          background: #08101E !important;
+          background: #051336 !important;
         }
 
         .dnvn-brand-icon-img {
@@ -395,15 +395,15 @@ export const Navbar = () => {
         }
 
         .dnvn-nav-item-btn:hover {
-          color: #2DD4BF !important;
-          background-color: rgba(255, 255, 255, 0.08) !important;
-          border-color: rgba(45, 212, 191, 0.25) !important;
+          color: #00E5FF !important;
+          background-color: rgba(0, 229, 255, 0.08) !important;
+          border-color: rgba(0, 229, 255, 0.3) !important;
         }
 
         .dnvn-nav-item-btn.active {
-          color: #2DD4BF !important;
-          background-color: rgba(13, 148, 136, 0.22) !important;
-          border-bottom: 2px solid #2DD4BF !important;
+          color: #00E5FF !important;
+          background-color: rgba(15, 82, 186, 0.35) !important;
+          border-bottom: 2px solid #00E5FF !important;
         }
 
         .dnvn-nav-text {
@@ -419,12 +419,12 @@ export const Navbar = () => {
           top: calc(100% + 4px) !important;
           left: 0 !important;
           min-width: 250px !important;
-          background-color: #0D1B2A !important;
-          background-image: linear-gradient(180deg, #0F2033 0%, #0A1420 100%) !important;
-          border: 1px solid rgba(45, 212, 191, 0.4) !important;
+          background-color: #051336 !important;
+          background-image: linear-gradient(180deg, #0A2568 0%, #051336 100%) !important;
+          border: 1px solid rgba(0, 229, 255, 0.35) !important;
           border-radius: 10px !important;
           padding: 8px 0 !important;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85), 0 0 15px rgba(13, 148, 136, 0.2) !important;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 229, 255, 0.2) !important;
           z-index: 999999 !important;
           animation: dnvnFadeIn 0.15s ease-out !important;
         }
@@ -499,7 +499,7 @@ export const Navbar = () => {
             <div className="dnvn-brand-text-box">
               <span className="dnvn-brand-title">
                 {brandConfig.brandShortName || 'DoanhNghiepVN'}
-                <span style={{ color: '#2DD4BF' }}>.today</span>
+                <span style={{ color: '#00E5FF' }}>.today</span>
               </span>
               <span className="dnvn-brand-subtitle">
                 {currentLang === 'en' ? 'VIETNAM ENTERPRISE MAGAZINE' : 'TẠP CHÍ DOANH NGHIỆP VIỆT NAM'}

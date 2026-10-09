@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchWithTimeout } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -8,24 +9,24 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Khôi phục phiên làm việc khi load trang
+  // Khôi phục phiên làm việc khi load trang với timeout 3s
   useEffect(() => {
     const checkAuth = async () => {
-      const adminToken = localStorage.getItem('doson_admin_token');
-      const adminUserStr = localStorage.getItem('doson_admin_user');
-      const organizerToken = localStorage.getItem('doson_organizer_token');
-      const organizerUserStr = localStorage.getItem('doson_organizer_user');
-      const memberToken = localStorage.getItem('doson_member_token');
-      const memberUserStr = localStorage.getItem('doson_member_user');
+      const adminToken = localStorage.getItem('doson_admin_token') || localStorage.getItem('dnvn_admin_token');
+      const adminUserStr = localStorage.getItem('doson_admin_user') || localStorage.getItem('dnvn_admin_user');
+      const organizerToken = localStorage.getItem('doson_organizer_token') || localStorage.getItem('dnvn_organizer_token');
+      const organizerUserStr = localStorage.getItem('doson_organizer_user') || localStorage.getItem('dnvn_organizer_user');
+      const memberToken = localStorage.getItem('doson_member_token') || localStorage.getItem('dnvn_member_token');
+      const memberUserStr = localStorage.getItem('doson_member_user') || localStorage.getItem('dnvn_member_user');
 
-      const creatorToken = localStorage.getItem('doson_creator_token');
-      const creatorUserStr = localStorage.getItem('doson_creator_user');
+      const creatorToken = localStorage.getItem('doson_creator_token') || localStorage.getItem('dnvn_creator_token');
+      const creatorUserStr = localStorage.getItem('doson_creator_user') || localStorage.getItem('dnvn_creator_user');
 
       if (adminToken && adminUserStr) {
         try {
-          const res = await fetch('/api/admin/check-auth', {
+          const res = await fetchWithTimeout('/api/admin/check-auth', {
             headers: { 'Authorization': 'Bearer ' + adminToken }
-          });
+          }, 3000);
           if (res.ok) {
             const data = await res.json();
             if (data.success) {
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }) => {
             }
           }
         } catch (e) {
-          console.error("Admin session verification failed", e);
+          console.warn("Admin session check failed or timed out", e.message);
         }
         localStorage.removeItem('doson_admin_token');
         localStorage.removeItem('doson_admin_user');
@@ -45,9 +46,9 @@ export const AuthProvider = ({ children }) => {
 
       if (organizerToken && organizerUserStr) {
         try {
-          const res = await fetch('/api/organizer/profile', {
+          const res = await fetchWithTimeout('/api/organizer/profile', {
             headers: { 'Authorization': 'Bearer ' + organizerToken }
-          });
+          }, 3000);
           if (res.ok) {
             const data = await res.json();
             if (data.success) {
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }) => {
             }
           }
         } catch (e) {
-          console.error("Organizer session verification failed", e);
+          console.warn("Organizer session check failed or timed out", e.message);
         }
         localStorage.removeItem('doson_organizer_token');
         localStorage.removeItem('doson_organizer_user');
@@ -67,9 +68,9 @@ export const AuthProvider = ({ children }) => {
 
       if (creatorToken && creatorUserStr) {
         try {
-          const res = await fetch('/api/creator/profile', {
+          const res = await fetchWithTimeout('/api/creator/profile', {
             headers: { 'Authorization': 'Bearer ' + creatorToken }
-          });
+          }, 3000);
           if (res.ok) {
             const data = await res.json();
             if (data.success) {
@@ -81,7 +82,7 @@ export const AuthProvider = ({ children }) => {
             }
           }
         } catch (e) {
-          console.error("Creator session verification failed", e);
+          console.warn("Creator session check failed or timed out", e.message);
         }
         localStorage.removeItem('doson_creator_token');
         localStorage.removeItem('doson_creator_user');
@@ -89,9 +90,9 @@ export const AuthProvider = ({ children }) => {
 
       if (memberToken && memberUserStr) {
         try {
-          const res = await fetch('/api/member/check-auth', {
+          const res = await fetchWithTimeout('/api/member/check-auth', {
             headers: { 'Authorization': 'Bearer ' + memberToken }
-          });
+          }, 3000);
           if (res.ok) {
             const data = await res.json();
             if (data.success) {
@@ -103,7 +104,7 @@ export const AuthProvider = ({ children }) => {
             }
           }
         } catch (e) {
-          console.error("Member session verification failed", e);
+          console.warn("Member session check failed or timed out", e.message);
         }
         localStorage.removeItem('doson_member_token');
         localStorage.removeItem('doson_member_user');

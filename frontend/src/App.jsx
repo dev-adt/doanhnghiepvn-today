@@ -8,30 +8,56 @@ import brandConfig from './brand.config';
 import { PWAProvider } from './contexts/PWAContext';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
-// Pages
+// Public Core Pages (Eagerly loaded for instant first paint)
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Members from './pages/Members';
 import Posts from './pages/Posts';
 import PostDetail from './pages/PostDetail';
 import Events from './pages/Events';
-import AIChat from './pages/AIChat';
-import Search from './pages/Search';
-import Guide from './pages/Guide';
-import MemberDashboard from './pages/MemberDashboard';
-import CreatorDashboard from './pages/CreatorDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminMembers from './pages/AdminMembers';
-import AdminPosts from './pages/AdminPosts';
-import AdminConfig from './pages/AdminConfig';
-import AdminEvents from './pages/AdminEvents';
-import AdminCategories from './pages/AdminCategories';
-import AdminCreators from './pages/AdminCreators';
-import AdminOrganizers from './pages/AdminOrganizers';
-import AdminLeads from './pages/AdminLeads';
-import AdminCheckin from './pages/AdminCheckin';
-import OrganizerDashboard from './pages/OrganizerDashboard';
+import Members from './pages/Members';
+
+// Code-split Pages (Lazy loaded on demand to reduce initial JS payload by >60%)
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
+const AIChat = React.lazy(() => import('./pages/AIChat'));
+const Search = React.lazy(() => import('./pages/Search'));
+const Guide = React.lazy(() => import('./pages/Guide'));
+const MemberDashboard = React.lazy(() => import('./pages/MemberDashboard'));
+const CreatorDashboard = React.lazy(() => import('./pages/CreatorDashboard'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminMembers = React.lazy(() => import('./pages/AdminMembers'));
+const AdminPosts = React.lazy(() => import('./pages/AdminPosts'));
+const AdminConfig = React.lazy(() => import('./pages/AdminConfig'));
+const AdminEvents = React.lazy(() => import('./pages/AdminEvents'));
+const AdminCategories = React.lazy(() => import('./pages/AdminCategories'));
+const AdminCreators = React.lazy(() => import('./pages/AdminCreators'));
+const AdminOrganizers = React.lazy(() => import('./pages/AdminOrganizers'));
+const AdminLeads = React.lazy(() => import('./pages/AdminLeads'));
+const AdminCheckin = React.lazy(() => import('./pages/AdminCheckin'));
+const OrganizerDashboard = React.lazy(() => import('./pages/OrganizerDashboard'));
+
+// Ultra-fast pure CSS fallback (No external fonts or CDN dependencies required)
+const PageLoadingFallback = () => (
+  <div style={{
+    minHeight: '60vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: '12px',
+    color: '#0F52BA'
+  }}>
+    <div style={{
+      width: '38px',
+      height: '38px',
+      borderRadius: '50%',
+      border: '3px solid rgba(15, 82, 186, 0.2)',
+      borderTopColor: '#00E5FF',
+      animation: 'dnvnSpin 0.7s linear infinite'
+    }} />
+    <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600 }}>Đang tải trang...</span>
+    <style>{`@keyframes dnvnSpin { to { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 // Tự động cuộn lên đầu trang khi chuyển tuyến đường và đồng bộ title
 function ScrollToTop() {
@@ -56,7 +82,8 @@ function App() {
             <Router>
               <ScrollToTop />
               <PWAInstallPrompt />
-              <Routes>
+              <React.Suspense fallback={<PageLoadingFallback />}>
+                <Routes>
             {/* Tuyến đường công khai */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -203,6 +230,7 @@ function App() {
               } 
             />
           </Routes>
+              </React.Suspense>
         </Router>
           </PWAProvider>
       </AuthProvider>

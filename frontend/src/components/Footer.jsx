@@ -10,12 +10,12 @@ export const Footer = () => {
 
   return (
     <footer style={{
-      backgroundColor: '#111827',
-      backgroundImage: 'linear-gradient(180deg, #0b1320 0%, #060c16 100%)',
+      backgroundColor: '#051336',
+      backgroundImage: 'linear-gradient(180deg, #051336 0%, #030B1E 100%)',
       color: '#94a3b8',
       padding: '3.5rem 0 1.5rem',
       fontSize: '12.5px',
-      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      borderTop: '1px solid rgba(0, 229, 255, 0.2)',
       lineHeight: '1.65'
     }}>
       <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '0 1.5rem' }}>

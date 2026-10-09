@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
 import brandConfig from '../brand.config';
+import { fetchJsonWithTimeout, FALLBACK_EVENTS } from '../utils/api';
 
 export const Events = () => {
   const { id: routeParamId } = useParams();
@@ -111,15 +112,17 @@ export const Events = () => {
     let isMounted = true;
     const fetchEvents = async () => {
       try {
-        const res = await fetch('/api/events');
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data) && isMounted) {
+        const json = await fetchJsonWithTimeout('/api/events', {}, 4500);
+        if (json.success && Array.isArray(json.data) && isMounted) {
+          if (json.data.length > 0) {
             setEventsList(json.data);
+          } else {
+            setEventsList(FALLBACK_EVENTS);
           }
         }
       } catch (e) {
-        console.warn('Lỗi tải danh sách sự kiện:', e);
+        console.warn('Lỗi tải danh sách sự kiện, sử dụng dữ liệu mặc định:', e.message);
+        if (isMounted) setEventsList(FALLBACK_EVENTS);
       } finally {
         if (isMounted) setLoadingList(false);
       }

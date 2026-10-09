@@ -984,6 +984,19 @@ async function runBackgroundMaintenance() {
   } catch (e) {
     // Silent in background
   }
+  try {
+    await db.query(`
+      UPDATE events 
+      SET status = CASE 
+        WHEN (end_date IS NOT NULL AND end_date < NOW()) OR (end_date IS NULL AND event_date < NOW()) THEN 'completed'
+        WHEN event_date <= NOW() AND (end_date IS NULL OR end_date >= NOW()) THEN 'ongoing'
+        ELSE status
+      END
+      WHERE status != 'cancelled'
+    `);
+  } catch (e) {
+    // Silent in background
+  }
 }
 
 // Khởi chạy ngay khi khởi động và lập lịch định kỳ mỗi 30 phút
@@ -1935,7 +1948,6 @@ app.get('/api/health', async (req, res) => {
 // Lấy danh sách hội viên
 app.get('/api/members', async (req, res) => {
   try {
-    await cleanupExpiredTiers();
     const { status, tier, industry, search, limit } = req.query;
 
     // Kiểm tra quyền truy cập nâng cao
@@ -2003,6 +2015,7 @@ app.get('/api/members', async (req, res) => {
       return { ...safe, email: '***@***.***', phone: '09** *** ***', contact_name: '***', contact_pos: '***' };
     });
 
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
     res.json({ success: true, data: safeRows, total: safeRows.length });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -2346,7 +2359,12 @@ app.get('/api/posts', async (req, res) => {
       }
     }
 
-    let sql = `SELECT p.*, COALESCE(c.name, m.name, p.author_name, 'Ban Biên tập DoanhNghiepVN.today') AS company_name, COALESCE(m.tier, 'Standard') AS company_tier
+    const includeBody = req.query.include_body === 'true';
+    const selectCols = includeBody 
+      ? 'p.*'
+      : 'p.id, p.member_id, p.creator_id, p.title, p.slug, p.category, p.sub_category, p.summary, p.image_url, p.author_name, p.author_pos, p.contact_info, p.source_url, p.tags, p.deadline, p.type, p.status, p.is_featured, p.published_at, p.views, p.likes, p.created_at, p.updated_at';
+
+    let sql = `SELECT ${selectCols}, COALESCE(c.name, m.name, p.author_name, 'Ban Biên tập DoanhNghiepVN.today') AS company_name, COALESCE(m.tier, 'Standard') AS company_tier
                FROM posts p 
                LEFT JOIN members m ON p.member_id = m.id 
                LEFT JOIN content_creators c ON p.creator_id = c.id
@@ -2400,6 +2418,7 @@ app.get('/api/posts', async (req, res) => {
       contact_info: p.contact_info ? 'Đăng nhập hội viên để xem thông tin liên hệ' : ''
     }));
 
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
     res.json({ success: true, count: safeRows.length, data: safeRows, total: safeRows.length });
   } catch (err) {
     console.error('Lỗi tải bài viết GET /api/posts:', err.message);
@@ -2467,7 +2486,7 @@ app.get('/api/posts/:id', async (req, res) => {
 
     const [rows] = await db.query(
       `SELECT p.*, 
-              COALESCE(c.name, m.name, 'Ban Biên tập Đồ Sơn Today') AS company_name, 
+              COALESCE(c.name, m.name, 'Ban Biên tập DoanhNghiepVN.today') AS company_name, 
               COALESCE(m.tier, 'Standard') AS company_tier 
        FROM posts p 
        LEFT JOIN members m ON p.member_id = m.id 
@@ -3814,20 +3833,7 @@ app.get('/api/events', async (req, res) => {
       }
     }
 
-    // Tự động cập nhật trạng thái sự kiện dựa trên thời gian thực
-    try {
-      await db.query(`
-        UPDATE events 
-        SET status = CASE 
-          WHEN (end_date IS NOT NULL AND end_date < NOW()) OR (end_date IS NULL AND event_date < NOW()) THEN 'completed'
-          WHEN event_date <= NOW() AND (end_date IS NULL OR end_date >= NOW()) THEN 'ongoing'
-          ELSE status
-        END
-        WHERE status != 'cancelled'
-      `);
-    } catch (e) {
-      console.warn('Lỗi tự động cập nhật trạng thái sự kiện:', e.message);
-    }
+    // Trạng thái sự kiện được tự động cập nhật định kỳ trong hàm nền runBackgroundMaintenance()
 
     let sql = `
       SELECT e.*,
@@ -3881,6 +3887,7 @@ app.get('/api/events', async (req, res) => {
     }
 
     const [rows] = await db.query(sql, params);
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
     res.json({ success: true, data: rows });
   } catch (err) {
     console.error('Lỗi GET /api/events:', err.message);

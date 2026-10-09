@@ -5,7 +5,9 @@ import { useTranslation } from '../contexts/LanguageContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
+import SpotlightBanner from '../components/SpotlightBanner';
 import { CATEGORIES_DATA, ALL_CATEGORIES, getSubcategoriesByCategory, getCategoryLabel, getSubCategoryLabel } from '../constants/categories';
+import { fetchJsonWithTimeout, FALLBACK_POSTS } from '../utils/api';
 
 export const Posts = () => {
   const { role, token } = useAuth();
@@ -36,15 +38,12 @@ export const Posts = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('/api/categories');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-            setCategoriesList(data.data);
-          }
+        const data = await fetchJsonWithTimeout('/api/categories', {}, 3500);
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setCategoriesList(data.data);
         }
       } catch (err) {
-        console.error("Failed to load dynamic categories in Posts page", err);
+        console.warn("Failed to load dynamic categories in Posts page, using default categories", err.message);
       }
     };
     fetchCategories();
@@ -68,18 +67,20 @@ export const Posts = () => {
     let isMounted = true;
     const loadPosts = async () => {
       try {
-        const activeToken = token || localStorage.getItem('doson_creator_token') || localStorage.getItem('doson_member_token') || localStorage.getItem('doson_admin_token');
+        const activeToken = token || localStorage.getItem('doson_creator_token') || localStorage.getItem('doson_member_token') || localStorage.getItem('doson_admin_token') || localStorage.getItem('dnvn_member_token');
         const headers = activeToken ? { 'Authorization': 'Bearer ' + activeToken } : {};
-        const res = await fetch('/api/posts?status=all', { headers });
-        if (!res.ok) throw new Error('Không thể tải danh sách bài viết');
-        const data = await res.json();
+        const data = await fetchJsonWithTimeout('/api/posts?status=all&limit=40', { headers }, 4500);
         if (isMounted) {
-          setPosts(data.data || []);
+          if (data && Array.isArray(data.data) && data.data.length > 0) {
+            setPosts(data.data);
+          } else {
+            setPosts(FALLBACK_POSTS);
+          }
         }
       } catch (err) {
-        console.error(err);
+        console.warn('Load posts fallback:', err.message);
         if (isMounted) {
-          setError(err.message);
+          setPosts(FALLBACK_POSTS);
         }
       } finally {
         if (isMounted) {
@@ -163,6 +164,15 @@ export const Posts = () => {
       />
 
       <Navbar />
+
+      {/* Top Ecosystem Spotlight Banner */}
+      <SpotlightBanner
+        badgeText={currentLang === 'en' ? 'ENTERPRISE ECOSYSTEM • AI & CAPITAL ACCESS' : 'HỆ SINH THÁI DOANH NGHIỆP • CHUYỂN ĐỔI SỐ & TÍN DỤNG'}
+        title={currentLang === 'en' ? 'Ecosystem Connecting Resources to Support Enterprises' : 'Hệ sinh thái kết nối các nguồn lực hỗ trợ doanh nghiệp'}
+        subtitle={currentLang === 'en' ? 'Supporting enterprises in applying technology, improving capital access capacity and sustainable growth.' : 'Hỗ trợ doanh nghiệp ứng dụng công nghệ, tăng khả năng tiếp cận vốn & bứt phá tăng trưởng toàn diện.'}
+        buttonText={currentLang === 'en' ? 'Explore Resources →' : 'Xem chi tiết chuyên đề →'}
+        link="https://doanhnghiepvn.vn/doanh-nghiep/ho-tro-doanh-nghiep-ung-dung-cong-nghe-tang-kha-nang-tiep-can-von/20260911105032450"
+      />
 
       {/* Decorative background gradient blobs */}
       <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(79,70,229,0.06) 0%, rgba(79,70,229,0) 70%)', zIndex: -1, pointerEvents: 'none', borderRadius: '50%' }}></div>
