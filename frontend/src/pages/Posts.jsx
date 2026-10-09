@@ -7,7 +7,7 @@ import Footer from '../components/Footer';
 import SEOHead from '../components/SEOHead';
 import SpotlightBanner from '../components/SpotlightBanner';
 import { CATEGORIES_DATA, ALL_CATEGORIES, getSubcategoriesByCategory, getCategoryLabel, getSubCategoryLabel } from '../constants/categories';
-import { fetchJsonWithTimeout, FALLBACK_POSTS } from '../utils/api';
+import { fetchJsonWithTimeout } from '../utils/api';
 
 export const Posts = () => {
   const { role, token } = useAuth();
@@ -15,8 +15,24 @@ export const Posts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentLang, t } = useTranslation();
 
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Khởi tạo ngay lập tức từ bộ nhớ đệm bài viết thực tế để khách vào xem không bao giờ phải chờ
+  const [posts, setPosts] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_posts');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_posts');
+      if (cached && JSON.parse(cached).length > 0) return false;
+    } catch (e) {}
+    return true;
+  });
   const [error, setError] = useState('');
   
   // Filters state
@@ -38,7 +54,7 @@ export const Posts = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await fetchJsonWithTimeout('/api/categories', {}, 3500);
+        const data = await fetchJsonWithTimeout('/api/categories', {}, 5000);
         if (data.success && Array.isArray(data.data) && data.data.length > 0) {
           setCategoriesList(data.data);
         }
@@ -69,19 +85,17 @@ export const Posts = () => {
       try {
         const activeToken = token || localStorage.getItem('doson_creator_token') || localStorage.getItem('doson_member_token') || localStorage.getItem('doson_admin_token') || localStorage.getItem('dnvn_member_token');
         const headers = activeToken ? { 'Authorization': 'Bearer ' + activeToken } : {};
-        const data = await fetchJsonWithTimeout('/api/posts?status=all&limit=40', { headers }, 4500);
+        const data = await fetchJsonWithTimeout('/api/posts?status=all&limit=40', { headers }, 10000);
         if (isMounted) {
-          if (data && Array.isArray(data.data) && data.data.length > 0) {
+          if (data && Array.isArray(data.data)) {
             setPosts(data.data);
-          } else {
-            setPosts(FALLBACK_POSTS);
+            try {
+              localStorage.setItem('dnvn_cached_posts', JSON.stringify(data.data));
+            } catch (e) {}
           }
         }
       } catch (err) {
-        console.warn('Load posts fallback:', err.message);
-        if (isMounted) {
-          setPosts(FALLBACK_POSTS);
-        }
+        console.warn('Lỗi tải danh sách bài viết từ máy chủ:', err.message);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -468,7 +482,7 @@ export const Posts = () => {
                     
                     {/* Cover image left */}
                     <div style={{ width: '130px', height: '100px', borderRadius: '10px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border)' }}>
-                      <img src={pImg} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={pImg} alt={p.title} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
 
                     {/* Content center */}

@@ -3,7 +3,7 @@
  * Prevents endless loading spinners when backend/network is slow or recovering.
  */
 
-export const DEFAULT_TIMEOUT_MS = 6000;
+export const DEFAULT_TIMEOUT_MS = 10000;
 
 export async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
   const controller = new AbortController();

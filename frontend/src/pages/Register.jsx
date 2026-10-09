@@ -576,11 +576,15 @@ export const Register = () => {
                             padding: '12px',
                             cursor: 'pointer',
                             textAlign: 'center',
-                            backgroundColor: formData.tier === 'Silver' ? 'rgba(30,136,229,0.03)' : '#fff'
+                            backgroundColor: formData.tier === 'Silver' ? 'rgba(30,136,229,0.04)' : '#fff',
+                            position: 'relative'
                           }}
                         >
+                          <span style={{ position: 'absolute', top: '-8px', right: '8px', fontSize: '9px', background: '#10B981', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                            TỰ ĐỘNG DUYỆT
+                          </span>
                           <div style={{ fontWeight: '700', fontSize: '13px', color: '#0F172A' }}>🪙 {t('tier_silver')}</div>
-                          <div style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>{t('price_free')}</div>
+                          <div style={{ fontSize: '11px', color: '#16A34A', fontWeight: 600, marginTop: '4px' }}>{t('price_free')} · Kích hoạt ngay</div>
                         </div>
 
                         <div 
@@ -639,9 +643,13 @@ export const Register = () => {
               <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 1.5rem' }}>
                 <i className="ti ti-circle-check"></i>
               </div>
-              <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '22px', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>{t('register_success_title')}</h2>
-              <p style={{ fontSize: '13.5px', color: '#64748B', lineHeight: '1.6', maxWidth: '440px', margin: '0 auto 1.5rem' }}>
-                {t('register_success_desc')(formData.name, formData.email)}
+              <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '22px', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>
+                {formData.tier === 'Silver' ? 'Kích hoạt tài khoản thành công!' : t('register_success_title')}
+              </h2>
+              <p style={{ fontSize: '13.5px', color: '#64748B', lineHeight: '1.6', maxWidth: '460px', margin: '0 auto 1.5rem' }}>
+                {formData.tier === 'Silver'
+                  ? `Tài khoản Hội viên Bạc (Miễn phí) của doanh nghiệp ${formData.name} đã được HỆ THỐNG TỰ ĐỘNG XÉT DUYỆT VÀ KÍCH HOẠT THÀNH CÔNG! Bạn có thể đăng nhập ngay bây giờ để bắt đầu kết nối giao thương.`
+                  : t('register_success_desc')(formData.name, formData.email || formData.phone)}
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
                 <Link to="/" className="btn" style={{ textDecoration: 'none' }}>{t('btn_back_home')}</Link>

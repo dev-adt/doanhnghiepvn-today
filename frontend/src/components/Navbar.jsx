@@ -4,14 +4,24 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../contexts/LanguageContext';
 import { usePWA } from '../contexts/PWAContext';
 import brandConfig from '../brand.config';
-import { getCategoryLabel, getSubCategoryLabel } from '../constants/categories';
+import { getCategoryLabel, getSubCategoryLabel, CATEGORIES_DATA } from '../constants/categories';
 
 export const Navbar = () => {
   const { role, user, logout } = useAuth();
   const { currentLang, changeLang, t } = useTranslation();
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [categoriesList, setCategoriesList] = useState([]);
+  // Khởi tạo ngay lập tức từ bộ nhớ đệm hoặc CATEGORIES_DATA chuẩn để Header luôn hiện 0ms không bao giờ bị trắng
+  const [categoriesList, setCategoriesList] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_categories');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return CATEGORIES_DATA;
+  });
   const [activeDropdownId, setActiveDropdownId] = useState(null);
   const [mobileExpandedCatId, setMobileExpandedCatId] = useState(null);
   const dropdownTimeoutRef = useRef(null);
@@ -19,7 +29,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load dynamic categories & subcategories from Backend / Database (Quản lý chuyên mục trong Admin)
+  // Đồng bộ động Chuyên mục & Lĩnh vực từ Backend / Database ngầm trong nền (SWR Pattern)
   useEffect(() => {
     let isMounted = true;
     const fetchCategories = async () => {
@@ -27,10 +37,13 @@ export const Navbar = () => {
         const res = await fetch('/api/categories');
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && isMounted) {
+          if (json.success && Array.isArray(json.data) && isMounted && json.data.length > 0) {
             // Sắp xếp theo order_index tăng dần do admin thiết lập
             const sorted = [...json.data].sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
             setCategoriesList(sorted);
+            try {
+              localStorage.setItem('dnvn_cached_categories', JSON.stringify(sorted));
+            } catch (e) {}
           }
         }
       } catch (err) {

@@ -2117,21 +2117,29 @@ app.post('/api/members', async (req, res) => {
       hash = await bcrypt.hash(password, 10);
     }
 
+    const memberTier = tier || 'Silver';
+    const initialStatus = (memberTier === 'Silver') ? 'approved' : 'pending';
+
     const [result] = await db.query(
       `INSERT INTO members (name, tax_code, license, industry, size, address, city, website, social,
         description, tier, status, contact_name, contact_pos, email, username, password_hash, phone, goal, referral)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?,?)`,
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [name, tax_code, license, industry, size, address, city || null, website, social,
-       description, tier || 'Silver', contact_name, contact_pos, cleanEmail, loginCredential, hash, cleanPhone, goal, referral]
+       description, memberTier, initialStatus, contact_name, contact_pos, cleanEmail, loginCredential, hash, cleanPhone, goal, referral]
     );
 
     // Gửi email thông báo đăng ký (nếu có nhập email)
     if (transporter && cleanEmail) {
+      const isAutoApproved = initialStatus === 'approved';
+      const statusText = isAutoApproved
+        ? '<p style="color: #16a34a; font-weight: bold;">Tài khoản Hội viên Bạc (Miễn phí) của bạn đã được HỆ THỐNG TỰ ĐỘNG XÉT DUYỆT VÀ KÍCH HOẠT THÀNH CÔNG!</p><p>Bạn có thể đăng nhập ngay bây giờ để tham gia kết nối giao thương và khám phá các tiện ích trên nền tảng.</p>'
+        : '<p>Hồ sơ đăng ký của bạn hiện đang ở trạng thái <strong>Chờ duyệt (Pending)</strong>. Ban quản trị sẽ nhanh chóng kiểm tra thông tin và phê duyệt tài khoản của bạn trong thời gian sớm nhất.</p><p>Khi hồ sơ được phê duyệt, bạn sẽ nhận được thông báo tiếp theo và có thể đăng nhập để sử dụng đầy đủ các tính năng.</p>';
+
       const mailOptions = {
         from: brandConfig.email.fromAddress,
         to: cleanEmail,
         bcc: process.env.SMTP_BCC || undefined,
-        subject: `[${brandConfig.brandShortName}] Đăng ký tài khoản thành công`,
+        subject: `[${brandConfig.brandShortName}] ${isAutoApproved ? 'Kích hoạt tài khoản thành công' : 'Đăng ký tài khoản thành công - Chờ duyệt'}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
             <h2 style="color: #1E88E5; border-bottom: 2px solid #1E88E5; padding-bottom: 10px;">Gia nhập Hệ sinh thái ${brandConfig.brandName} thành công!</h2>
@@ -2150,12 +2158,11 @@ app.post('/api/members', async (req, res) => {
                 </tr>
                 <tr>
                   <td style="padding: 4px 0; color: #666;"><strong>Gói hội viên:</strong></td>
-                  <td style="padding: 4px 0; color: #333;">${tier || 'Silver'}</td>
+                  <td style="padding: 4px 0; color: #333;">${memberTier} ${memberTier === 'Silver' ? '(Miễn phí - Đã kích hoạt)' : '(Chờ duyệt)'}</td>
                 </tr>
               </table>
             </div>
-            <p>Hồ sơ đăng ký của bạn hiện đang ở trạng thái <strong>Chờ duyệt (Pending)</strong>. Ban quản trị sẽ nhanh chóng kiểm tra thông tin và phê duyệt tài khoản của bạn trong thời gian sớm nhất.</p>
-            <p>Khi hồ sơ được phê duyệt, bạn sẽ nhận được thông báo tiếp theo và có thể đăng nhập để sử dụng đầy đủ các tính năng giao thương và trợ lý AI.</p>
+            ${statusText}
             <p style="margin-top: 30px; border-top: 1px solid #e0e0e0; padding-top: 15px; font-size: 12px; color: #999;">Đây là email tự động từ hệ thống ${brandConfig.brandName}. Vui lòng không trả lời thư này.</p>
           </div>
         `
@@ -2169,7 +2176,11 @@ app.post('/api/members', async (req, res) => {
       });
     }
 
-    res.json({ success: true, id: result.insertId, message: 'Đăng ký thành công! Chờ admin xét duyệt.' });
+    const successMessage = initialStatus === 'approved'
+      ? 'Đăng ký thành viên Bạc thành công! Tài khoản của bạn đã được kích hoạt tự động, bạn có thể đăng nhập ngay bây giờ.'
+      : `Đăng ký thành viên ${memberTier} thành công! Ban quản trị sẽ nhanh chóng liên hệ và xét duyệt tài khoản.`;
+
+    res.json({ success: true, id: result.insertId, status: initialStatus, tier: memberTier, message: successMessage });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -3087,10 +3098,23 @@ app.delete('/api/admin/posts/:id', authMiddleware, async (req, res) => {
 // ════════════════════════════════════════════
 // CATEGORIES & SUB-CATEGORIES API
 // ════════════════════════════════════════════
+let cachedCategoriesData = null;
+let cachedCategoriesTime = 0;
+const invalidateCategoriesCache = () => {
+  cachedCategoriesData = null;
+  cachedCategoriesTime = 0;
+};
 
-// Public API: Lấy danh sách Chuyên mục & Lĩnh vực đang hoạt động (active)
+// Public API: Lấy danh sách Chuyên mục & Lĩnh vực đang hoạt động (active, bộ nhớ đệm siêu tốc)
 app.get('/api/categories', async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
+    
+    // Trả về từ cache bộ nhớ đệm nếu chưa quá 3 phút (giảm tải 100% DB query cho header)
+    if (cachedCategoriesData && (Date.now() - cachedCategoriesTime < 180000)) {
+      return res.json({ success: true, data: cachedCategoriesData, cached: true });
+    }
+
     const [categories] = await db.query(
       "SELECT * FROM categories WHERE status = 'active' ORDER BY order_index ASC, id ASC"
     );
@@ -3113,6 +3137,9 @@ app.get('/api/categories', async (req, res) => {
         sub_objects: subs
       };
     });
+
+    cachedCategoriesData = data;
+    cachedCategoriesTime = Date.now();
 
     res.json({ success: true, data });
   } catch (err) {
@@ -3156,6 +3183,7 @@ app.post('/api/admin/categories', authMiddleware, async (req, res) => {
       [name.trim(), name_en ? name_en.trim() : null, slug, parseInt(order_index) || 0, status === 'inactive' ? 'inactive' : 'active']
     );
 
+    invalidateCategoriesCache();
     res.json({ success: true, id: result.insertId, message: 'Thêm Chuyên mục thành công.' });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
@@ -3179,6 +3207,7 @@ app.put('/api/admin/categories/:id', authMiddleware, async (req, res) => {
       [name.trim(), name_en ? name_en.trim() : null, slug, parseInt(order_index) || 0, status === 'inactive' ? 'inactive' : 'active', req.params.id]
     );
 
+    invalidateCategoriesCache();
     res.json({ success: true, message: 'Cập nhật Chuyên mục thành công.' });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
@@ -3194,6 +3223,7 @@ app.patch('/api/admin/categories/:id/status', authMiddleware, async (req, res) =
     const { status } = req.body;
     const newStatus = status === 'inactive' ? 'inactive' : 'active';
     await db.query('UPDATE categories SET status = ? WHERE id = ?', [newStatus, req.params.id]);
+    invalidateCategoriesCache();
     res.json({ success: true, message: `Đã ${newStatus === 'active' ? 'kích hoạt' : 'tạm khóa'} Chuyên mục.` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -3204,6 +3234,7 @@ app.patch('/api/admin/categories/:id/status', authMiddleware, async (req, res) =
 app.delete('/api/admin/categories/:id', authMiddleware, async (req, res) => {
   try {
     await db.query('DELETE FROM categories WHERE id = ?', [req.params.id]);
+    invalidateCategoriesCache();
     res.json({ success: true, message: 'Đã xóa Chuyên mục.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -3227,6 +3258,7 @@ app.post('/api/admin/sub-categories', authMiddleware, async (req, res) => {
       [category_id, name.trim(), name_en ? name_en.trim() : null, slug, parseInt(order_index) || 0, status === 'inactive' ? 'inactive' : 'active']
     );
 
+    invalidateCategoriesCache();
     res.json({ success: true, id: result.insertId, message: 'Thêm Lĩnh vực con thành công.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -3247,6 +3279,7 @@ app.put('/api/admin/sub-categories/:id', authMiddleware, async (req, res) => {
       [name.trim(), name_en ? name_en.trim() : null, slug, parseInt(order_index) || 0, status === 'inactive' ? 'inactive' : 'active', req.params.id]
     );
 
+    invalidateCategoriesCache();
     res.json({ success: true, message: 'Cập nhật Lĩnh vực con thành công.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -3259,6 +3292,7 @@ app.patch('/api/admin/sub-categories/:id/status', authMiddleware, async (req, re
     const { status } = req.body;
     const newStatus = status === 'inactive' ? 'inactive' : 'active';
     await db.query('UPDATE sub_categories SET status = ? WHERE id = ?', [newStatus, req.params.id]);
+    invalidateCategoriesCache();
     res.json({ success: true, message: `Đã ${newStatus === 'active' ? 'kích hoạt' : 'tạm khóa'} Lĩnh vực con.` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -3269,6 +3303,7 @@ app.patch('/api/admin/sub-categories/:id/status', authMiddleware, async (req, re
 app.delete('/api/admin/sub-categories/:id', authMiddleware, async (req, res) => {
   try {
     await db.query('DELETE FROM sub_categories WHERE id = ?', [req.params.id]);
+    invalidateCategoriesCache();
     res.json({ success: true, message: 'Đã xóa Lĩnh vực con.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -4191,7 +4226,7 @@ app.post('/api/events/:id/register', async (req, res) => {
           `INSERT INTO members (name, tax_code, license, industry, size, address, city, website, social,
             description, tier, status, contact_name, contact_pos, email, username, password_hash, phone, goal, referral)
            VALUES (?, 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', 'Cần bổ sung', NULL, NULL,
-            'Tài khoản đăng ký qua vé sự kiện', 'Silver', 'pending', ?, 'Cần bổ sung', ?, ?, ?, ?, 'Theo dõi vé sự kiện và kết nối', 'Đăng ký vé sự kiện')`,
+            'Tài khoản đăng ký qua vé sự kiện', 'Silver', 'approved', ?, 'Cần bổ sung', ?, ?, ?, ?, 'Theo dõi vé sự kiện và kết nối', 'Đăng ký vé sự kiện')`,
           [
             orgName,
             full_name.trim(),
@@ -4203,7 +4238,7 @@ app.post('/api/events/:id/register', async (req, res) => {
         );
         createdMemberId = insertMem.insertId;
         accountCreated = true;
-        accountMsg = 'Đã tạo tài khoản thành viên (hồ sơ đang ở trạng thái Chờ duyệt bởi Ban quản trị).';
+        accountMsg = 'Đã tự động tạo và kích hoạt tài khoản thành viên Bạc (Miễn phí) cho bạn. Bạn có thể đăng nhập ngay!';
       }
     }
 

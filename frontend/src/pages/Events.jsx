@@ -173,17 +173,19 @@ export const Events = () => {
     let isMounted = true;
     const fetchEvents = async () => {
       try {
-        const json = await fetchJsonWithTimeout('/api/events', {}, 4500);
+        const json = await fetchJsonWithTimeout('/api/events', {}, 8000);
         if (json.success && Array.isArray(json.data) && isMounted) {
           if (json.data.length > 0) {
             setEventsList(json.data);
+            try {
+              localStorage.setItem('dnvn_cached_events', JSON.stringify(json.data));
+            } catch (e) {}
           } else {
             setEventsList(FALLBACK_EVENTS);
           }
         }
       } catch (e) {
-        console.warn('Lỗi tải danh sách sự kiện, sử dụng dữ liệu mặc định:', e.message);
-        if (isMounted) setEventsList(FALLBACK_EVENTS);
+        console.warn('Lỗi tải danh sách sự kiện:', e.message);
       } finally {
         if (isMounted) setLoadingList(false);
       }
@@ -192,10 +194,10 @@ export const Events = () => {
     return () => { isMounted = false; };
   }, []);
 
-  // 2. Tải chi tiết sự kiện
+  // 2. Tải chi tiết sự kiện (chỉ re-trigger khi routeParamId thực sự thay đổi)
   useEffect(() => {
     let isMounted = true;
-    const targetIdOrSlug = routeParamId || (eventsList.length > 0 && !routeParamId && location.pathname.includes('/su-kien/') ? 'su-kien-demo' : null);
+    const targetIdOrSlug = routeParamId;
 
     if (targetIdOrSlug) {
       setLoadingDetail(true);
@@ -219,7 +221,7 @@ export const Events = () => {
       setCurrentEvent(null);
     }
     return () => { isMounted = false; };
-  }, [routeParamId, eventsList]);
+  }, [routeParamId]);
 
   // 3. Hiệu ứng Countdown Timer thời gian thực (Image 1: [28 NGÀY] [05 GIỜ] [57 PHÚT] [51 GIÂY])
   useEffect(() => {

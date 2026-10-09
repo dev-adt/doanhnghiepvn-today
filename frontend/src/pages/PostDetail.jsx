@@ -418,27 +418,87 @@ export const PostDetail = () => {
 
             {/* Main Content Body */}
             <div className="glass-card" style={{ padding: '36px 32px' }}>
-              <div 
-                className="post-html-body"
-                dangerouslySetInnerHTML={{ 
-                  __html: (() => {
-                    let raw = isTranslated ? translatedBody : post.body;
-                    if (!raw) return '';
-                    if (raw.includes('&lt;iframe') || raw.includes('&lt;div')) {
-                      const txt = document.createElement('textarea');
-                      txt.innerHTML = raw;
-                      raw = txt.value;
-                    }
-                    return raw;
-                  })()
-                }}
-                style={{
-                  fontSize: '16px',
-                  color: 'var(--text-secondary)',
-                  lineHeight: '1.8',
-                  textAlign: 'left',
-                }}
-              />
+              {/* Đoạn mở đầu tóm tắt bài viết */}
+              {post.summary && (
+                <div style={{ fontSize: '16px', color: 'var(--text-primary)', lineHeight: '1.7', fontWeight: 500, marginBottom: '24px', paddingBottom: '18px', borderBottom: '1px dashed var(--border)' }}>
+                  {isTranslated ? (translatedSummary || post.summary) : post.summary}
+                </div>
+              )}
+
+              {/* Kiểm tra phân quyền: Khách chưa đăng nhập bị khoá chi tiết nội dung */}
+              {isGuest ? (
+                <div style={{
+                  position: 'relative',
+                  padding: '3rem 2rem',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(2, 132, 199, 0.08) 100%)',
+                  borderRadius: '16px',
+                  border: '1.5px dashed rgba(2, 132, 199, 0.4)',
+                  textAlign: 'center',
+                  marginTop: '1rem'
+                }}>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #0F52BA, #00A699)',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px',
+                    fontSize: '28px',
+                    boxShadow: '0 8px 24px rgba(15, 82, 186, 0.3)'
+                  }}>
+                    <i className="ti ti-lock"></i>
+                  </div>
+                  <h3 style={{ fontSize: '19px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                    {currentLang === 'en' ? 'Full Article & Contact Info Locked' : 'Nội dung chi tiết chỉ dành riêng cho Hội viên'}
+                  </h3>
+                  <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+                    {currentLang === 'en'
+                      ? 'Please log in or register for a free Silver Membership (instant approval) to read full articles, view partner attachments, and connect directly.'
+                      : 'Để xem toàn bộ nội dung bài viết, hồ sơ doanh nghiệp chi tiết và liên hệ hợp tác trực tiếp, vui lòng Đăng nhập hoặc Đăng ký thành viên Bạc (hoàn toàn miễn phí, tự động kích hoạt ngay lập tức).'}
+                  </p>
+                  <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <Link 
+                      to={`/login?redirect=/posts/${post.slug || post.id}`} 
+                      className="btn btn-primary" 
+                      style={{ padding: '10px 24px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <i className="ti ti-login"></i> {t('login_now')}
+                    </Link>
+                    <Link 
+                      to="/register" 
+                      className="btn" 
+                      style={{ padding: '10px 24px', fontSize: '13px', fontWeight: 700, backgroundColor: 'rgba(2, 132, 199, 0.1)', borderColor: 'var(--border-strong)', color: 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <i className="ti ti-user-plus"></i> {currentLang === 'en' ? 'Register Free Silver' : 'Đăng ký thành viên Bạc (Miễn phí)'}
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className="post-html-body"
+                  dangerouslySetInnerHTML={{ 
+                    __html: (() => {
+                      let raw = isTranslated ? translatedBody : post.body;
+                      if (!raw) return '';
+                      if (raw.includes('&lt;iframe') || raw.includes('&lt;div')) {
+                        const txt = document.createElement('textarea');
+                        txt.innerHTML = raw;
+                        raw = txt.value;
+                      }
+                      return raw;
+                    })()
+                  }}
+                  style={{
+                    fontSize: '16px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: '1.8',
+                    textAlign: 'left',
+                  }}
+                />
+              )}
               <style>{`
                 .post-html-body iframe {
                   width: 100% !important;

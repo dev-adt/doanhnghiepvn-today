@@ -32,17 +32,62 @@ export const Home = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
-  // Dynamic Live Posts
-  const [latestPosts, setLatestPosts] = useState([]);
-  const [loadingPosts, setLoadingPosts] = useState(true);
+  // Dynamic Live Posts (khởi tạo từ cache để hiển thị ngay lập tức)
+  const [latestPosts, setLatestPosts] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_home_posts');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [loadingPosts, setLoadingPosts] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_home_posts');
+      if (cached && JSON.parse(cached).length > 0) return false;
+    } catch (e) {}
+    return true;
+  });
 
-  // Dynamic Live Events
-  const [eventsList, setEventsList] = useState([]);
-  const [loadingEvents, setLoadingEvents] = useState(true);
+  // Dynamic Live Events (khởi tạo từ cache)
+  const [eventsList, setEventsList] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_home_events');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [loadingEvents, setLoadingEvents] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_home_events');
+      if (cached && JSON.parse(cached).length > 0) return false;
+    } catch (e) {}
+    return true;
+  });
 
-  // Dynamic Live Members
-  const [featuredMembers, setFeaturedMembers] = useState([]);
-  const [loadingMembers, setLoadingMembers] = useState(true);
+  // Dynamic Live Members (khởi tạo từ cache)
+  const [featuredMembers, setFeaturedMembers] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_home_members');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [loadingMembers, setLoadingMembers] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dnvn_cached_home_members');
+      if (cached && JSON.parse(cached).length > 0) return false;
+    } catch (e) {}
+    return true;
+  });
 
   // Live countdown timer for featured event
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -51,39 +96,37 @@ export const Home = () => {
     let isMounted = true;
     const fetchHomeData = async () => {
       try {
-        // Tải dữ liệu song song (Promise.allSettled) với timeout 4s để chống nghẽn loading
+        // Tải dữ liệu song song (Promise.allSettled) với timeout 8s
         const [postsRes, eventsRes, membersRes] = await Promise.allSettled([
-          fetchJsonWithTimeout('/api/posts?limit=6', {}, 4000),
-          fetchJsonWithTimeout('/api/events?limit=4', {}, 4000),
-          fetchJsonWithTimeout('/api/members?limit=3', {}, 4000)
+          fetchJsonWithTimeout('/api/posts?limit=6', {}, 8000),
+          fetchJsonWithTimeout('/api/events?limit=4', {}, 8000),
+          fetchJsonWithTimeout('/api/members?limit=3', {}, 8000)
         ]);
 
         if (isMounted) {
           if (postsRes.status === 'fulfilled' && postsRes.value?.success && Array.isArray(postsRes.value.data) && postsRes.value.data.length > 0) {
             setLatestPosts(postsRes.value.data);
-          } else {
-            setLatestPosts(FALLBACK_POSTS);
+            try {
+              localStorage.setItem('dnvn_cached_home_posts', JSON.stringify(postsRes.value.data));
+            } catch (e) {}
           }
 
           if (eventsRes.status === 'fulfilled' && eventsRes.value?.success && Array.isArray(eventsRes.value.data) && eventsRes.value.data.length > 0) {
             setEventsList(eventsRes.value.data);
-          } else {
-            setEventsList(FALLBACK_EVENTS);
+            try {
+              localStorage.setItem('dnvn_cached_home_events', JSON.stringify(eventsRes.value.data));
+            } catch (e) {}
           }
 
           if (membersRes.status === 'fulfilled' && membersRes.value?.success && Array.isArray(membersRes.value.data) && membersRes.value.data.length > 0) {
             setFeaturedMembers(membersRes.value.data);
-          } else {
-            setFeaturedMembers(FALLBACK_MEMBERS);
+            try {
+              localStorage.setItem('dnvn_cached_home_members', JSON.stringify(membersRes.value.data));
+            } catch (e) {}
           }
         }
       } catch (e) {
-        console.warn('Could not fetch homepage data, using resilient fallbacks:', e);
-        if (isMounted) {
-          setLatestPosts(FALLBACK_POSTS);
-          setEventsList(FALLBACK_EVENTS);
-          setFeaturedMembers(FALLBACK_MEMBERS);
-        }
+        console.warn('Lỗi tải dữ liệu trang chủ ngầm:', e);
       } finally {
         if (isMounted) {
           setLoadingPosts(false);
